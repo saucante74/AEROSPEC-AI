@@ -4,7 +4,6 @@ from openai import OpenAI
 
 from .retrieval import SearchResult
 
-
 DEFAULT_LLM_MODEL = "gpt-5.4-mini"
 ABSTENTION_MESSAGE = (
     "L'information n'est pas disponible dans les documents fournis."

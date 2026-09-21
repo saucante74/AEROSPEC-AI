@@ -4,7 +4,6 @@ from pathlib import Path
 
 from backend.app.retrieval import build_retrieval_index, search_retrieval
 
-
 DEFAULT_TOP_K = 3
 
 

@@ -2,10 +2,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from langchain_chroma import Chroma
-
 from .generation import TextGenerator, generate_answer
-from .retrieval import search_retrieval
+from .retrieval import SimilaritySearchStore, search_retrieval
 
 
 @dataclass(frozen=True)
@@ -48,7 +46,7 @@ def _validate_citations(answer: str, passage_count: int) -> CitationValidation:
 
 
 def answer_question(
-    vector_store: Chroma,
+    vector_store: SimilaritySearchStore,
     question: str,
     top_k: int,
     llm: TextGenerator,

@@ -10,7 +10,6 @@ from backend.app.retrieval import (
     search_retrieval,
 )
 
-
 DEFAULT_CHARACTERS_TO_DISPLAY = 600
 
 
