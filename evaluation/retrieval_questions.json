@@ -1,0 +1,30 @@
+[
+  {
+    "question": "Which connector has 100G shock resistance and carries up to 3.3A per contact?",
+    "expected_source": "HARWIN_connector_datasheet.pdf"
+  },
+  {
+    "question": "Which miniature connector uses a 2.00 mm pitch and operates from -55°C to +125°C?",
+    "expected_source": "HARWIN_connector_datasheet.pdf"
+  },
+  {
+    "question": "Which RF connector interface supports 110 GHz and uses a 1.00 mm standard?",
+    "expected_source": "SAMTEC_connector_datasheet.pdf"
+  },
+  {
+    "question": "Which connector catalog lists .093 standard pin connectors in nylon Series 03-09?",
+    "expected_source": "MOLEX_connector_datasheet.pdf"
+  },
+  {
+    "question": "What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?",
+    "expected_source": "MIL_connector_datasheet.pdf"
+  },
+  {
+    "question": "Which PCB circular connectors support operating voltage up to 900 VAC at sea level?",
+    "expected_source": "AMPHENOL_connector_datasheet.pdf"
+  },
+  {
+    "question": "Which RF adaptors maintain signal contact under high axial misalignment?",
+    "expected_source": "SAMTEC_connector_datasheet.pdf"
+  }
+]
