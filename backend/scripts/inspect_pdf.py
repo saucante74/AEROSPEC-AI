@@ -16,9 +16,13 @@ EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Inspecte la recherche sémantique dans les chunks d'un PDF."
+        description="Inspecte la recherche sémantique dans un corpus de PDF."
     )
-    parser.add_argument("pdf_path", type=Path, help="Chemin du PDF à inspecter")
+    parser.add_argument(
+        "pdf_directory",
+        type=Path,
+        help="Répertoire contenant les PDF à indexer",
+    )
     parser.add_argument("question", help="Question utilisée pour la recherche sémantique")
     parser.add_argument(
         "--chunk-size",
@@ -53,8 +57,8 @@ def parse_arguments() -> argparse.Namespace:
 def main() -> None:
     arguments = parse_arguments()
 
-    if not arguments.pdf_path.is_file():
-        raise SystemExit(f"PDF introuvable : {arguments.pdf_path}")
+    if not arguments.pdf_directory.is_dir():
+        raise SystemExit(f"Répertoire introuvable : {arguments.pdf_directory}")
     if arguments.chunk_size < 1:
         raise SystemExit("--chunk-size doit être supérieur ou égal à 1")
     if arguments.chunk_overlap < 0:
@@ -66,7 +70,14 @@ def main() -> None:
     if arguments.characters < 1:
         raise SystemExit("--characters doit être supérieur ou égal à 1")
 
-    documents = PyPDFLoader(str(arguments.pdf_path)).load()
+    pdf_paths = sorted(arguments.pdf_directory.glob("*.pdf"))
+    if not pdf_paths:
+        raise SystemExit(f"Aucun PDF trouvé dans : {arguments.pdf_directory}")
+
+    documents = []
+    for pdf_path in pdf_paths:
+        documents.extend(PyPDFLoader(str(pdf_path)).load())
+
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=arguments.chunk_size,
         chunk_overlap=arguments.chunk_overlap,
@@ -88,11 +99,12 @@ def main() -> None:
         k=arguments.top_k,
     )
 
-    print(f"PDF : {arguments.pdf_path}")
+    print(f"Répertoire : {arguments.pdf_directory}")
+    print(f"Nombre de PDF chargés : {len(pdf_paths)}")
     print(f"Modèle d'embeddings : {EMBEDDING_MODEL}")
     print(f"Chunk size : {arguments.chunk_size}")
     print(f"Chunk overlap : {arguments.chunk_overlap}")
-    print(f"Nombre de Documents avant chunking : {len(documents)}")
+    print(f"Nombre total de Documents/pages : {len(documents)}")
     print(f"Nombre de chunks indexés : {len(chunks)}")
     print(f"Question : {arguments.question}")
     print(f"Top-k : {arguments.top_k}")
