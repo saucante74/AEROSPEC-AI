@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -12,6 +13,10 @@ DEFAULT_CHUNK_SIZE = 1_000
 DEFAULT_CHUNK_OVERLAP = 200
 DEFAULT_TOP_K = 3
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_MODEL_REVISION = os.getenv(
+    "EMBEDDING_MODEL_REVISION",
+    "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+)
 
 
 @dataclass(frozen=True)
@@ -51,7 +56,10 @@ def build_retrieval_index(
     chunks = text_splitter.split_documents(documents)
     embeddings = HuggingFaceEmbeddings(
         model_name=EMBEDDING_MODEL,
-        model_kwargs={"device": "cpu"},
+        model_kwargs={
+            "device": "cpu",
+            "revision": EMBEDDING_MODEL_REVISION,
+        },
         encode_kwargs={"normalize_embeddings": True},
     )
     vector_store = Chroma.from_documents(
