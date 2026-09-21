@@ -14,6 +14,38 @@ DEFAULT_CHARACTERS_TO_DISPLAY = 600
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 
+def build_retrieval_index(
+    pdf_directory: Path,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+) -> tuple[Chroma, int, int, int]:
+    pdf_paths = sorted(pdf_directory.glob("*.pdf"))
+    if not pdf_paths:
+        raise ValueError(f"Aucun PDF trouvé dans : {pdf_directory}")
+
+    documents = []
+    for pdf_path in pdf_paths:
+        documents.extend(PyPDFLoader(str(pdf_path)).load())
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
+    chunks = text_splitter.split_documents(documents)
+    embeddings = HuggingFaceEmbeddings(
+        model_name=EMBEDDING_MODEL,
+        model_kwargs={"device": "cpu"},
+        encode_kwargs={"normalize_embeddings": True},
+    )
+    vector_store = Chroma.from_documents(
+        documents=chunks,
+        embedding=embeddings,
+        collection_name="aerospec_retrieval_experiment",
+        collection_metadata={"hnsw:space": "cosine"},
+    )
+    return vector_store, len(pdf_paths), len(documents), len(chunks)
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Inspecte la recherche sémantique dans un corpus de PDF."
@@ -70,42 +102,27 @@ def main() -> None:
     if arguments.characters < 1:
         raise SystemExit("--characters doit être supérieur ou égal à 1")
 
-    pdf_paths = sorted(arguments.pdf_directory.glob("*.pdf"))
-    if not pdf_paths:
-        raise SystemExit(f"Aucun PDF trouvé dans : {arguments.pdf_directory}")
+    try:
+        vector_store, pdf_count, document_count, chunk_count = build_retrieval_index(
+            arguments.pdf_directory,
+            chunk_size=arguments.chunk_size,
+            chunk_overlap=arguments.chunk_overlap,
+        )
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
 
-    documents = []
-    for pdf_path in pdf_paths:
-        documents.extend(PyPDFLoader(str(pdf_path)).load())
-
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=arguments.chunk_size,
-        chunk_overlap=arguments.chunk_overlap,
-    )
-    chunks = text_splitter.split_documents(documents)
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBEDDING_MODEL,
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True},
-    )
-    vector_store = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        collection_name="aerospec_retrieval_experiment",
-        collection_metadata={"hnsw:space": "cosine"},
-    )
     results = vector_store.similarity_search_with_score(
         arguments.question,
         k=arguments.top_k,
     )
 
     print(f"Répertoire : {arguments.pdf_directory}")
-    print(f"Nombre de PDF chargés : {len(pdf_paths)}")
+    print(f"Nombre de PDF chargés : {pdf_count}")
     print(f"Modèle d'embeddings : {EMBEDDING_MODEL}")
     print(f"Chunk size : {arguments.chunk_size}")
     print(f"Chunk overlap : {arguments.chunk_overlap}")
-    print(f"Nombre total de Documents/pages : {len(documents)}")
-    print(f"Nombre de chunks indexés : {len(chunks)}")
+    print(f"Nombre total de Documents/pages : {document_count}")
+    print(f"Nombre de chunks indexés : {chunk_count}")
     print(f"Question : {arguments.question}")
     print(f"Top-k : {arguments.top_k}")
 
