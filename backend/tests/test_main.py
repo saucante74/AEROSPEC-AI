@@ -1,9 +1,10 @@
 from unittest import IsolatedAsyncioTestCase
+from unittest.mock import patch
 
 from httpx import ASGITransport, AsyncClient, Response
 from langchain_core.documents import Document
 
-from backend.app.main import app, get_retrieval_index
+from backend.app.main import app, get_retrieval_index, load_retrieval_index
 
 
 class FakeVectorStore:
@@ -15,7 +16,7 @@ class FakeVectorStore:
         document = Document(
             page_content=f"Result for {query}",
             metadata={
-                "source": "datasheet.pdf",
+                "source": "/internal/corpus/datasheet.pdf",
                 "page": 4,
                 "page_label": "5",
             },
@@ -81,11 +82,30 @@ class SearchApiTest(IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status_code, 422)
 
-    async def test_search_rejects_top_k_above_limit(self) -> None:
-        response = await self.request(
-            "POST",
-            "/search",
-            json={"query": "leak rate", "top_k": 21},
-        )
+    async def test_search_rejects_top_k_outside_limits(self) -> None:
+        for top_k in (0, 21):
+            with self.subTest(top_k=top_k):
+                response = await self.request(
+                    "POST",
+                    "/search",
+                    json={"query": "leak rate", "top_k": top_k},
+                )
 
-        self.assertEqual(response.status_code, 422)
+                self.assertEqual(response.status_code, 422)
+
+    async def test_search_returns_503_when_corpus_initialization_fails(self) -> None:
+        app.dependency_overrides.clear()
+        load_retrieval_index.cache_clear()
+
+        with patch(
+            "backend.app.main.build_retrieval_index",
+            side_effect=ValueError("Aucun PDF trouvé"),
+        ):
+            response = await self.request(
+                "POST",
+                "/search",
+                json={"query": "leak rate", "top_k": 3},
+            )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {"detail": "Aucun PDF trouvé"})

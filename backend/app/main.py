@@ -81,7 +81,13 @@ async def search(
     return SearchResponse(
         query=request.query,
         results=[
-            SearchResultResponse.model_validate(result, from_attributes=True)
+            SearchResultResponse(
+                content=result.content,
+                source=Path(result.source).name,
+                page=result.page,
+                page_label=result.page_label,
+                distance=result.distance,
+            )
             for result in results
         ],
     )
