@@ -3,8 +3,14 @@ from unittest.mock import patch
 
 from httpx import ASGITransport, AsyncClient, Response
 from langchain_core.documents import Document
+from openai import OpenAIError
 
-from backend.app.main import app, get_retrieval_index, load_retrieval_index
+from backend.app.main import (
+    app,
+    get_retrieval_index,
+    get_text_generator,
+    load_retrieval_index,
+)
 
 
 class FakeVectorStore:
@@ -24,14 +30,33 @@ class FakeVectorStore:
         return [(document, 0.125)][:k]
 
 
+class FakeTextGenerator:
+    def __init__(self) -> None:
+        self.received_prompt: str | None = None
+
+    def generate(self, prompt: str) -> str:
+        self.received_prompt = prompt
+        return "The helium leak rate is 1 × 10⁻⁶ atm·cm³/s."
+
+
+class FailingTextGenerator:
+    def generate(self, prompt: str) -> str:
+        raise OpenAIError("secret provider diagnostic")
+
+
 class SearchApiTest(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         self.vector_store = FakeVectorStore()
+        self.text_generator = FakeTextGenerator()
 
         async def override_retrieval_index() -> FakeVectorStore:
             return self.vector_store
 
+        async def override_text_generator() -> FakeTextGenerator:
+            return self.text_generator
+
         app.dependency_overrides[get_retrieval_index] = override_retrieval_index
+        app.dependency_overrides[get_text_generator] = override_text_generator
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
@@ -109,3 +134,73 @@ class SearchApiTest(IsolatedAsyncioTestCase):
 
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json(), {"detail": "Aucun PDF trouvé"})
+
+    async def test_ask_returns_grounded_answer_and_retrieval_sources(self) -> None:
+        response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "What is the helium leak rate?", "top_k": 3},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "question": "What is the helium leak rate?",
+                "answer": "The helium leak rate is 1 × 10⁻⁶ atm·cm³/s.",
+                "sources": [
+                    {
+                        "source": "datasheet.pdf",
+                        "page": 4,
+                        "page_label": "5",
+                    }
+                ],
+            },
+        )
+        self.assertIsNotNone(self.text_generator.received_prompt)
+        self.assertIn(
+            "Result for What is the helium leak rate?",
+            self.text_generator.received_prompt,
+        )
+
+    async def test_ask_rejects_blank_question(self) -> None:
+        response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "   ", "top_k": 3},
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    async def test_ask_rejects_top_k_outside_limits(self) -> None:
+        for top_k in (0, 21):
+            with self.subTest(top_k=top_k):
+                response = await self.request(
+                    "POST",
+                    "/ask",
+                    json={"question": "helium leak rate", "top_k": top_k},
+                )
+
+                self.assertEqual(response.status_code, 422)
+
+    async def test_ask_returns_safe_error_when_llm_provider_fails(self) -> None:
+        async def override_text_generator() -> FailingTextGenerator:
+            return FailingTextGenerator()
+
+        app.dependency_overrides[get_text_generator] = override_text_generator
+
+        with self.assertLogs("backend.app.main", level="ERROR") as captured_logs:
+            response = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "What is the helium leak rate?", "top_k": 3},
+            )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Le fournisseur LLM n'a pas pu générer de réponse."},
+        )
+        self.assertNotIn("secret provider diagnostic", response.text)
+        self.assertIn("exception_type=OpenAIError", captured_logs.output[0])
+        self.assertIn("message=secret provider diagnostic", captured_logs.output[0])
