@@ -2,7 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
-from backend.scripts.inspect_pdf import build_retrieval_index
+from backend.app.retrieval import build_retrieval_index, search_retrieval
 
 
 DEFAULT_TOP_K = 3
@@ -40,9 +40,9 @@ def main() -> None:
     for index, item in enumerate(questions, start=1):
         question = item["question"]
         expected_source = item["expected_source"]
-        results = vector_store.similarity_search_with_score(question, k=DEFAULT_TOP_K)
+        results = search_retrieval(vector_store, question, DEFAULT_TOP_K)
         retrieved_sources = [
-            Path(document.metadata["source"]).name for document, _ in results
+            Path(result.source).name for result in results
         ]
         hit_at_1 = retrieved_sources[0] == expected_source
         hit_at_3 = expected_source in retrieved_sources
@@ -51,12 +51,11 @@ def main() -> None:
 
         print(f"\nQuestion {index}: {question}")
         print(f"Expected: {expected_source}")
-        for rank, (document, distance) in enumerate(results, start=1):
-            source = Path(document.metadata["source"]).name
-            page_label = document.metadata.get("page_label", "inconnue")
+        for rank, result in enumerate(results, start=1):
+            source = Path(result.source).name
             print(
-                f"Top {rank}: {source} | page {page_label} | "
-                f"distance {distance:.4f}"
+                f"Top {rank}: {source} | page {result.page_label} | "
+                f"distance {result.distance:.4f}"
             )
         print(f"Hit@1: {'yes' if hit_at_1 else 'no'}")
         print(f"Hit@3: {'yes' if hit_at_3 else 'no'}")

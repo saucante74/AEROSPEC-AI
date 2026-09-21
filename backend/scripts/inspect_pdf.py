@@ -1,49 +1,17 @@
 import argparse
 from pathlib import Path
 
-from langchain_chroma import Chroma
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from backend.app.retrieval import (
+    DEFAULT_CHUNK_OVERLAP,
+    DEFAULT_CHUNK_SIZE,
+    DEFAULT_TOP_K,
+    EMBEDDING_MODEL,
+    build_retrieval_index,
+    search_retrieval,
+)
 
 
-DEFAULT_CHUNK_SIZE = 1_000
-DEFAULT_CHUNK_OVERLAP = 200
-DEFAULT_TOP_K = 3
 DEFAULT_CHARACTERS_TO_DISPLAY = 600
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-
-
-def build_retrieval_index(
-    pdf_directory: Path,
-    chunk_size: int = DEFAULT_CHUNK_SIZE,
-    chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
-) -> tuple[Chroma, int, int, int]:
-    pdf_paths = sorted(pdf_directory.glob("*.pdf"))
-    if not pdf_paths:
-        raise ValueError(f"Aucun PDF trouvé dans : {pdf_directory}")
-
-    documents = []
-    for pdf_path in pdf_paths:
-        documents.extend(PyPDFLoader(str(pdf_path)).load())
-
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-    )
-    chunks = text_splitter.split_documents(documents)
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBEDDING_MODEL,
-        model_kwargs={"device": "cpu"},
-        encode_kwargs={"normalize_embeddings": True},
-    )
-    vector_store = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        collection_name="aerospec_retrieval_experiment",
-        collection_metadata={"hnsw:space": "cosine"},
-    )
-    return vector_store, len(pdf_paths), len(documents), len(chunks)
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -111,10 +79,7 @@ def main() -> None:
     except ValueError as error:
         raise SystemExit(str(error)) from error
 
-    results = vector_store.similarity_search_with_score(
-        arguments.question,
-        k=arguments.top_k,
-    )
+    results = search_retrieval(vector_store, arguments.question, arguments.top_k)
 
     print(f"Répertoire : {arguments.pdf_directory}")
     print(f"Nombre de PDF chargés : {pdf_count}")
@@ -126,15 +91,12 @@ def main() -> None:
     print(f"Question : {arguments.question}")
     print(f"Top-k : {arguments.top_k}")
 
-    for rank, (chunk, distance) in enumerate(results, start=1):
-        excerpt = chunk.page_content[: arguments.characters].strip()
-        source = chunk.metadata.get("source", "inconnue")
-        page = chunk.metadata.get("page", "inconnue")
-        page_label = chunk.metadata.get("page_label", "inconnue")
+    for rank, result in enumerate(results, start=1):
+        excerpt = result.content[: arguments.characters].strip()
         print(f"\n--- Résultat {rank} ---")
-        print(f"Source : {source}")
-        print(f"Page : {page} (label PDF : {page_label})")
-        print(f"Distance cosinus : {distance:.4f}")
+        print(f"Source : {result.source}")
+        print(f"Page : {result.page} (label PDF : {result.page_label})")
+        print(f"Distance cosinus : {result.distance:.4f}")
         print("Extrait :")
         print(excerpt or "[Aucun texte extrait]")
 
