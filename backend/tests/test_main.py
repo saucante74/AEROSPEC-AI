@@ -31,8 +31,14 @@ class FakeVectorStore:
 
 
 class FakeTextGenerator:
+    def __init__(
+        self,
+        answer: str = "The helium leak rate is 1 × 10⁻⁶ atm·cm³/s.",
+    ) -> None:
+        self.answer = answer
+
     def generate(self, prompt: str) -> str:
-        return "The helium leak rate is 1 × 10⁻⁶ atm·cm³/s."
+        return self.answer
 
 
 class FailingTextGenerator:
@@ -151,8 +157,34 @@ class SearchApiTest(IsolatedAsyncioTestCase):
                         "page_label": "5",
                     }
                 ],
+                "citations": [],
             },
         )
+
+    async def test_ask_returns_only_valid_resolved_citations(self) -> None:
+        self.text_generator = FakeTextGenerator(
+            "The helium leak rate is documented [S1], not [S99]."
+        )
+
+        response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "What is the helium leak rate?", "top_k": 3},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["citations"],
+            [
+                {
+                    "id": "S1",
+                    "source": "datasheet.pdf",
+                    "page": 4,
+                    "page_label": "5",
+                }
+            ],
+        )
+
     async def test_ask_rejects_blank_question(self) -> None:
         response = await self.request(
             "POST",

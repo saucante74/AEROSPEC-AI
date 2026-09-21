@@ -65,10 +65,18 @@ class SourceResponse(BaseModel):
     page_label: str
 
 
+class CitationResponse(BaseModel):
+    id: str
+    source: str
+    page: int
+    page_label: str
+
+
 class AskResponse(BaseModel):
     question: str
     answer: str
     sources: list[SourceResponse]
+    citations: list[CitationResponse]
 
 
 @lru_cache(maxsize=1)
@@ -178,5 +186,14 @@ async def ask(
                 page_label=source.page_label,
             )
             for source in result.sources
+        ],
+        citations=[
+            CitationResponse(
+                id=citation_id[1:-1],
+                source=source.source,
+                page=source.page,
+                page_label=source.page_label,
+            )
+            for citation_id, source in result.citation_sources.items()
         ],
     )
