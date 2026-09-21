@@ -10,6 +10,7 @@ langchain-community==0.4.2
 langchain-chroma==1.1.0
 langchain-huggingface==1.2.2
 langchain-text-splitters==1.1.2
+openai==3.16.2
 pypdf==6.19.0
 pydantic==2.13.5
 pydantic-settings==2.15.0
