@@ -63,12 +63,17 @@ class SearchApiTest(IsolatedAsyncioTestCase):
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
 
-    async def request(self, method: str, path: str, **kwargs: object) -> Response:
+    async def request(
+        self,
+        method: str,
+        path: str,
+        json: dict[str, object] | None = None,
+    ) -> Response:
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test",
         ) as client:
-            return await client.request(method, path, **kwargs)
+            return await client.request(method, path, json=json)
 
     async def test_health(self) -> None:
         response = await self.request("GET", "/health")

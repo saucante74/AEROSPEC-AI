@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 
 DEFAULT_CHUNK_SIZE = 1_000
 DEFAULT_CHUNK_OVERLAP = 200
@@ -20,6 +21,14 @@ class SearchResult:
     page: int
     page_label: str
     distance: float
+
+
+class SimilaritySearchStore(Protocol):
+    def similarity_search_with_score(
+        self,
+        query: str,
+        k: int,
+    ) -> list[tuple[Document, float]]: ...
 
 
 def build_retrieval_index(
@@ -55,7 +64,7 @@ def build_retrieval_index(
 
 
 def search_retrieval(
-    vector_store: Chroma,
+    vector_store: SimilaritySearchStore,
     query: str,
     top_k: int = DEFAULT_TOP_K,
 ) -> list[SearchResult]:

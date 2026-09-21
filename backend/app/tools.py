@@ -1,6 +1,5 @@
 from typing import Literal
 
-
 Unit = Literal["mm", "inch", "N", "lbf", "°C", "°F"]
 
 MM_PER_INCH = 25.4

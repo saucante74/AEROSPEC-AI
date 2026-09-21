@@ -13,7 +13,6 @@ from .rag import answer_question
 from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
 from .tools import Unit, convert_unit
 
-
 PDF_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "sample_docs"
 MAX_TOP_K = 20
 

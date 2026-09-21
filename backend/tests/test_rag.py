@@ -113,10 +113,11 @@ class RagWorkflowTest(TestCase):
             ),
         )
         self.assertEqual(list(result.citation_sources), ["[S1]", "[S3]"])
-        self.assertIsNotNone(llm.received_prompt)
-        self.assertIn("First chunk from page 5", llm.received_prompt)
-        self.assertIn("Second chunk from page 5", llm.received_prompt)
-        self.assertIn("Chunk from page 8", llm.received_prompt)
+        received_prompt = llm.received_prompt
+        assert received_prompt is not None
+        self.assertIn("First chunk from page 5", received_prompt)
+        self.assertIn("Second chunk from page 5", received_prompt)
+        self.assertIn("Chunk from page 8", received_prompt)
 
     def test_validate_citations(self) -> None:
         cases = [
