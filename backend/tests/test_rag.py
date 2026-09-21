@@ -56,12 +56,13 @@ class FakeVectorStore:
 
 
 class FakeTextGenerator:
-    def __init__(self) -> None:
+    def __init__(self, answer: str = "Grounded answer [S1][S3]") -> None:
+        self.answer = answer
         self.received_prompt: str | None = None
 
     def generate(self, prompt: str) -> str:
         self.received_prompt = prompt
-        return "Grounded answer [S1][S3]"
+        return self.answer
 
 
 class RagWorkflowTest(TestCase):
@@ -97,8 +98,21 @@ class RagWorkflowTest(TestCase):
                     valid_ids=["[S1]", "[S3]"],
                     unknown_ids=[],
                 ),
+                citation_sources={
+                    "[S1]": RagSource(
+                        source="datasheet.pdf",
+                        page=4,
+                        page_label="5",
+                    ),
+                    "[S3]": RagSource(
+                        source="datasheet.pdf",
+                        page=7,
+                        page_label="8",
+                    ),
+                },
             ),
         )
+        self.assertEqual(list(result.citation_sources), ["[S1]", "[S3]"])
         self.assertIsNotNone(llm.received_prompt)
         self.assertIn("First chunk from page 5", llm.received_prompt)
         self.assertIn("Second chunk from page 5", llm.received_prompt)
@@ -142,3 +156,20 @@ class RagWorkflowTest(TestCase):
         for name, answer, expected in cases:
             with self.subTest(name=name):
                 self.assertEqual(_validate_citations(answer, 3), expected)
+
+    def test_unknown_or_missing_citations_have_no_resolved_source(self) -> None:
+        cases = [
+            ("unknown citation", "Unsupported citation [S99]."),
+            ("no citation", "Answer without a citation."),
+        ]
+
+        for name, answer in cases:
+            with self.subTest(name=name):
+                result = answer_question(
+                    FakeVectorStore(),
+                    "What is the helium leak rate?",
+                    3,
+                    FakeTextGenerator(answer),
+                )
+
+                self.assertEqual(result.citation_sources, {})

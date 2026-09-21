@@ -26,6 +26,7 @@ class RagResult:
     answer: str
     sources: list[RagSource]
     citation_validation: CitationValidation
+    citation_sources: dict[str, RagSource]
 
 
 def _validate_citations(answer: str, passage_count: int) -> CitationValidation:
@@ -55,6 +56,15 @@ def answer_question(
     results = search_retrieval(vector_store, question, top_k)
     answer = generate_answer(question, results, llm)
     citation_validation = _validate_citations(answer, len(results))
+    citation_sources: dict[str, RagSource] = {}
+    for citation_id in citation_validation.valid_ids:
+        passage_index = int(citation_id[2:-1]) - 1
+        passage = results[passage_index]
+        citation_sources[citation_id] = RagSource(
+            source=Path(passage.source).name,
+            page=passage.page,
+            page_label=passage.page_label,
+        )
 
     sources: list[RagSource] = []
     seen_sources: set[tuple[str, int]] = set()
@@ -76,4 +86,5 @@ def answer_question(
         answer=answer,
         sources=sources,
         citation_validation=citation_validation,
+        citation_sources=citation_sources,
     )
