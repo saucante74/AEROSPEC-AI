@@ -165,15 +165,24 @@ async def ask(
             detail="Le fournisseur LLM n'a pas pu générer de réponse.",
         ) from error
 
-    return AskResponse(
-        question=request.question,
-        answer=answer,
-        sources=[
+    sources: list[SourceResponse] = []
+    seen_sources: set[tuple[str, int]] = set()
+    for result in results:
+        source = Path(result.source).name
+        source_key = (source, result.page)
+        if source_key in seen_sources:
+            continue
+        seen_sources.add(source_key)
+        sources.append(
             SourceResponse(
-                source=Path(result.source).name,
+                source=source,
                 page=result.page,
                 page_label=result.page_label,
             )
-            for result in results
-        ],
+        )
+
+    return AskResponse(
+        question=request.question,
+        answer=answer,
+        sources=sources,
     )
