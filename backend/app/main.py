@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, field_validator
 from .generation import OpenAITextGenerator, TextGenerator
 from .rag import answer_question
 from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
+from .tools import Unit, convert_unit
 
 
 PDF_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "sample_docs"
@@ -79,6 +80,19 @@ class AskResponse(BaseModel):
     citations: list[CitationResponse]
 
 
+class ConvertRequest(BaseModel):
+    value: float
+    from_unit: Unit
+    to_unit: Unit
+
+
+class ConvertResponse(BaseModel):
+    value: float
+    from_unit: Unit
+    to_unit: Unit
+    converted_value: float
+
+
 @lru_cache(maxsize=1)
 def load_retrieval_index() -> Chroma:
     try:
@@ -117,6 +131,28 @@ AnswerGenerator = Annotated[TextGenerator, Depends(get_text_generator)]
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/convert", response_model=ConvertResponse)
+async def convert(request: ConvertRequest) -> ConvertResponse:
+    try:
+        converted_value = convert_unit(
+            request.value,
+            request.from_unit,
+            request.to_unit,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
+
+    return ConvertResponse(
+        value=request.value,
+        from_unit=request.from_unit,
+        to_unit=request.to_unit,
+        converted_value=converted_value,
+    )
 
 
 @app.post("/search", response_model=SearchResponse)

@@ -76,6 +76,80 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
 
+    async def test_convert_millimeters_to_inches(self) -> None:
+        response = await self.request(
+            "POST",
+            "/convert",
+            json={"value": 25.4, "from_unit": "mm", "to_unit": "inch"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "value": 25.4,
+                "from_unit": "mm",
+                "to_unit": "inch",
+                "converted_value": 1.0,
+            },
+        )
+
+    async def test_convert_newtons_to_pounds_force(self) -> None:
+        response = await self.request(
+            "POST",
+            "/convert",
+            json={"value": 100, "from_unit": "N", "to_unit": "lbf"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["value"], 100.0)
+        self.assertAlmostEqual(
+            response.json()["converted_value"],
+            22.48089430997105,
+            places=14,
+        )
+
+    async def test_convert_celsius_to_fahrenheit(self) -> None:
+        response = await self.request(
+            "POST",
+            "/convert",
+            json={"value": 0, "from_unit": "°C", "to_unit": "°F"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["converted_value"], 32.0)
+
+    async def test_convert_rejects_unknown_unit(self) -> None:
+        response = await self.request(
+            "POST",
+            "/convert",
+            json={"value": 1, "from_unit": "cm", "to_unit": "mm"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+
+    async def test_convert_rejects_unsupported_pair(self) -> None:
+        response = await self.request(
+            "POST",
+            "/convert",
+            json={"value": 1, "from_unit": "mm", "to_unit": "N"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Conversion non supportée : mm -> N"},
+        )
+
+    async def test_convert_rejects_invalid_request(self) -> None:
+        response = await self.request(
+            "POST",
+            "/convert",
+            json={"value": "not-a-number", "from_unit": "mm", "to_unit": "inch"},
+        )
+
+        self.assertEqual(response.status_code, 422)
+
     async def test_search_returns_retrieval_metadata(self) -> None:
         response = await self.request(
             "POST",
