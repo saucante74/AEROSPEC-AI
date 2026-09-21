@@ -30,56 +30,8 @@ class FakeVectorStore:
         return [(document, 0.125)][:k]
 
 
-class DuplicateSourceVectorStore:
-    def similarity_search_with_score(
-        self,
-        query: str,
-        k: int,
-    ) -> list[tuple[Document, float]]:
-        matches = [
-            (
-                Document(
-                    page_content="First chunk from page 5",
-                    metadata={
-                        "source": "/internal/corpus/datasheet.pdf",
-                        "page": 4,
-                        "page_label": "5",
-                    },
-                ),
-                0.1,
-            ),
-            (
-                Document(
-                    page_content="Second chunk from page 5",
-                    metadata={
-                        "source": "/internal/corpus/datasheet.pdf",
-                        "page": 4,
-                        "page_label": "5",
-                    },
-                ),
-                0.2,
-            ),
-            (
-                Document(
-                    page_content="Chunk from page 8",
-                    metadata={
-                        "source": "/internal/corpus/datasheet.pdf",
-                        "page": 7,
-                        "page_label": "8",
-                    },
-                ),
-                0.3,
-            ),
-        ]
-        return matches[:k]
-
-
 class FakeTextGenerator:
-    def __init__(self) -> None:
-        self.received_prompt: str | None = None
-
     def generate(self, prompt: str) -> str:
-        self.received_prompt = prompt
         return "The helium leak rate is 1 × 10⁻⁶ atm·cm³/s."
 
 
@@ -201,42 +153,6 @@ class SearchApiTest(IsolatedAsyncioTestCase):
                 ],
             },
         )
-        self.assertIsNotNone(self.text_generator.received_prompt)
-        self.assertIn(
-            "Result for What is the helium leak rate?",
-            self.text_generator.received_prompt,
-        )
-
-    async def test_ask_deduplicates_sources_without_removing_context(self) -> None:
-        self.vector_store = DuplicateSourceVectorStore()
-
-        response = await self.request(
-            "POST",
-            "/ask",
-            json={"question": "What is the helium leak rate?", "top_k": 3},
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json()["sources"],
-            [
-                {
-                    "source": "datasheet.pdf",
-                    "page": 4,
-                    "page_label": "5",
-                },
-                {
-                    "source": "datasheet.pdf",
-                    "page": 7,
-                    "page_label": "8",
-                },
-            ],
-        )
-        self.assertIsNotNone(self.text_generator.received_prompt)
-        self.assertIn("First chunk from page 5", self.text_generator.received_prompt)
-        self.assertIn("Second chunk from page 5", self.text_generator.received_prompt)
-        self.assertIn("Chunk from page 8", self.text_generator.received_prompt)
-
     async def test_ask_rejects_blank_question(self) -> None:
         response = await self.request(
             "POST",

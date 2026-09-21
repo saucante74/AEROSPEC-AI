@@ -8,7 +8,8 @@ from langchain_chroma import Chroma
 from openai import OpenAIError
 from pydantic import BaseModel, Field, field_validator
 
-from .generation import OpenAITextGenerator, TextGenerator, generate_answer
+from .generation import OpenAITextGenerator, TextGenerator
+from .rag import answer_question
 from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
 
 
@@ -145,15 +146,17 @@ async def ask(
     llm: AnswerGenerator,
 ) -> AskResponse:
     try:
-        results = search_retrieval(vector_store, request.question, request.top_k)
+        result = answer_question(
+            vector_store,
+            request.question,
+            request.top_k,
+            llm,
+        )
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(error),
         ) from error
-
-    try:
-        answer = generate_answer(request.question, results, llm)
     except OpenAIError as error:
         logger.error(
             "OpenAI generation failed: exception_type=%s message=%s",
@@ -165,24 +168,15 @@ async def ask(
             detail="Le fournisseur LLM n'a pas pu générer de réponse.",
         ) from error
 
-    sources: list[SourceResponse] = []
-    seen_sources: set[tuple[str, int]] = set()
-    for result in results:
-        source = Path(result.source).name
-        source_key = (source, result.page)
-        if source_key in seen_sources:
-            continue
-        seen_sources.add(source_key)
-        sources.append(
-            SourceResponse(
-                source=source,
-                page=result.page,
-                page_label=result.page_label,
-            )
-        )
-
     return AskResponse(
         question=request.question,
-        answer=answer,
-        sources=sources,
+        answer=result.answer,
+        sources=[
+            SourceResponse(
+                source=source.source,
+                page=source.page,
+                page_label=source.page_label,
+            )
+            for source in result.sources
+        ],
     )
