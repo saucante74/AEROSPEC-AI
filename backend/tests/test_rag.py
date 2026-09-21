@@ -2,7 +2,13 @@ from unittest import TestCase
 
 from langchain_core.documents import Document
 
-from backend.app.rag import RagResult, RagSource, answer_question
+from backend.app.rag import (
+    CitationValidation,
+    RagResult,
+    RagSource,
+    _validate_citations,
+    answer_question,
+)
 
 
 class FakeVectorStore:
@@ -87,9 +93,52 @@ class RagWorkflowTest(TestCase):
                         page_label="8",
                     ),
                 ],
+                citation_validation=CitationValidation(
+                    valid_ids=["[S1]", "[S3]"],
+                    unknown_ids=[],
+                ),
             ),
         )
         self.assertIsNotNone(llm.received_prompt)
         self.assertIn("First chunk from page 5", llm.received_prompt)
         self.assertIn("Second chunk from page 5", llm.received_prompt)
         self.assertIn("Chunk from page 8", llm.received_prompt)
+
+    def test_validate_citations(self) -> None:
+        cases = [
+            (
+                "valid citations",
+                "First fact [S1]. Second fact [S2][S3].",
+                CitationValidation(
+                    valid_ids=["[S1]", "[S2]", "[S3]"],
+                    unknown_ids=[],
+                ),
+            ),
+            (
+                "unknown citation",
+                "Unsupported citation [S99].",
+                CitationValidation(valid_ids=[], unknown_ids=["[S99]"]),
+            ),
+            (
+                "duplicate citations",
+                "Repeated [S2], then [S1], then [S2] and [S1].",
+                CitationValidation(valid_ids=["[S2]", "[S1]"], unknown_ids=[]),
+            ),
+            (
+                "no citation",
+                "Answer without a citation.",
+                CitationValidation(valid_ids=[], unknown_ids=[]),
+            ),
+            (
+                "valid and unknown citations",
+                "Valid [S3], unknown [S0], valid [S1], unknown [S99].",
+                CitationValidation(
+                    valid_ids=["[S3]", "[S1]"],
+                    unknown_ids=["[S0]", "[S99]"],
+                ),
+            ),
+        ]
+
+        for name, answer, expected in cases:
+            with self.subTest(name=name):
+                self.assertEqual(_validate_citations(answer, 3), expected)

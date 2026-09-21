@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,9 +16,34 @@ class RagSource:
 
 
 @dataclass(frozen=True)
+class CitationValidation:
+    valid_ids: list[str]
+    unknown_ids: list[str]
+
+
+@dataclass(frozen=True)
 class RagResult:
     answer: str
     sources: list[RagSource]
+    citation_validation: CitationValidation
+
+
+def _validate_citations(answer: str, passage_count: int) -> CitationValidation:
+    available_ids = {f"[S{index}]" for index in range(1, passage_count + 1)}
+    valid_ids: list[str] = []
+    unknown_ids: list[str] = []
+    seen_ids: set[str] = set()
+
+    for citation_id in re.findall(r"\[S\d+\]", answer):
+        if citation_id in seen_ids:
+            continue
+        seen_ids.add(citation_id)
+        if citation_id in available_ids:
+            valid_ids.append(citation_id)
+        else:
+            unknown_ids.append(citation_id)
+
+    return CitationValidation(valid_ids=valid_ids, unknown_ids=unknown_ids)
 
 
 def answer_question(
@@ -28,6 +54,7 @@ def answer_question(
 ) -> RagResult:
     results = search_retrieval(vector_store, question, top_k)
     answer = generate_answer(question, results, llm)
+    citation_validation = _validate_citations(answer, len(results))
 
     sources: list[RagSource] = []
     seen_sources: set[tuple[str, int]] = set()
@@ -45,4 +72,8 @@ def answer_question(
             )
         )
 
-    return RagResult(answer=answer, sources=sources)
+    return RagResult(
+        answer=answer,
+        sources=sources,
+        citation_validation=citation_validation,
+    )
