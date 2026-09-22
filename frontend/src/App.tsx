@@ -3,38 +3,33 @@ import type { SubmitEvent } from 'react'
 
 import { askQuestion } from './api'
 import type { AskResponse } from './api'
-
-const questionExamples = [
-  'What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?',
-  'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?',
-  'What is the maximum operating temperature of the Molex .093 Series 03-09 nylon connectors?',
-]
+import { supportedLanguages } from './i18n/translations'
+import { useI18n } from './i18n/useI18n'
 
 export default function App() {
+  const { language, setLanguage, t } = useI18n()
   const [question, setQuestion] = useState('')
   const [result, setResult] = useState<AskResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorType, setErrorType] = useState<'emptyQuestion' | 'api' | null>(null)
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     const trimmedQuestion = question.trim()
 
     if (!trimmedQuestion) {
-      setErrorMessage('Enter a question before searching the documentation.')
+      setErrorType('emptyQuestion')
       return
     }
 
     setIsLoading(true)
-    setErrorMessage(null)
+    setErrorType(null)
     setResult(null)
 
     try {
       setResult(await askQuestion(trimmedQuestion))
     } catch {
-      setErrorMessage(
-        'The answer could not be retrieved. Check that the API is available and try again.',
-      )
+      setErrorType('api')
     } finally {
       setIsLoading(false)
     }
@@ -42,24 +37,45 @@ export default function App() {
 
   function selectExample(example: string) {
     setQuestion(example)
-    setErrorMessage(null)
+    setErrorType(null)
   }
 
   return (
     <div className="app-shell" id="top">
       <header className="site-header">
-        <nav className="navigation content-width" aria-label="Primary navigation">
-          <a className="brand" href="#top" aria-label="AeroSpec AI home">
+        <nav className="navigation content-width" aria-label={t.nav.primaryLabel}>
+          <a className="brand" href="#top" aria-label={t.nav.homeLabel}>
             <span className="brand-mark" aria-hidden="true" />
             <span className="brand-copy">
-              <strong>AeroSpec AI</strong>
-              <span>Technical Documentation Assistant</span>
+              <strong>{t.nav.brand}</strong>
+              <span>{t.nav.subtitle}</span>
             </span>
           </a>
-          <div className="navigation-links">
-            <a href="#assistant">Assistant</a>
-            <a href="#examples">Examples</a>
-            <a href="#about">About</a>
+          <div className="navigation-controls">
+            <div className="navigation-links">
+              <a href="#assistant">{t.nav.assistant}</a>
+              <a href="#examples">{t.nav.examples}</a>
+              <a href="#about">{t.nav.about}</a>
+            </div>
+            <div
+              className="language-selector"
+              role="group"
+              aria-label={t.nav.languageSelector}
+            >
+              {supportedLanguages.map((languageCode, index) => (
+                <span className="language-option" key={languageCode}>
+                  {index > 0 && <span aria-hidden="true">|</span>}
+                  <button
+                    type="button"
+                    aria-label={t.nav.selectLanguage[languageCode]}
+                    aria-pressed={language === languageCode}
+                    onClick={() => setLanguage(languageCode)}
+                  >
+                    {languageCode.toUpperCase()}
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
         </nav>
       </header>
@@ -67,18 +83,14 @@ export default function App() {
       <main>
         <section className="hero content-width" aria-labelledby="page-title">
           <div className="hero-copy">
-            <p className="eyebrow">Technical document intelligence</p>
-            <h1 id="page-title">Ask. Find. Engineer with confidence.</h1>
-            <p className="hero-introduction">
-              Search technical documentation and receive focused answers backed
-              by citations validated against the source material.
-            </p>
+            <p className="eyebrow">{t.hero.eyebrow}</p>
+            <h1 id="page-title">{t.hero.title}</h1>
+            <p className="hero-introduction">{t.hero.description}</p>
           </div>
-          <ul className="benefit-list" aria-label="Assistant capabilities">
-            <li>Semantic document search</li>
-            <li>Validated citations</li>
-            <li>Grounded answers</li>
-            <li>Engineering-focused</li>
+          <ul className="benefit-list" aria-label={t.hero.capabilitiesLabel}>
+            {t.hero.benefits.map((benefit) => (
+              <li key={benefit}>{benefit}</li>
+            ))}
           </ul>
         </section>
 
@@ -95,19 +107,19 @@ export default function App() {
             >
               <div className="form-heading">
                 <div>
-                  <p className="section-label">Document query</p>
-                  <h2 id="question-title">Ask a technical question</h2>
+                  <p className="section-label">{t.search.eyebrow}</p>
+                  <h2 id="question-title">{t.search.title}</h2>
                 </div>
-                <p className="precision-note">Use precise engineering terminology</p>
+                <p className="precision-note">{t.search.precision}</p>
               </div>
 
-              <label htmlFor="question">Technical question</label>
+              <label htmlFor="question">{t.search.label}</label>
               <textarea
                 id="question"
                 name="question"
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
-                placeholder="e.g. What helium leak rate is specified for the MIL-DTL-38999 connector?"
+                placeholder={t.search.placeholder}
                 rows={5}
                 maxLength={1000}
                 disabled={isLoading}
@@ -115,29 +127,29 @@ export default function App() {
               />
               <div className="form-footer">
                 <p id="question-help" className="field-hint">
-                  Enter adds a new line. Use the Ask button to submit.
+                  {t.search.hint}
                 </p>
                 <div className="form-actions">
                   <span id="question-count" className="character-count">
                     {question.length}/1000
                   </span>
                   <button type="submit" disabled={isLoading || !question.trim()}>
-                    {isLoading ? 'Searching…' : 'Ask'}
+                    {isLoading ? t.search.searching : t.search.submit}
                   </button>
                 </div>
               </div>
             </form>
 
-            {(isLoading || errorMessage) && (
+            {(isLoading || errorType) && (
               <div className="status-region" aria-live="polite">
                 {isLoading && (
                   <p className="loading-message" role="status">
-                    Searching documents and preparing an answer…
+                    {t.search.loading}
                   </p>
                 )}
-                {errorMessage && (
+                {errorType && (
                   <p className="error-message" role="alert">
-                    {errorMessage}
+                    {t.errors[errorType]}
                   </p>
                 )}
               </div>
@@ -147,13 +159,13 @@ export default function App() {
           <section className="examples-section" id="examples" aria-labelledby="examples-title">
             <div className="section-heading-row">
               <div>
-                <p className="section-label">Explore the corpus</p>
-                <h2 id="examples-title">Example questions</h2>
+                <p className="section-label">{t.examples.eyebrow}</p>
+                <h2 id="examples-title">{t.examples.title}</h2>
               </div>
-              <p>Select an example to edit it before asking.</p>
+              <p>{t.examples.instruction}</p>
             </div>
             <div className="example-grid">
-              {questionExamples.map((example) => (
+              {t.examples.questions.map((example) => (
                 <button
                   className="example-card"
                   type="button"
@@ -178,13 +190,13 @@ export default function App() {
               <div className="answer-section">
                 <div className="result-heading">
                   <div>
-                    <p className="section-label success-label">Document answer</p>
-                    <h2 id="answer-title">Result</h2>
+                    <p className="section-label success-label">{t.results.eyebrow}</p>
+                    <h2 id="answer-title">{t.results.title}</h2>
                   </div>
-                  <span className="result-status">Sources checked</span>
+                  <span className="result-status">{t.results.status}</span>
                 </div>
                 <div className="answered-question">
-                  <span>Question asked</span>
+                  <span>{t.results.questionAsked}</span>
                   <p>{result.question}</p>
                 </div>
                 <p className="answer-text">{result.answer}</p>
@@ -193,10 +205,10 @@ export default function App() {
               <div className="citations-section">
                 <div className="citations-heading">
                   <div>
-                    <p className="section-label">Traceability</p>
-                    <h3>Validated citations ({result.citations.length})</h3>
+                    <p className="section-label">{t.citations.eyebrow}</p>
+                    <h3>{t.citations.title} ({result.citations.length})</h3>
                   </div>
-                  <p>References resolved by the API against source documents.</p>
+                  <p>{t.citations.description}</p>
                 </div>
                 {result.citations.length > 0 ? (
                   <ul className="citation-list">
@@ -206,8 +218,8 @@ export default function App() {
                         <div className="citation-content">
                           <strong title={citation.source}>{citation.source}</strong>
                           <div className="citation-location">
-                            <span>Page {citation.page_label}</span>
-                            <span>PDF index {citation.page}</span>
+                            <span>{t.citations.page} {citation.page_label}</span>
+                            <span>{t.citations.pdfIndex} {citation.page}</span>
                           </div>
                         </div>
                       </li>
@@ -215,7 +227,7 @@ export default function App() {
                   </ul>
                 ) : (
                   <p className="empty-citations">
-                    No validated citations were returned for this answer.
+                    {t.citations.empty}
                   </p>
                 )}
               </div>
@@ -227,12 +239,13 @@ export default function App() {
       <footer className="site-footer" id="about">
         <div className="footer-content content-width">
           <div>
-            <strong>AeroSpec AI</strong>
-            <p>Technical documentation assistant</p>
+            <strong>{t.nav.brand}</strong>
+            <p>{t.footer.subtitle}</p>
           </div>
           <p className="footer-capabilities">
-            Grounded answers <span aria-hidden="true">·</span> Validated citations{' '}
-            <span aria-hidden="true">·</span> Deterministic tools
+            {t.footer.groundedAnswers} <span aria-hidden="true">·</span>{' '}
+            {t.footer.validatedCitations} <span aria-hidden="true">·</span>{' '}
+            {t.footer.deterministicTools}
           </p>
         </div>
       </footer>
