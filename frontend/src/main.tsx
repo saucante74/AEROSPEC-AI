@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react'
+import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { AskResponse, askQuestion } from './api'
@@ -41,13 +42,28 @@ function App() {
           <p className="eyebrow">Assistant documentaire industriel</p>
           <h1 id="page-title">AeroSpec AI</h1>
           <p className="introduction">
-            Interrogez la documentation technique disponible et vérifiez les
-            passages cités dans la réponse.
+            Interrogez la documentation technique disponible et retrouvez les
+            références utilisées dans la réponse.
           </p>
+          <p className="scope-note">Documentation fournisseur · Réponses traçables</p>
         </header>
 
-        <form className="question-form" onSubmit={handleSubmit}>
-          <label htmlFor="question">Votre question technique</label>
+        <form
+          className="question-form"
+          onSubmit={handleSubmit}
+          aria-busy={isLoading}
+        >
+          <div className="form-heading">
+            <div>
+              <p className="section-label">Recherche documentaire</p>
+              <h2>Poser une question</h2>
+            </div>
+            <span className="step-marker" aria-hidden="true">
+              01
+            </span>
+          </div>
+
+          <label htmlFor="question">Question technique</label>
           <textarea
             id="question"
             name="question"
@@ -57,39 +73,83 @@ function App() {
             rows={5}
             maxLength={1000}
             disabled={isLoading}
+            aria-describedby="question-help question-count"
           />
+          <p id="question-help" className="field-hint">
+            Entrée ajoute une nouvelle ligne. Utilisez le bouton pour envoyer la
+            question.
+          </p>
           <div className="form-footer">
-            <span>{question.length}/1000</span>
+            <span id="question-count" className="character-count">
+              {question.length}/1000 caractères
+            </span>
             <button type="submit" disabled={isLoading || !question.trim()}>
               {isLoading ? 'Recherche en cours…' : 'Poser la question'}
             </button>
           </div>
         </form>
 
-        <div className="status-region" aria-live="polite">
-          {isLoading && <p className="loading-message">Analyse des documents…</p>}
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-        </div>
+        {(isLoading || errorMessage) && (
+          <div className="status-region" aria-live="polite">
+            {isLoading && (
+              <p className="loading-message" role="status">
+                Recherche des passages et préparation de la réponse…
+              </p>
+            )}
+            {errorMessage && (
+              <p className="error-message" role="alert">
+                {errorMessage}
+              </p>
+            )}
+          </div>
+        )}
 
         {result && (
           <section className="result-panel" aria-labelledby="answer-title">
             <div className="answer-section">
-              <p className="section-label">Réponse</p>
-              <h2 id="answer-title">Résultat de la recherche</h2>
+              <div className="result-heading">
+                <div>
+                  <p className="section-label">Réponse documentaire</p>
+                  <h2 id="answer-title">Résultat de la recherche</h2>
+                </div>
+                <span className="step-marker step-marker-complete" aria-hidden="true">
+                  02
+                </span>
+              </div>
+              <div className="answered-question">
+                <span>Question analysée</span>
+                <p>{result.question}</p>
+              </div>
               <p className="answer-text">{result.answer}</p>
             </div>
 
             <div className="citations-section">
               <h3>Citations validées</h3>
+              <p className="citations-introduction">
+                Références explicitement citées et résolues par l'API.
+              </p>
               {result.citations.length > 0 ? (
                 <ul className="citation-list">
                   {result.citations.map((citation) => (
-                    <li key={citation.id}>
-                      <span className="citation-id">{citation.id}</span>
-                      <span className="citation-source">{citation.source}</span>
-                      <span className="citation-page">
-                        Page {citation.page_label} · index PDF {citation.page}
-                      </span>
+                    <li className="citation-card" key={citation.id}>
+                      <div className="citation-heading">
+                        <span className="citation-id">{citation.id}</span>
+                        <span className="citation-status">Citation résolue</span>
+                      </div>
+                      <dl className="citation-details">
+                        <div className="citation-document">
+                          <dt>Document</dt>
+                          <dd title={citation.source}>{citation.source}</dd>
+                        </div>
+                        <div>
+                          <dt>Page</dt>
+                          <dd>{citation.page_label}</dd>
+                        </div>
+                        <div className="citation-secondary">
+                          <dt>Index PDF</dt>
+                          <dd>{citation.page}</dd>
+                        </div>
+                      </dl>
                     </li>
                   ))}
                 </ul>
