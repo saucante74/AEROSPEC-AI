@@ -69,6 +69,11 @@
             "source": "SAMTEC_connector_datasheet.pdf",
             "page_label": "2",
             "text_anchor": "65 GHz, SMPM"
+          },
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "9",
+            "text_anchor": "65 GHz, SMPM, PRFM0 Series"
           }
         ]
       }
