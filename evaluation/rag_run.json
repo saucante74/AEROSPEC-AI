@@ -145,11 +145,11 @@
         "evidence_hit_at_3": false
       },
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": false,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention incorrecte : la preuve Copper Alloy existe dans le corpus, mais elle est absente des passages récupérés."
       }
     },
     {
@@ -219,11 +219,11 @@
         "evidence_hit_at_3": false
       },
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": false,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention incorrecte : aucun passage récupéré ne contient la preuve relative à l'époxy ASTM E-595-93."
       }
     },
     {
@@ -293,11 +293,11 @@
         "evidence_hit_at_3": true
       },
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": false,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention incorrecte malgré la preuve explicite de la température maximale de 105 °C dans S2."
       }
     },
     {
@@ -381,11 +381,11 @@
         "evidence_hit_at_3": true
       },
       "human_review": {
-        "answer_correct": null,
-        "fully_grounded": null,
-        "citation_coverage_pass": null,
-        "citation_support_pass": null,
-        "review_note": null
+        "answer_correct": false,
+        "fully_grounded": false,
+        "citation_coverage_pass": true,
+        "citation_support_pass": false,
+        "review_note": "Réponse incorrecte : S1 associe 40 GHz à SMP et 65 GHz à SMPM ; la citation est valide mais ne soutient pas l'affirmation."
       }
     },
     {
@@ -465,11 +465,11 @@
         "evidence_hit_at_3": false
       },
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": false,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention incorrecte : les passages récupérés concernent Molex ou Amphenol et ne contiennent ni 3,3 A ni 500 cycles pour Datamate."
       }
     },
     {
@@ -558,11 +558,11 @@
         "evidence_hit_at_3": true
       },
       "human_review": {
-        "answer_correct": null,
-        "fully_grounded": null,
-        "citation_coverage_pass": null,
-        "citation_support_pass": null,
-        "review_note": null
+        "answer_correct": true,
+        "fully_grounded": false,
+        "citation_coverage_pass": true,
+        "citation_support_pass": false,
+        "review_note": "Verdict grounding/support strict et ambigu : les valeurs sont présentes, mais leur attribution à la variante GPPC -CMM n'est pas explicite dans le passage récupéré."
       }
     },
     {
@@ -651,11 +651,11 @@
         "evidence_hit_at_3": false
       },
       "human_review": {
-        "answer_correct": null,
-        "fully_grounded": null,
-        "citation_coverage_pass": null,
-        "citation_support_pass": null,
-        "review_note": null
+        "answer_correct": false,
+        "fully_grounded": true,
+        "citation_coverage_pass": true,
+        "citation_support_pass": true,
+        "review_note": "Réponse incomplète car le pitch de 2,00 mm manque ; les affirmations sur le blindage et les coques sont soutenues et citées par S1."
       }
     },
     {
@@ -730,11 +730,11 @@
         "evidence_hit_at_3": false
       },
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": false,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention incorrecte : les passages portent sur d'autres arrangements et ne contiennent pas la preuve 23-35 / 100 contacts."
       }
     },
     {
@@ -788,11 +788,11 @@
       },
       "retrieval_metrics": null,
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": true,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention correcte : aucun classement IP pour Harwin Datamate n'est présent dans les passages fournis."
       }
     },
     {
@@ -846,11 +846,11 @@
       },
       "retrieval_metrics": null,
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": true,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention correcte : les passages mentionnent SMPM, mais aucune durabilité en cycles pour SMPM-EM."
       }
     },
     {
@@ -904,11 +904,11 @@
       },
       "retrieval_metrics": null,
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": true,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention correcte : la résistance de contact Molex nécessaire à la comparaison n'est pas fournie."
       }
     },
     {
@@ -962,11 +962,11 @@
       },
       "retrieval_metrics": null,
       "human_review": {
-        "answer_correct": null,
+        "answer_correct": true,
         "fully_grounded": null,
         "citation_coverage_pass": null,
         "citation_support_pass": null,
-        "review_note": null
+        "review_note": "Abstention correcte : les passages sur les connecteurs ne contiennent aucune recommandation de fluide hydraulique."
       }
     }
   ]
