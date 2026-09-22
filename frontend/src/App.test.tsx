@@ -11,16 +11,19 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
-import { askQuestion } from './api/client'
-import type { AskResponse } from './api/client'
+import { askQuestion, convertUnit } from './api/client'
+import type { AskResponse, ConvertResponse } from './api/client'
 import { I18nProvider } from './i18n/I18nContext'
 import { languageStorageKey } from './i18n/translations'
 
 vi.mock('./api/client', () => ({
   askQuestion: vi.fn(),
+  convertUnit: vi.fn(),
+  supportedUnits: ['mm', 'inch', 'N', 'lbf', '°C', '°F'],
 }))
 
 const mockedAskQuestion = vi.mocked(askQuestion)
+const mockedConvertUnit = vi.mocked(convertUnit)
 
 function renderApp() {
   return render(
@@ -63,6 +66,9 @@ describe('App', () => {
       screen.getByRole('textbox', { name: 'Technical question' }),
     ).toHaveValue('')
     expect(screen.getByRole('button', { name: 'Ask' })).toBeDisabled()
+    expect(
+      screen.getByRole('heading', { name: 'Unit conversion' }),
+    ).toBeVisible()
     expect(screen.queryByRole('region', { name: 'Result' })).not.toBeInTheDocument()
     expect(document.documentElement).toHaveAttribute('lang', 'en')
     expect(
@@ -154,6 +160,9 @@ describe('App', () => {
       screen.getByRole('heading', { name: 'Posez une question technique' }),
     ).toBeVisible()
     expect(
+      screen.getByRole('heading', { name: 'Conversion d’unités' }),
+    ).toBeVisible()
+    expect(
       within(
         screen.getByRole('navigation', { name: 'Navigation principale' }),
       ).getByText('Aide'),
@@ -183,6 +192,9 @@ describe('App', () => {
     ).toBeVisible()
     expect(
       screen.getByRole('heading', { name: 'Fai una domanda tecnica' }),
+    ).toBeVisible()
+    expect(
+      screen.getByRole('heading', { name: 'Conversione di unità' }),
     ).toBeVisible()
     const italianNavigation = screen.getByRole('navigation', {
       name: 'Navigazione principale',
@@ -302,5 +314,67 @@ describe('App', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The answer could not be retrieved. Check that the API is available and try again.',
     )
+  })
+
+  it('convertit une valeur avec les unités sélectionnées et affiche le résultat API', async () => {
+    const response: ConvertResponse = {
+      value: 100,
+      from_unit: 'N',
+      to_unit: 'lbf',
+      converted_value: 22.480894309971,
+    }
+    mockedConvertUnit.mockResolvedValue(response)
+    renderApp()
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Value' }), {
+      target: { value: '100' },
+    })
+    fireEvent.change(screen.getByRole('combobox', { name: 'From' }), {
+      target: { value: 'N' },
+    })
+    fireEvent.change(screen.getByRole('combobox', { name: 'To' }), {
+      target: { value: 'lbf' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Convert' }))
+
+    expect(mockedConvertUnit).toHaveBeenCalledWith({
+      value: 100,
+      from_unit: 'N',
+      to_unit: 'lbf',
+    })
+    expect(
+      await screen.findByRole('status', { name: 'Conversion result' }),
+    ).toHaveTextContent('100N→22.480894309971lbf')
+  })
+
+  it('affiche une erreur de conversion sans appel réseau réel', async () => {
+    mockedConvertUnit.mockRejectedValue(new Error('API unavailable'))
+    renderApp()
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Value' }), {
+      target: { value: '25' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Convert' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The conversion could not be completed. Try again.',
+    )
+  })
+
+  it('adapte la destination lorsque la famille de l’unité source change', () => {
+    renderApp()
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'From' }), {
+      target: { value: '°C' },
+    })
+
+    const targetUnit = screen.getByRole('combobox', { name: 'To' })
+    expect(targetUnit).toHaveValue('°F')
+    expect(
+      within(targetUnit).getByRole('option', { name: '°F' }),
+    ).toBeVisible()
+    expect(
+      within(targetUnit).queryByRole('option', { name: 'inch' }),
+    ).not.toBeInTheDocument()
   })
 })
