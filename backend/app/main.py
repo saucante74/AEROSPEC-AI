@@ -1,9 +1,11 @@
 import logging
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from langchain_chroma import Chroma
 from openai import OpenAIError
 from pydantic import BaseModel, Field, field_validator
@@ -15,9 +17,27 @@ from .tools import Unit, convert_unit
 
 PDF_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "sample_docs"
 MAX_TOP_K = 20
+DEFAULT_FRONTEND_ORIGINS = (
+    "http://localhost:5173",
+    "http://localhost:8080",
+)
+
+
+def parse_frontend_origins(value: str | None) -> list[str]:
+    if value is None:
+        return list(DEFAULT_FRONTEND_ORIGINS)
+    return [origin.strip() for origin in value.split(",") if origin.strip()]
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="AeroSpec AI")
+FRONTEND_ORIGINS = parse_frontend_origins(os.getenv("FRONTEND_ORIGINS"))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=FRONTEND_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["POST"],
+    allow_headers=["Content-Type"],
+)
 
 
 class SearchRequest(BaseModel):
