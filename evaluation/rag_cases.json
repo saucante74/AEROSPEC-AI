@@ -750,5 +750,702 @@
     "reference_answer": null,
     "required_facts": [],
     "unanswerable_reason": "The Samtec document describes VNX+ frequencies, contact sizes, interfaces and military/aerospace use but gives no total-ionizing-dose value for the RF backplane; a separate mention of rad-hard optics does not supply that rating."
+  },
+  {
+    "id": "rag-037",
+    "question": "What material and flammability rating are specified for Harwin Datamate housings?",
+    "answerable": true,
+    "reference_answer": "The housings are glass-filled thermoplastic rated UL94V-0.",
+    "required_facts": [
+      {
+        "fact": "Datamate housings use glass-filled thermoplastic rated UL94V-0.",
+        "evidence": [
+          {
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "Housings: Glass-Filled Thermoplastic, UL94V-0"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-038",
+    "question": "What insertion, withdrawal, and housing-retention forces are specified per Harwin Datamate contact?",
+    "answerable": true,
+    "reference_answer": "Insertion force is 2.0 N maximum, withdrawal force is 0.2 N minimum, and contact retention in the housing is 10 N minimum.",
+    "required_facts": [
+      {
+        "fact": "Insertion force is 2.0 N maximum per contact.",
+        "evidence": [
+          {
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "Insertion force (per contact): 2.0N max"
+          }
+        ]
+      },
+      {
+        "fact": "Withdrawal force is 0.2 N minimum per contact.",
+        "evidence": [
+          {
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "Withdrawal force (per contact): 0.2N min"
+          }
+        ]
+      },
+      {
+        "fact": "Contact retention in the housing is 10 N minimum.",
+        "evidence": [
+          {
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "Contact retention in housing: 10N min"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-039",
+    "question": "What shock resistance is specified for Harwin Datamate connectors?",
+    "answerable": true,
+    "reference_answer": "The specified shock resistance is 100 G (981 m/s²).",
+    "required_facts": [
+      {
+        "fact": "The shock resistance is 100 G (981 m/s²).",
+        "evidence": [
+          {
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "Shock resistance: 100G (981m/s²)"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-040",
+    "question": "What maximum pin count does Harwin state for Datamate connectors?",
+    "answerable": true,
+    "reference_answer": "Datamate options extend to 50 pins.",
+    "required_facts": [
+      {
+        "fact": "Datamate options are available in pin counts up to 50.",
+        "evidence": [
+          {
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page_label": "2",
+            "text_anchor": "options in pin counts up to 50"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-041",
+    "question": "Which standard housing materials does Douglas list for its hermetic MIL-DTL-38999 connectors?",
+    "answerable": true,
+    "reference_answer": "The standard housing options are aluminum and stainless steel.",
+    "required_facts": [
+      {
+        "fact": "Standard housing options include aluminum and stainless steel.",
+        "evidence": [
+          {
+            "source": "MIL_connector_datasheet.pdf",
+            "page_label": "2",
+            "text_anchor": "Standard options include aluminum and stainless steel"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-042",
+    "question": "How do the Series I 25-35 and 25-61 insert arrangements differ in contact count and contact size?",
+    "answerable": true,
+    "reference_answer": "The 25-35 arrangement has 128 size-22D contacts, while the 25-61 arrangement has 61 size-20 contacts.",
+    "required_facts": [
+      {
+        "fact": "Series I arrangement 25-35 has 128 size-22D contacts.",
+        "evidence": [
+          {
+            "source": "MIL_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "25-35 128"
+          }
+        ]
+      },
+      {
+        "fact": "Series I arrangement 25-61 has 61 size-20 contacts.",
+        "evidence": [
+          {
+            "source": "MIL_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "25-61 61"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-043",
+    "question": "How many size-22D contacts does the Douglas Series III F45 insert arrangement provide?",
+    "answerable": true,
+    "reference_answer": "The Series III F45 arrangement provides 67 size-22D contacts.",
+    "required_facts": [
+      {
+        "fact": "The Series III F45 arrangement provides 67 size-22D contacts.",
+        "evidence": [
+          {
+            "source": "MIL_connector_datasheet.pdf",
+            "page_label": "3",
+            "text_anchor": "F45 67"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-044",
+    "question": "For the Douglas 38999 Series I box-mount shell size 21, what are dimensions N, M, and D?",
+    "answerable": true,
+    "reference_answer": "For shell size 21, N is 1.332, M is 0.790, and D is 1.35.",
+    "required_facts": [
+      {
+        "fact": "The shell-size 21 row lists N as 1.332, M as 0.790, and D as 1.35.",
+        "evidence": [
+          {
+            "source": "MIL_connector_datasheet.pdf",
+            "page_label": "4",
+            "text_anchor": "21 1.332 0.790 1.07 1.35"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-045",
+    "question": "For the Douglas 38999 Series III jam-nut shell size 23 (H), what K dimension and B thread value are listed?",
+    "answerable": true,
+    "reference_answer": "The row lists K as 0.878 and the B thread value as 1.500.",
+    "required_facts": [
+      {
+        "fact": "For shell size 23 (H), K is 0.878 and the B thread value is 1.500.",
+        "evidence": [
+          {
+            "source": "MIL_connector_datasheet.pdf",
+            "page_label": "7",
+            "text_anchor": "23 (H) 0.878 1.500 M41x1-6g 0.82 1.50"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-046",
+    "question": "At 250 V, how does the per-circuit current rating of Molex .062 miniature nylon connectors change between 1-15 circuits and 24-36 circuits?",
+    "answerable": true,
+    "reference_answer": "They are rated for 5 A per circuit with 1-15 circuits and 4 A per circuit with 24 or 36 circuits, at a maximum of 250 V per circuit.",
+    "required_facts": [
+      {
+        "fact": "The maximum-use voltage is 250 V per circuit.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "6",
+            "text_anchor": "maximum use at 250V per circuit"
+          }
+        ]
+      },
+      {
+        "fact": "Models with 1-15 circuits are rated for 5 A per circuit.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "6",
+            "text_anchor": "5 amps per circuit for 1- to 15- circuit models"
+          }
+        ]
+      },
+      {
+        "fact": "The 24- and 36-circuit models are rated for 4 A per circuit.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "6",
+            "text_anchor": "24- and 36-circuit"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-047",
+    "question": "What circuit-count range is specified for Molex .062 miniature phenolic connectors?",
+    "answerable": true,
+    "reference_answer": "The phenolic versions cover 4 through 104 circuits.",
+    "required_facts": [
+      {
+        "fact": "Phenolic versions are supplied for 4 through 104 circuits.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "6",
+            "text_anchor": "phenolic types for 4 through 104 circuits"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-048",
+    "question": "What terminal-clearance spacing is specified for Molex Series 19-09 international connectors?",
+    "answerable": true,
+    "reference_answer": "They provide 4 mm over-surface spacing between terminals and 4 mm from the connector back to the crimped-terminal end.",
+    "required_facts": [
+      {
+        "fact": "The housing provides 4 mm over-surface spacing between terminals and 4 mm behind the connector to the crimped-terminal end.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "8",
+            "text_anchor": "4mm over-surface spacing between terminals"
+          },
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "8",
+            "text_anchor": "back of the connector"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-049",
+    "question": "What insulated-wire range is specified for Molex Series 06-01 quarter-inch flat-blade connectors?",
+    "answerable": true,
+    "reference_answer": "They accept insulated wire from 10 through 20 gauge.",
+    "required_facts": [
+      {
+        "fact": "The specified wire range is 10 through 20 gauge, insulated.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "9",
+            "text_anchor": "Wire size: 10- through 20-gauge, insulated"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-050",
+    "question": "What circuit count, terminal construction, wire range, and panel thickness are specified for Molex Series 06-02 relay connector model 1852?",
+    "answerable": true,
+    "reference_answer": "Model 1852 has 14 circuits, uses 0.100-inch spring-tempered tin-plated brass terminals for 18- through 24-gauge wire, and mounts in panels up to 0.093 inch thick.",
+    "required_facts": [
+      {
+        "fact": "Model 1852 is a 14-circuit relay connector.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "10",
+            "text_anchor": "A 14-circuit relay connector"
+          }
+        ]
+      },
+      {
+        "fact": "Its 0.100-inch spring-tempered tin-plated brass terminals accept 18- through 24-gauge wire.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "10",
+            "text_anchor": ".100-inch, spring-tempered, tin-plated brass terminals can be crimped to 18- through 24-gauge wire"
+          }
+        ]
+      },
+      {
+        "fact": "It mounts in a panel up to 0.093 inch thick.",
+        "evidence": [
+          {
+            "source": "MOLEX_connector_datasheet.pdf",
+            "page_label": "10",
+            "text_anchor": ".093-inch maximum thickness"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-051",
+    "question": "Which interface size and maximum frequency correspond to Samtec's vertical 135, 185, 240, and 292 Series connectors?",
+    "answerable": true,
+    "reference_answer": "The vertical mappings are 1.35 mm/90 GHz for 135 Series, 1.85 mm/65 GHz for 185 Series, 2.40 mm/50 GHz for 240 Series, and 2.92 mm/40 GHz for 292 Series.",
+    "required_facts": [
+      {
+        "fact": "Vertical 135 Series uses a 1.35 mm interface and is specified for 90 GHz.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "4",
+            "text_anchor": "1.35 mm • 90 GHz, 50 Ohm • Solderless 135 Series Vertical"
+          }
+        ]
+      },
+      {
+        "fact": "Vertical 185 Series uses a 1.85 mm interface and is specified for 65 GHz.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "4",
+            "text_anchor": "1.85 mm • 65 GHz, 50 Ohm • Solderless 185 Series Vertical"
+          }
+        ]
+      },
+      {
+        "fact": "Vertical 240 Series uses a 2.40 mm interface and is specified for 50 GHz.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "4",
+            "text_anchor": "2.40 mm • 50 GHz, 50 Ohm • Solderless 240 Series Vertical"
+          }
+        ]
+      },
+      {
+        "fact": "Vertical 292 Series uses a 2.92 mm interface and is specified for 40 GHz.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "4",
+            "text_anchor": "2.92 mm • 40 GHz, 50 Ohm • Solderless 292 Series Vertical"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-052",
+    "question": "How do Samtec's 20 GHz and 40 GHz SMP board-connector mounting options differ?",
+    "answerable": true,
+    "reference_answer": "The 20 GHz SMP options are edge mount or through-hole, while the 40 GHz options also include surface mount and mixed technology.",
+    "required_facts": [
+      {
+        "fact": "The 20 GHz SMP options are edge mount or through-hole.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "7",
+            "text_anchor": "20 GHz options: edge mount or through-hole"
+          }
+        ]
+      },
+      {
+        "fact": "The 40 GHz SMP options are edge mount, through-hole, surface mount, or mixed technology.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "7",
+            "text_anchor": "40 GHz options: edge mount, through-hole, surface mount or mixed-technology"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-053",
+    "question": "What length and compression range are specified for Samtec adaptor PRFIA-SMPM-J-J-SP-2?",
+    "answerable": true,
+    "reference_answer": "The SP-2 adaptor is 16.5 mm long with a 0.100-inch compression range.",
+    "required_facts": [
+      {
+        "fact": "PRFIA-SMPM-J-J-SP-2 is 16.5 mm long with a 0.100-inch compression range.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "8",
+            "text_anchor": "PRFIA-SMPM-J-J- SP-2, Jack 16.5 mm Length Compression Range .100\""
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-054",
+    "question": "What panel-density advantage does Samtec state for its 75-ohm HD-BNC solution compared with standard BNC?",
+    "answerable": true,
+    "reference_answer": "Samtec states that HD-BNC provides four times the panel density of standard BNC.",
+    "required_facts": [
+      {
+        "fact": "The HD-BNC solution provides four times the panel density of standard BNC.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "11",
+            "text_anchor": "4x the panel density and 20% lighter compared to standard BNC"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-055",
+    "question": "What physical envelope and digital/RF interface speeds are stated for a Samtec VITA 90 VNX+ embedded module?",
+    "answerable": true,
+    "reference_answer": "An entire VNX+ module can fit within a 5-inch tube and can combine 56 Gbps high-speed digital interfaces with 110 GHz coaxial RF interfaces.",
+    "required_facts": [
+      {
+        "fact": "An entire VNX+ embedded module can fit within a 5-inch tube.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "12",
+            "text_anchor": "embedded module can fit within a 5-inch tube"
+          }
+        ]
+      },
+      {
+        "fact": "VNX+ modules can combine high-speed digital interfaces at 56 Gbps with coaxial RF interfaces at 110 GHz.",
+        "evidence": [
+          {
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page_label": "12",
+            "text_anchor": "high-speed digital (56 Gbps), rugged optical and coaxial RF (110 GHz) solutions"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-056",
+    "question": "What coupling method does Amphenol state for MIL-DTL-38999 Series III PCB connectors?",
+    "answerable": true,
+    "reference_answer": "Series III uses threaded quick coupling in one complete turn.",
+    "required_facts": [
+      {
+        "fact": "Series III uses threaded quick coupling in one complete turn.",
+        "evidence": [
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "144",
+            "text_anchor": "III (Tri-Start) - Threaded, quick coupling in one complete turn"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-057",
+    "question": "What standard PCB-tail diameter does Amphenol list for MIL-DTL-38999 size-16 contacts?",
+    "answerable": true,
+    "reference_answer": "The standard size-16 PCB-tail diameter is 0.062 ± 0.001 inch.",
+    "required_facts": [
+      {
+        "fact": "The standard size-16 PCB-tail diameter is 0.062 ± 0.001 inch.",
+        "evidence": [
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "145",
+            "text_anchor": "MIL-DTL-38999 .062 ±.001 .019 ±.001 .019 ±.001"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-058",
+    "question": "How many contacts and what contact size are specified for Amphenol MIL-DTL-38999 insert arrangement 19-32?",
+    "answerable": true,
+    "reference_answer": "Arrangement 19-32 has 32 size-20 contacts.",
+    "required_facts": [
+      {
+        "fact": "Arrangement 19-32 has 32 size-20 contacts.",
+        "evidence": [
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "146",
+            "text_anchor": "18-32 19-32 19-32 I 32 32"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-059",
+    "question": "How do the sea-level operating voltage and coupling method differ between the Amphenol MIL-DTL-26482 and MIL-5015 connector families?",
+    "answerable": true,
+    "reference_answer": "MIL-DTL-26482 is rated to 1,000 VAC RMS and uses bayonet coupling, while MIL-5015 is rated to 1,500 VAC RMS and uses threaded coupling.",
+    "required_facts": [
+      {
+        "fact": "MIL-DTL-26482 operates to 1,000 VAC RMS at sea level and uses bayonet coupling.",
+        "evidence": [
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "146",
+            "text_anchor": "1,000 VAC (RMS) at sea level"
+          },
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "146",
+            "text_anchor": "Bayonet coupling - most commonly used in PCB applications"
+          }
+        ]
+      },
+      {
+        "fact": "MIL-5015 operates to 1,500 VAC RMS at sea level and uses threaded coupling.",
+        "evidence": [
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "146",
+            "text_anchor": "1,500 VAC (RMS) at sea level"
+          },
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "146",
+            "text_anchor": "hreaded coupling"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-060",
+    "question": "What PCB-tail stickout range does Amphenol specify for Series III TVP00 size-22D contacts?",
+    "answerable": true,
+    "reference_answer": "The stickout range is 0.181 to 0.242 inch.",
+    "required_facts": [
+      {
+        "fact": "Size 22D contacts have a PCB-tail stickout from 0.181 to 0.242 inch.",
+        "evidence": [
+          {
+            "source": "AMPHENOL_connector_datasheet.pdf",
+            "page_label": "163",
+            "text_anchor": ".242 -.181 FOR SIZE 22D CONTACTS"
+          }
+        ]
+      }
+    ],
+    "unanswerable_reason": null
+  },
+  {
+    "id": "rag-061",
+    "question": "What characteristic impedance is specified for Harwin Datamate signal contacts?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "The complete Harwin document specifies Datamate materials, voltage, resistance, force, pitch and environmental performance but gives no characteristic-impedance value; impedance values elsewhere in the corpus apply to RF connector families."
+  },
+  {
+    "id": "rag-062",
+    "question": "What maximum contact resistance is specified for Douglas hermetic MIL-DTL-38999 connectors?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "The Douglas specification page gives housing and sealing materials, leak rate, pressure and temperature data but no contact-resistance limit; contact-resistance values in the corpus belong to other connector products."
+  },
+  {
+    "id": "rag-063",
+    "question": "How many mating cycles are Molex .062 Series 03-06 miniature nylon connectors rated for?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "The Series 03-06 section specifies circuit counts, voltage, current, temperature, wire sizes, materials and mounting, but no mating-cycle durability; cycle ratings elsewhere in the corpus apply to different products."
+  },
+  {
+    "id": "rag-064",
+    "question": "What maximum VSWR is specified for Samtec's two-port GPPC compression-mount connector?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "The GPPC two-port section specifies pitch, board thickness, mounting torque and form factor but no numeric VSWR limit; nearby VSWR discussion concerns other single-channel precision RF launches."
+  },
+  {
+    "id": "rag-065",
+    "question": "Which withstands the higher shock level: Harwin Datamate or Douglas hermetic MIL-DTL-38999 connectors?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "Harwin specifies 100 G shock resistance for Datamate, but the Douglas document supplies no shock rating, so the two connector families cannot be compared from this corpus."
+  },
+  {
+    "id": "rag-066",
+    "question": "Which requires the lower board-mount torque: Samtec's 100 Series edge-launch connector or Amphenol's Series III TVP00 wall-mount receptacle?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "Samtec specifies 0.5 to 0.8 in-lbs for the 100 Series edge-launch connector, while the Amphenol TVP00 dimensional and ordering data gives no board-mount torque, so the comparison is incomplete."
+  },
+  {
+    "id": "rag-067",
+    "question": "Which has the higher maximum current rating: the Molex Series 06-01 flat-blade connector or the Douglas hermetic MIL-DTL-38999 connector?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "Molex specifies 18 A maximum per contact for Series 06-01, but the Douglas document gives no current rating for its hermetic MIL-DTL-38999 connectors, preventing a supported comparison."
+  },
+  {
+    "id": "rag-068",
+    "question": "Which supports the higher sea-level operating voltage: Amphenol MIL-DTL-38999 PCB connectors or Douglas hermetic MIL-DTL-38999 connectors?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "Amphenol specifies operation to 900 VAC RMS at sea level, but the Douglas document provides no operating-voltage rating, so the two MIL-DTL-38999 offerings cannot be compared."
+  },
+  {
+    "id": "rag-069",
+    "question": "What per-circuit current rating does Molex specify for the planned 12-circuit Series 19-09 international connector?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "The Series 19-09 section gives ratings for 3-, 6-, 9- and 15-circuit models and says a 12-circuit model was planned or subject to availability, but it assigns no current rating to that variant."
+  },
+  {
+    "id": "rag-070",
+    "question": "What board-thickness range and mounting torque are specified for a vertical Samtec 1.00 mm 100 Series connector?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "Samtec provides thickness and torque values for the 1.00 mm 100 Series edge-launch connector, while its vertical table starts at the 1.35 mm 135 Series and contains no vertical 100 Series specification."
+  },
+  {
+    "id": "rag-071",
+    "question": "Do Amphenol's gold-plated MIL-DTL-38999 PCB tails guarantee zero corrosion throughout the connector's service life?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "The Amphenol catalog specifies gold-over-nickel plating and discusses cleaning flux to avoid corrosion, but it makes no zero-corrosion guarantee or lifetime performance claim."
+  },
+  {
+    "id": "rag-072",
+    "question": "Can Harwin Datamate connectors be operated continuously at 1,200 V AC/DC because that value is listed as their maximum voltage?",
+    "answerable": false,
+    "reference_answer": null,
+    "required_facts": [],
+    "unanswerable_reason": "Harwin distinguishes the 1,200 V maximum from working-voltage ratings of 800 V for connectors and 300 V for cable assemblies; it does not state that continuous operation at the maximum value is safe."
   }
 ]

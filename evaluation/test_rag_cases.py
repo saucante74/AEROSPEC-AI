@@ -25,11 +25,11 @@ class RagCasesTest(TestCase):
         ids = [case["id"] for case in self.cases]
         answerable_count = sum(case["answerable"] for case in self.cases)
 
-        self.assertEqual(len(self.cases), 36)
-        self.assertEqual(answerable_count, 24)
-        self.assertEqual(len(self.cases) - answerable_count, 12)
+        self.assertEqual(len(self.cases), 72)
+        self.assertEqual(answerable_count, 48)
+        self.assertEqual(len(self.cases) - answerable_count, 24)
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(ids, [f"rag-{index:03d}" for index in range(1, 37)])
+        self.assertEqual(ids, [f"rag-{index:03d}" for index in range(1, 73)])
 
     def test_all_cases_follow_the_dataset_schema(self) -> None:
         for case in self.cases:
