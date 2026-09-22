@@ -6,6 +6,7 @@ from langchain_core.documents import Document
 from openai import OpenAIError
 
 from backend.app.main import (
+    FRONTEND_ORIGINS,
     app,
     get_retrieval_index,
     get_text_generator,
@@ -68,18 +69,50 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         method: str,
         path: str,
         json: dict[str, object] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> Response:
         async with AsyncClient(
             transport=ASGITransport(app=app),
             base_url="http://test",
         ) as client:
-            return await client.request(method, path, json=json)
+            return await client.request(method, path, json=json, headers=headers)
 
     async def test_health(self) -> None:
         response = await self.request("GET", "/health")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+    async def test_cors_allows_configured_frontend_origin(self) -> None:
+        origin = FRONTEND_ORIGINS[0]
+        response = await self.request(
+            "OPTIONS",
+            "/ask",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["access-control-allow-origin"], origin)
+
+    async def test_cors_rejects_unconfigured_origin(self) -> None:
+        origin = "https://unauthorized.invalid"
+        self.assertNotIn(origin, FRONTEND_ORIGINS)
+
+        response = await self.request(
+            "OPTIONS",
+            "/ask",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+
+        self.assertNotIn("access-control-allow-origin", response.headers)
 
     async def test_convert_millimeters_to_inches(self) -> None:
         response = await self.request(
