@@ -1,16 +1,20 @@
+import json
 import logging
 import os
+from collections.abc import Awaitable, Callable
 from functools import lru_cache
 from pathlib import Path
+from time import perf_counter
 from typing import Annotated
+from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_chroma import Chroma
 from openai import OpenAIError
 from pydantic import BaseModel, Field, field_validator
 
-from .generation import OpenAITextGenerator, TextGenerator
+from .generation import OpenAITextGenerator, TextGenerator, is_abstention
 from .rag import answer_question
 from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
 from .tools import Unit, convert_unit
@@ -37,7 +41,57 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["POST"],
     allow_headers=["Content-Type"],
+    expose_headers=["X-Request-ID"],
 )
+
+
+@app.middleware("http")
+async def observe_ask_request(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
+    if request.url.path != "/ask" or request.method != "POST":
+        return await call_next(request)
+
+    request_id = str(uuid4())
+    request.state.request_id = request_id
+    started_at = perf_counter()
+
+    try:
+        response = await call_next(request)
+    except Exception as error:
+        logger.error(
+            json.dumps(
+                {
+                    "event": "rag_request_completed",
+                    "request_id": request_id,
+                    "status": "error",
+                    "total_duration_ms": (perf_counter() - started_at) * 1_000,
+                    "error_type": type(error).__name__,
+                }
+            )
+        )
+        raise
+
+    response.headers["X-Request-ID"] = request_id
+    total_duration_ms = (perf_counter() - started_at) * 1_000
+    observation = getattr(request.state, "rag_observation", None)
+    if observation is not None:
+        observation["total_duration_ms"] = total_duration_ms
+        logger.info(json.dumps(observation))
+    elif response.status_code >= 400:
+        logger.error(
+            json.dumps(
+                {
+                    "event": "rag_request_completed",
+                    "request_id": request_id,
+                    "status": "error",
+                    "total_duration_ms": total_duration_ms,
+                    "error_type": getattr(request.state, "error_type", "HTTPError"),
+                }
+            )
+        )
+    return response
 
 
 class SearchRequest(BaseModel):
@@ -205,6 +259,7 @@ async def search(
 @app.post("/ask", response_model=AskResponse)
 async def ask(
     request: AskRequest,
+    http_request: Request,
     vector_store: RetrievalIndex,
     llm: AnswerGenerator,
 ) -> AskResponse:
@@ -216,22 +271,19 @@ async def ask(
             llm,
         )
     except ValueError as error:
+        http_request.state.error_type = type(error).__name__
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(error),
         ) from error
     except OpenAIError as error:
-        logger.error(
-            "OpenAI generation failed: exception_type=%s message=%s",
-            type(error).__name__,
-            str(error),
-        )
+        http_request.state.error_type = type(error).__name__
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Le fournisseur LLM n'a pas pu générer de réponse.",
         ) from error
 
-    return AskResponse(
+    response = AskResponse(
         question=request.question,
         answer=result.answer,
         sources=[
@@ -252,3 +304,13 @@ async def ask(
             for citation_id, source in result.citation_sources.items()
         ],
     )
+    http_request.state.rag_observation = {
+        "event": "rag_request_completed",
+        "request_id": http_request.state.request_id,
+        "status": "abstained" if is_abstention(result.answer) else "answered",
+        "retrieval_duration_ms": result.retrieval_duration_ms,
+        "generation_duration_ms": result.generation_duration_ms,
+        "retrieved_count": result.retrieved_count,
+        "citation_count": len(result.citation_sources),
+    }
+    return response

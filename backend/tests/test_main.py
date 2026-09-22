@@ -1,10 +1,13 @@
+import json
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
+from uuid import UUID
 
 from httpx import ASGITransport, AsyncClient, Response
 from langchain_core.documents import Document
 from openai import OpenAIError
 
+from backend.app.generation import ABSTENTION_MESSAGE
 from backend.app.main import (
     FRONTEND_ORIGINS,
     app,
@@ -250,13 +253,16 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.json(), {"detail": "Aucun PDF trouvé"})
 
     async def test_ask_returns_grounded_answer_and_retrieval_sources(self) -> None:
-        response = await self.request(
-            "POST",
-            "/ask",
-            json={"question": "What is the helium leak rate?", "top_k": 3},
-        )
+        with self.assertLogs("backend.app.main", level="INFO") as captured_logs:
+            response = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "What is the helium leak rate?", "top_k": 3},
+            )
 
         self.assertEqual(response.status_code, 200)
+        request_id = response.headers["X-Request-ID"]
+        self.assertEqual(str(UUID(request_id)), request_id)
         self.assertEqual(
             response.json(),
             {
@@ -272,6 +278,55 @@ class SearchApiTest(IsolatedAsyncioTestCase):
                 "citations": [],
             },
         )
+        event = json.loads(captured_logs.records[0].getMessage())
+        self.assertEqual(event["event"], "rag_request_completed")
+        self.assertEqual(event["request_id"], request_id)
+        self.assertEqual(event["status"], "answered")
+        self.assertEqual(event["retrieved_count"], 1)
+        self.assertEqual(event["citation_count"], 0)
+        for duration_name in (
+            "total_duration_ms",
+            "retrieval_duration_ms",
+            "generation_duration_ms",
+        ):
+            self.assertGreaterEqual(event[duration_name], 0)
+
+    async def test_ask_returns_a_distinct_request_id_for_each_request(self) -> None:
+        first_response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "First question", "top_k": 3},
+        )
+        second_response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Second question", "top_k": 3},
+        )
+
+        self.assertNotEqual(
+            first_response.headers["X-Request-ID"],
+            second_response.headers["X-Request-ID"],
+        )
+
+    async def test_ask_logs_abstention_without_sensitive_content(self) -> None:
+        sensitive_question = "SENSITIVE_QUESTION_42"
+        sensitive_answer = ABSTENTION_MESSAGE
+        self.text_generator = FakeTextGenerator(sensitive_answer)
+
+        with self.assertLogs("backend.app.main", level="INFO") as captured_logs:
+            response = await self.request(
+                "POST",
+                "/ask",
+                json={"question": sensitive_question, "top_k": 3},
+            )
+
+        event_text = captured_logs.records[0].getMessage()
+        event = json.loads(event_text)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(event["status"], "abstained")
+        self.assertNotIn(sensitive_question, event_text)
+        self.assertNotIn(f"Result for {sensitive_question}", event_text)
+        self.assertNotIn(sensitive_answer, event_text)
 
     async def test_ask_returns_only_valid_resolved_citations(self) -> None:
         self.text_generator = FakeTextGenerator(
@@ -335,6 +390,15 @@ class SearchApiTest(IsolatedAsyncioTestCase):
             response.json(),
             {"detail": "Le fournisseur LLM n'a pas pu générer de réponse."},
         )
+        request_id = response.headers["X-Request-ID"]
+        event_text = captured_logs.records[0].getMessage()
+        event = json.loads(event_text)
         self.assertNotIn("secret provider diagnostic", response.text)
-        self.assertIn("exception_type=OpenAIError", captured_logs.output[0])
-        self.assertIn("message=secret provider diagnostic", captured_logs.output[0])
+        self.assertEqual(event["event"], "rag_request_completed")
+        self.assertEqual(event["request_id"], request_id)
+        self.assertEqual(event["status"], "error")
+        self.assertEqual(event["error_type"], "OpenAIError")
+        self.assertGreaterEqual(event["total_duration_ms"], 0)
+        self.assertNotIn("What is the helium leak rate?", event_text)
+        self.assertNotIn("Result for What is the helium leak rate?", event_text)
+        self.assertNotIn("secret provider diagnostic", event_text)
