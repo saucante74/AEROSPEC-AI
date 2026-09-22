@@ -12,6 +12,7 @@ const english = {
     primaryLabel: 'Primary navigation',
     homeLabel: 'AeroSpec AI home',
     assistant: 'Assistant',
+    evaluation: 'Evaluation',
     help: 'Help',
     languageSelector: 'Language selection',
     selectLanguage: {
@@ -148,6 +149,76 @@ const english = {
       ],
     },
   },
+  evaluation: {
+    eyebrow: 'Measured prototype performance',
+    title: 'RAG Evaluation',
+    introduction: 'These results were measured on the current benchmark:',
+    cases: 'cases',
+    answerable: 'answerable',
+    unanswerable: 'unanswerable',
+    warning:
+      'Results measured on a small manually curated benchmark. They characterize this prototype on this dataset and are not production-wide performance guarantees.',
+    measuredResults: 'Measured results',
+    responseBehavior: 'Response behavior',
+    traceability: 'Traceability review',
+    provenance: 'Recorded provenance',
+    notApplicable: 'Not applicable',
+    retrieval: {
+      title: 'Retrieval',
+      description:
+        'Source metrics locate the expected document; evidence metrics require every expected fact to appear in the retrieved passages.',
+    },
+    abstention: {
+      title: 'Abstention',
+      description:
+        'Abstention behavior is evaluated separately for answerable and unanswerable cases.',
+      correctDescription:
+        'The system withheld an answer when the benchmark marked the question unanswerable.',
+      falseDescription:
+        'The system withheld an answer even though the benchmark contained the required evidence.',
+    },
+    grounding: {
+      title: 'Citations & grounding',
+      description:
+        'Citation structure is measured automatically. Answer correctness, grounding, coverage, and support come from the recorded human review.',
+    },
+    insight: {
+      eyebrow: 'Retrieval insight',
+      title: 'Finding the source is not the same as finding the evidence',
+      description:
+        'The expected source document is often present in the top three results, while the precise passages containing all required facts are retrieved less often. This comparison describes the current benchmark and does not identify a single exclusive cause.',
+    },
+    metrics: {
+      correctAbstentions: 'Correct abstentions',
+      falseAbstentions: 'False abstentions',
+      responsesWithCitations: 'Responses with citations',
+      validEmittedCitationIds: 'Valid emitted citation IDs',
+      resolvedCitationIds: 'Resolved citation IDs',
+      unknownCitationIds: 'Unknown citation IDs',
+      answerCorrectness: 'Answer correctness',
+      fullyGrounded: 'Fully grounded substantive responses',
+      citationCoverage: 'Citation coverage',
+      citationSupport: 'Citation support',
+    },
+    context: {
+      title: 'Evaluation context',
+      description:
+        'Configuration and dataset metadata recorded with this benchmark run.',
+      benchmark: 'Benchmark',
+      benchmarkSize: 'Benchmark size',
+      manualBenchmark: 'Manually curated RAG benchmark',
+      smallScope: 'Small scope',
+      dataset: 'Dataset',
+      model: 'Generation model',
+      provider: 'Provider',
+      embeddingModel: 'Embedding model',
+      retrievalConfiguration: 'Retrieval configuration',
+      corpus: 'Indexed corpus',
+      documents: 'documents',
+      chunks: 'chunks',
+      sourceArtifact: 'Source artifact',
+    },
+  },
   errors: {
     emptyQuestion: 'Enter a question before searching the documentation.',
     api: 'The answer could not be retrieved. Check that the API is available and try again.',
@@ -177,6 +248,7 @@ const french = {
     primaryLabel: 'Navigation principale',
     homeLabel: 'Accueil AeroSpec AI',
     assistant: 'Assistant',
+    evaluation: 'Évaluation',
     help: 'Aide',
     languageSelector: 'Sélection de la langue',
     selectLanguage: {
@@ -315,6 +387,76 @@ const french = {
       ],
     },
   },
+  evaluation: {
+    eyebrow: 'Performance mesurée du prototype',
+    title: 'Évaluation RAG',
+    introduction: 'Ces résultats ont été mesurés sur le benchmark actuel :',
+    cases: 'cas',
+    answerable: 'answerable',
+    unanswerable: 'unanswerable',
+    warning:
+      'Résultats mesurés sur un petit benchmark constitué manuellement. Ils caractérisent ce prototype sur ce jeu de données et ne garantissent pas les performances générales ou en production.',
+    measuredResults: 'Résultats mesurés',
+    responseBehavior: 'Comportement de réponse',
+    traceability: 'Revue de traçabilité',
+    provenance: 'Provenance enregistrée',
+    notApplicable: 'Non applicable',
+    retrieval: {
+      title: 'Retrieval',
+      description:
+        'Les métriques Source localisent le document attendu ; les métriques Evidence exigent que tous les faits attendus figurent dans les passages récupérés.',
+    },
+    abstention: {
+      title: 'Abstention',
+      description:
+        'Le comportement d’abstention est évalué séparément pour les cas answerable et unanswerable.',
+      correctDescription:
+        'Le système n’a pas répondu lorsque le benchmark indiquait que la question était unanswerable.',
+      falseDescription:
+        'Le système n’a pas répondu alors que le benchmark contenait les éléments nécessaires.',
+    },
+    grounding: {
+      title: 'Citations et grounding',
+      description:
+        'La structure des citations est mesurée automatiquement. La justesse, le grounding, la couverture et le support proviennent de la revue humaine enregistrée.',
+    },
+    insight: {
+      eyebrow: 'Enseignement du retrieval',
+      title: 'Retrouver la source ne signifie pas retrouver la preuve',
+      description:
+        'Le document source attendu figure souvent dans les trois premiers résultats, tandis que les passages précis contenant tous les faits requis sont retrouvés moins souvent. Cette comparaison décrit le benchmark actuel et n’attribue pas ce résultat à une cause unique.',
+    },
+    metrics: {
+      correctAbstentions: 'Abstentions correctes',
+      falseAbstentions: 'Fausses abstentions',
+      responsesWithCitations: 'Réponses avec citations',
+      validEmittedCitationIds: 'IDs de citation émis valides',
+      resolvedCitationIds: 'IDs de citation résolus',
+      unknownCitationIds: 'IDs de citation inconnus',
+      answerCorrectness: 'Justesse des réponses',
+      fullyGrounded: 'Réponses substantielles entièrement fondées',
+      citationCoverage: 'Couverture des citations',
+      citationSupport: 'Support des citations',
+    },
+    context: {
+      title: 'Contexte de l’évaluation',
+      description:
+        'Configuration et métadonnées du jeu de données enregistrées avec cette campagne.',
+      benchmark: 'Benchmark',
+      benchmarkSize: 'Taille du benchmark',
+      manualBenchmark: 'Benchmark RAG constitué manuellement',
+      smallScope: 'Petit périmètre',
+      dataset: 'Jeu de données',
+      model: 'Modèle de génération',
+      provider: 'Fournisseur',
+      embeddingModel: 'Modèle d’embeddings',
+      retrievalConfiguration: 'Configuration du retrieval',
+      corpus: 'Corpus indexé',
+      documents: 'documents',
+      chunks: 'chunks',
+      sourceArtifact: 'Artefact source',
+    },
+  },
   errors: {
     emptyQuestion: 'Saisissez une question avant de lancer la recherche.',
     api: 'La réponse n’a pas pu être obtenue. Vérifiez que l’API est disponible, puis réessayez.',
@@ -334,6 +476,7 @@ const italian = {
     primaryLabel: 'Navigazione principale',
     homeLabel: 'Home AeroSpec AI',
     assistant: 'Assistente',
+    evaluation: 'Valutazione',
     help: 'Aiuto',
     languageSelector: 'Selezione della lingua',
     selectLanguage: {
@@ -470,6 +613,76 @@ const italian = {
         'Una citazione strutturalmente valida non costituisce una validazione professionale della risposta.',
         'Le strutture PDF complesse possono ridurre la qualità dell’estrazione e della ricerca.',
       ],
+    },
+  },
+  evaluation: {
+    eyebrow: 'Prestazioni misurate del prototipo',
+    title: 'Valutazione RAG',
+    introduction: 'Questi risultati sono stati misurati sul benchmark attuale:',
+    cases: 'casi',
+    answerable: 'answerable',
+    unanswerable: 'unanswerable',
+    warning:
+      'Risultati misurati su un piccolo benchmark curato manualmente. Caratterizzano questo prototipo su questo dataset e non garantiscono le prestazioni generali o in produzione.',
+    measuredResults: 'Risultati misurati',
+    responseBehavior: 'Comportamento delle risposte',
+    traceability: 'Revisione della tracciabilità',
+    provenance: 'Provenienza registrata',
+    notApplicable: 'Non applicabile',
+    retrieval: {
+      title: 'Retrieval',
+      description:
+        'Le metriche Source individuano il documento atteso; le metriche Evidence richiedono che tutti i fatti attesi compaiano nei passaggi recuperati.',
+    },
+    abstention: {
+      title: 'Astensione',
+      description:
+        'Il comportamento di astensione viene valutato separatamente per i casi answerable e unanswerable.',
+      correctDescription:
+        'Il sistema non ha risposto quando il benchmark indicava che la domanda era unanswerable.',
+      falseDescription:
+        'Il sistema non ha risposto anche se il benchmark conteneva le evidenze necessarie.',
+    },
+    grounding: {
+      title: 'Citazioni e grounding',
+      description:
+        'La struttura delle citazioni è misurata automaticamente. Correttezza, grounding, copertura e supporto provengono dalla revisione umana registrata.',
+    },
+    insight: {
+      eyebrow: 'Indicazione dal retrieval',
+      title: 'Trovare la fonte non equivale a trovare l’evidenza',
+      description:
+        'Il documento sorgente atteso compare spesso nei primi tre risultati, mentre i passaggi precisi contenenti tutti i fatti richiesti vengono recuperati meno spesso. Questo confronto descrive il benchmark attuale e non attribuisce il risultato a una sola causa.',
+    },
+    metrics: {
+      correctAbstentions: 'Astensioni corrette',
+      falseAbstentions: 'Astensioni errate',
+      responsesWithCitations: 'Risposte con citazioni',
+      validEmittedCitationIds: 'ID di citazione emessi validi',
+      resolvedCitationIds: 'ID di citazione risolti',
+      unknownCitationIds: 'ID di citazione sconosciuti',
+      answerCorrectness: 'Correttezza delle risposte',
+      fullyGrounded: 'Risposte sostanziali interamente fondate',
+      citationCoverage: 'Copertura delle citazioni',
+      citationSupport: 'Supporto delle citazioni',
+    },
+    context: {
+      title: 'Contesto della valutazione',
+      description:
+        'Configurazione e metadati del dataset registrati con questa esecuzione.',
+      benchmark: 'Benchmark',
+      benchmarkSize: 'Dimensione del benchmark',
+      manualBenchmark: 'Benchmark RAG curato manualmente',
+      smallScope: 'Ambito ridotto',
+      dataset: 'Dataset',
+      model: 'Modello di generazione',
+      provider: 'Provider',
+      embeddingModel: 'Modello di embedding',
+      retrievalConfiguration: 'Configurazione del retrieval',
+      corpus: 'Corpus indicizzato',
+      documents: 'documenti',
+      chunks: 'chunk',
+      sourceArtifact: 'Artefatto sorgente',
     },
   },
   errors: {

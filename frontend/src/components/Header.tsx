@@ -2,14 +2,16 @@ import { supportedLanguages } from '../i18n/translations'
 import { useI18n } from '../i18n/useI18n'
 
 interface HeaderProps {
-  activePage: 'assistant' | 'help'
+  activePage: 'assistant' | 'evaluation' | 'help'
   onAssistantSelect: () => void
+  onEvaluationSelect: () => void
   onHelpSelect: () => void
 }
 
 export default function Header({
   activePage,
   onAssistantSelect,
+  onEvaluationSelect,
   onHelpSelect,
 }: HeaderProps) {
   const { language, setLanguage, t } = useI18n()
@@ -32,6 +34,13 @@ export default function Header({
               onClick={onAssistantSelect}
             >
               {t.nav.assistant}
+            </button>
+            <button
+              type="button"
+              aria-pressed={activePage === 'evaluation'}
+              onClick={onEvaluationSelect}
+            >
+              {t.nav.evaluation}
             </button>
             <button
               type="button"

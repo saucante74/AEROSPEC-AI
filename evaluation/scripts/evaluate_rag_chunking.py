@@ -5,7 +5,7 @@ from typing import Any
 from langchain_core.documents import Document
 
 from backend.app.retrieval import build_retrieval_index
-from evaluation.evaluate_rag import (
+from evaluation.scripts.evaluate_rag import (
     evidence_hit_at_k,
     evidence_matches_document,
     load_cases,

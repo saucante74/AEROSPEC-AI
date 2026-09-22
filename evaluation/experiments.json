@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "experiments": [
+    {
+      "id": "baseline-12",
+      "date": "2026-09-22T11:56:42.306819+00:00",
+      "archived_at_utc": "2026-09-22T19:01:14.608662+00:00",
+      "benchmark_version": "baseline-12",
+      "total_cases": 12,
+      "answerable_cases": 8,
+      "unanswerable_cases": 4,
+      "change": "Historical 12-case vector RAG baseline preserved before benchmark expansion.",
+      "hypothesis": "Establish the reference performance of the original benchmark and RAG configuration.",
+      "rag_config": {
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "top_k": 3,
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+        "provider": "OpenAI",
+        "model": "gpt-5.4-mini",
+        "abstention_message": "L'information n'est pas disponible dans les documents fournis.",
+        "retrieval_strategy": "dense_vector_similarity",
+        "vector_store": "Chroma",
+        "distance_metric": "cosine"
+      },
+      "artifacts": {
+        "benchmark": "runs/history/baseline-12/rag_cases.json",
+        "run": "runs/history/baseline-12/rag_run.json",
+        "summary": "runs/history/baseline-12/summary.json"
+      },
+      "metrics": {
+        "summary_path": "runs/history/baseline-12/summary.json"
+      },
+      "comparable_to": []
+    },
+    {
+      "id": "baseline-36",
+      "date": "2026-09-22T20:18:45.554792+00:00",
+      "archived_at_utc": "2026-09-22T20:19:32.935670+00:00",
+      "benchmark_version": "baseline-36",
+      "total_cases": 36,
+      "answerable_cases": 24,
+      "unanswerable_cases": 12,
+      "change": "Expanded the reference benchmark from 12 to 36 cases without changing the RAG configuration.",
+      "hypothesis": "Establish the reference performance of the current RAG configuration on the 36-case benchmark.",
+      "rag_config": {
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "top_k": 3,
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+        "retrieval_strategy": "dense_vector_similarity",
+        "vector_store": "Chroma",
+        "distance_metric": "cosine",
+        "provider": "OpenAI",
+        "model": "gpt-5.4-mini",
+        "abstention_message": "L'information n'est pas disponible dans les documents fournis."
+      },
+      "artifacts": {
+        "benchmark": "runs/history/baseline-36/rag_cases.json",
+        "run": "runs/history/baseline-36/rag_run.json",
+        "summary": "runs/history/baseline-36/summary.json"
+      },
+      "metrics": {
+        "summary_path": "runs/history/baseline-36/summary.json"
+      },
+      "comparable_to": []
+    },
+    {
+      "id": "baseline-72",
+      "date": "2026-09-22T21:19:47.608363+00:00",
+      "archived_at_utc": "2026-09-22T21:20:32.840334+00:00",
+      "benchmark_version": "baseline-72",
+      "total_cases": 72,
+      "answerable_cases": 48,
+      "unanswerable_cases": 24,
+      "change": "Expanded the reference benchmark from 36 to 72 cases without changing the RAG configuration.",
+      "hypothesis": "Establish the reference performance of the current RAG configuration on the 72-case benchmark.",
+      "rag_config": {
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "top_k": 3,
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+        "retrieval_strategy": "dense_vector_similarity",
+        "vector_store": "Chroma",
+        "distance_metric": "cosine",
+        "provider": "OpenAI",
+        "model": "gpt-5.4-mini",
+        "abstention_message": "L'information n'est pas disponible dans les documents fournis."
+      },
+      "artifacts": {
+        "benchmark": "runs/history/baseline-72/rag_cases.json",
+        "run": "runs/history/baseline-72/rag_run.json",
+        "summary": "runs/history/baseline-72/summary.json"
+      },
+      "metrics": {
+        "summary_path": "runs/history/baseline-72/summary.json"
+      },
+      "comparable_to": []
+    }
+  ]
+}
