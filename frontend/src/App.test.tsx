@@ -21,10 +21,10 @@ vi.mock('./api', () => ({
 const mockedAskQuestion = vi.mocked(askQuestion)
 
 function submitQuestion(question: string) {
-  fireEvent.change(screen.getByRole('textbox', { name: 'Question technique' }), {
+  fireEvent.change(screen.getByRole('textbox', { name: 'Technical question' }), {
     target: { value: question },
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Poser la question' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Ask' }))
 }
 
 afterEach(() => {
@@ -36,14 +36,30 @@ describe('App', () => {
   it("affiche l'état initial", () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'AeroSpec AI' })).toBeVisible()
     expect(
-      screen.getByRole('textbox', { name: 'Question technique' }),
+      screen.getByRole('heading', {
+        name: 'Ask. Find. Engineer with confidence.',
+      }),
+    ).toBeVisible()
+    expect(
+      screen.getByRole('textbox', { name: 'Technical question' }),
     ).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'Ask' })).toBeDisabled()
+    expect(screen.queryByRole('region', { name: 'Result' })).not.toBeInTheDocument()
+  })
+
+  it("préremplit la question depuis un exemple sans l'envoyer", () => {
+    const example =
+      'What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?'
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: example }))
+
     expect(
-      screen.getByRole('button', { name: 'Poser la question' }),
-    ).toBeDisabled()
-    expect(screen.queryByText('Résultat de la recherche')).not.toBeInTheDocument()
+      screen.getByRole('textbox', { name: 'Technical question' }),
+    ).toHaveValue(example)
+    expect(mockedAskQuestion).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Ask' })).toBeEnabled()
   })
 
   it('soumet une question, affiche le chargement, la réponse et ses citations', async () => {
@@ -73,10 +89,10 @@ describe('App', () => {
 
     expect(mockedAskQuestion).toHaveBeenCalledWith(question)
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Recherche des passages et préparation de la réponse…',
+      'Searching documents and preparing an answer…',
     )
     expect(
-      screen.getByRole('textbox', { name: 'Question technique' }),
+      screen.getByRole('textbox', { name: 'Technical question' }),
     ).toBeDisabled()
 
     await act(async () => resolveRequest(response))
@@ -84,16 +100,17 @@ describe('App', () => {
     expect(await screen.findByText(response.answer)).toBeVisible()
     expect(
       within(
-        screen.getByRole('region', { name: 'Résultat de la recherche' }),
+        screen.getByRole('region', { name: 'Result' }),
       ).getByText(response.question),
     ).toBeVisible()
     expect(
-      screen.getByRole('textbox', { name: 'Question technique' }),
+      screen.getByRole('textbox', { name: 'Technical question' }),
     ).toHaveValue(`  ${question}  `)
     expect(screen.getByText('[S1]')).toBeVisible()
     expect(screen.getByText('connecteur.pdf')).toBeVisible()
-    expect(screen.getByText('12')).toBeVisible()
-    expect(screen.getByText('Citation résolue')).toBeVisible()
+    expect(screen.getByText('Page 12')).toBeVisible()
+    expect(screen.getByText('PDF index 11')).toBeVisible()
+    expect(screen.getByText('Validated citations (1)')).toBeVisible()
   })
 
   it('affiche explicitement une réponse sans citation', async () => {
@@ -109,7 +126,7 @@ describe('App', () => {
 
     expect(
       await screen.findByText(
-        "Aucune citation validée n'a été retournée pour cette réponse.",
+        'No validated citations were returned for this answer.',
       ),
     ).toBeVisible()
   })
@@ -121,7 +138,7 @@ describe('App', () => {
     submitQuestion('Pourquoi la requête échoue-t-elle ?')
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "La réponse n'a pas pu être obtenue. Vérifiez que l'API est disponible, puis réessayez.",
+      'The answer could not be retrieved. Check that the API is available and try again.',
     )
   })
 })
