@@ -14,6 +14,7 @@ from backend.app.generation import (
     DEFAULT_LLM_MODEL,
     OpenAITextGenerator,
     TextGenerator,
+    is_abstention,
 )
 from backend.app.rag import RagResult, answer_question
 from backend.app.retrieval import (
@@ -173,7 +174,7 @@ def evaluate_case(
 ) -> dict[str, Any]:
     result = answer_question(store, case["question"], TOP_K, llm)
     matches = store.last_matches
-    abstention_detected = result.answer.strip() == ABSTENTION_MESSAGE
+    abstention_detected = is_abstention(result.answer)
 
     retrieval_metrics = None
     if case["answerable"]:

@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "diagnostic_of": "baseline-36",
+  "source_artifacts": {
+    "benchmark": "evaluation/history/baseline-36/rag_cases.json",
+    "run": "evaluation/history/baseline-36/rag_run.json",
+    "summary": "evaluation/history/baseline-36/summary.json"
+  },
+  "human_review_completed": false,
+  "classification_method": {
+    "A": "All required evidence was retrieved in the top 3 and the model produced a usable cited response; correctness and citation support remain unreviewed.",
+    "B": "All required evidence was retrieved in the top 3, but generation abstained or objectively conflicted with the persisted ground truth.",
+    "C": "An expected source was retrieved in the top 3, but the complete required evidence was not.",
+    "D": "No expected source was retrieved in the top 3.",
+    "UNKNOWN": "The persisted data was insufficient for a reliable classification."
+  },
+  "summary": {
+    "answerable_cases": 24,
+    "category_counts": {
+      "A": 14,
+      "B": 2,
+      "C": 6,
+      "D": 2,
+      "UNKNOWN": 0
+    },
+    "abstentions_with_corrected_detection": 9,
+    "produced_responses": 15,
+    "partial_evidence_cases": [
+      "rag-007"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "rag-001",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "C",
+      "diagnostic_reason": "The Harwin source was rank 1, but the copper-alloy evidence was absent from the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 1,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-002",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "C",
+      "diagnostic_reason": "The Douglas source was rank 1, but the hermetic-epoxy evidence was absent from the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 1,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-003",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": true,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "B",
+      "diagnostic_reason": "The complete 105 °C evidence was present at rank 2, but generation abstained.",
+      "partial_evidence": false,
+      "matched_required_facts": 1,
+      "required_fact_count": 1,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-004",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "B",
+      "diagnostic_reason": "The complete 65 GHz evidence was rank 1, but the response stated 40 GHz.",
+      "partial_evidence": false,
+      "matched_required_facts": 1,
+      "required_fact_count": 1,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-005",
+      "source_hit_at_1": false,
+      "source_hit_at_3": false,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "D",
+      "diagnostic_reason": "The Harwin source containing both required facts was absent from the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 2,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-006",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S2]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both required facts were available by rank 2 and the cited response addressed both; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-007",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "C",
+      "diagnostic_reason": "The rank-1 passage contained the EMC-shielding fact, but the 2.00 mm pitch fact was missing; the typographic abstention was previously misdetected.",
+      "partial_evidence": true,
+      "matched_required_facts": 1,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-008",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "C",
+      "diagnostic_reason": "An expected source was rank 1, but the Series I 23-35 contact-count evidence was absent from the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 1,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-013",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "C",
+      "diagnostic_reason": "The Harwin source was rank 1, but neither working-voltage fact was present in the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 2,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-014",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both resistance facts were rank 1 and the cited response addressed both; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-015",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S2]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both leak-rate and pressure facts were available at rank 2 and the cited response addressed both; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-016",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "C",
+      "diagnostic_reason": "The Douglas source was rank 1, but neither temperature-range fact was present in the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 2,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-017",
+      "source_hit_at_1": false,
+      "source_hit_at_3": false,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": false,
+      "abstained": true,
+      "citation_ids": [],
+      "diagnostic_category": "D",
+      "diagnostic_reason": "The Douglas source containing the shell-size dimensions was absent from the top 3.",
+      "partial_evidence": false,
+      "matched_required_facts": 0,
+      "required_fact_count": 1,
+      "human_review_priority": "low"
+    },
+    {
+      "case_id": "rag-018",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S2]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "All three current-rating facts were available at rank 2 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 3,
+      "required_fact_count": 3,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-019",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "All three current-rating facts were rank 1 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 3,
+      "required_fact_count": 3,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-020",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "The complete rating evidence was rank 1 and the cited response addressed it; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 1,
+      "required_fact_count": 1,
+      "human_review_priority": "normal"
+    },
+    {
+      "case_id": "rag-021",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S2]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "All three connector facts were available by rank 2 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 3,
+      "required_fact_count": 3,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-022",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both height and mounting facts were rank 1 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-023",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both contact-size facts were rank 1 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-024",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both RF-configuration facts were rank 1 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-025",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": false,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S2]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "The complete definition was rank 2 and the cited response addressed it; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 1,
+      "required_fact_count": 1,
+      "human_review_priority": "normal"
+    },
+    {
+      "case_id": "rag-026",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "Both plating facts were rank 1 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 2,
+      "required_fact_count": 2,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-027",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S2]",
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "All three positioning facts were rank 1 and the cited response addressed them; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 3,
+      "required_fact_count": 3,
+      "human_review_priority": "high"
+    },
+    {
+      "case_id": "rag-028",
+      "source_hit_at_1": true,
+      "source_hit_at_3": true,
+      "evidence_hit_at_1": true,
+      "evidence_hit_at_3": true,
+      "abstained": false,
+      "citation_ids": [
+        "[S1]"
+      ],
+      "diagnostic_category": "A",
+      "diagnostic_reason": "The complete adapter capability was rank 1 and the cited response addressed it; human review is pending.",
+      "partial_evidence": false,
+      "matched_required_facts": 1,
+      "required_fact_count": 1,
+      "human_review_priority": "normal"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import unicodedata
 from typing import Protocol, Sequence
 
 from openai import OpenAI
@@ -8,6 +9,19 @@ DEFAULT_LLM_MODEL = "gpt-5.4-mini"
 ABSTENTION_MESSAGE = (
     "L'information n'est pas disponible dans les documents fournis."
 )
+_APOSTROPHE_TRANSLATION = str.maketrans({"\u2018": "'", "\u2019": "'"})
+
+
+def _normalize_abstention_text(value: str) -> str:
+    return unicodedata.normalize("NFKC", value).strip().translate(
+        _APOSTROPHE_TRANSLATION
+    )
+
+
+def is_abstention(answer: str) -> bool:
+    return _normalize_abstention_text(answer) == _normalize_abstention_text(
+        ABSTENTION_MESSAGE
+    )
 
 
 class TextGenerator(Protocol):
