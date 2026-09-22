@@ -1,7 +1,17 @@
 import { supportedLanguages } from '../i18n/translations'
 import { useI18n } from '../i18n/useI18n'
 
-export default function Header() {
+interface HeaderProps {
+  activePage: 'assistant' | 'help'
+  onAssistantSelect: () => void
+  onHelpSelect: () => void
+}
+
+export default function Header({
+  activePage,
+  onAssistantSelect,
+  onHelpSelect,
+}: HeaderProps) {
   const { language, setLanguage, t } = useI18n()
 
   return (
@@ -16,10 +26,20 @@ export default function Header() {
             </span>
           </a>
           <div className="navigation-links">
-            <a href="#assistant">{t.nav.assistant}</a>
-            <span className="navigation-link-pending" aria-disabled="true">
+            <button
+              type="button"
+              aria-pressed={activePage === 'assistant'}
+              onClick={onAssistantSelect}
+            >
+              {t.nav.assistant}
+            </button>
+            <button
+              type="button"
+              aria-pressed={activePage === 'help'}
+              onClick={onHelpSelect}
+            >
               {t.nav.help}
-            </span>
+            </button>
           </div>
         </div>
         <div

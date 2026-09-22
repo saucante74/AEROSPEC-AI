@@ -68,13 +68,76 @@ describe('App', () => {
     expect(
       screen.getByRole('button', { name: 'Switch to English' }),
     ).toHaveAttribute('aria-pressed', 'true')
-    expect(within(navigation).getByRole('link', { name: 'Assistant' })).toBeVisible()
-    expect(within(navigation).getByText('Help')).toHaveAttribute(
-      'aria-disabled',
-      'true',
+    expect(
+      within(navigation).getByRole('button', { name: 'Assistant' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(within(navigation).getByRole('button', { name: 'Help' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
     )
     expect(within(navigation).queryByText('Examples')).not.toBeInTheDocument()
     expect(within(navigation).queryByText('About')).not.toBeInTheDocument()
+  })
+
+  it('navigue vers Help puis revient sur Assistant', () => {
+    renderApp()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Help' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'How AeroSpec AI works' }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Ask. Find. Engineer with confidence.',
+      }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Help' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Assistant' }))
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Ask. Find. Engineer with confidence.',
+      }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: 'How AeroSpec AI works' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('conserve la vue Help lors des changements de langue', () => {
+    renderApp()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Help' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Comment fonctionne AeroSpec AI' }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Demandez. Trouvez. Concevez en toute confiance.',
+      }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Passer à l’italien' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Come funziona AeroSpec AI' }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Chiedi. Trova. Progetta con fiducia.',
+      }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Aiuto' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
   })
 
   it('passe en français et restaure la langue persistée', () => {
@@ -125,7 +188,7 @@ describe('App', () => {
       name: 'Navigazione principale',
     })
     expect(
-      within(italianNavigation).getByRole('link', { name: 'Assistente' }),
+      within(italianNavigation).getByRole('button', { name: 'Assistente' }),
     ).toBeVisible()
     expect(within(italianNavigation).getByText('Aiuto')).toBeVisible()
     expect(document.documentElement).toHaveAttribute('lang', 'it')

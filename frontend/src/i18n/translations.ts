@@ -69,6 +69,70 @@ const english = {
     pdfIndex: 'PDF index',
     empty: 'No validated citations were returned for this answer.',
   },
+  help: {
+    eyebrow: 'Product guide',
+    title: 'How AeroSpec AI works',
+    introduction:
+      'AeroSpec AI helps engineers question a technical document corpus and trace answers back to the retrieved evidence.',
+    workflowTitle: 'From question to traceable answer',
+    steps: [
+      {
+        title: 'Ask',
+        description: 'Enter a focused technical question using precise product terminology.',
+      },
+      {
+        title: 'Retrieve',
+        description: 'AeroSpec searches the documentation for the most relevant passages.',
+      },
+      {
+        title: 'Answer & cite',
+        description:
+          'An answer is generated from the retrieved context and validated citations are displayed.',
+      },
+    ],
+    citations: {
+      title: 'Understanding citations',
+      description:
+        '[S1], [S2], and similar identifiers mark the sources used in the answer.',
+      detailsIntroduction: 'A validated citation helps you locate:',
+      fields: ['the document', 'the page', 'the PDF index'],
+      caveat:
+        'A structurally valid citation does not by itself guarantee that an answer is semantically or technically correct.',
+    },
+    cannotAnswer: {
+      title: 'When AeroSpec cannot answer',
+      description:
+        'When the available information is insufficient, AeroSpec can abstain instead of presenting an unsupported answer.',
+    },
+    tips: {
+      title: 'Tips for better questions',
+      items: [
+        'Mention the product or connector family.',
+        'Ask for one specific characteristic.',
+        'Include a known reference when available.',
+        'Avoid questions that are excessively broad or vague.',
+      ],
+    },
+    scope: {
+      title: 'Current prototype scope',
+      introduction:
+        'AeroSpec AI is an engineering prototype with a deliberately bounded scope.',
+      capabilitiesTitle: 'Current capabilities',
+      capabilities: [
+        'Semantic search across the document corpus.',
+        'Answers grounded in retrieved passages.',
+        'Document and page citations.',
+        'Deterministic unit conversion available through the API.',
+      ],
+      limitationsTitle: 'Current limitations',
+      limitations: [
+        'The document corpus is limited.',
+        'This prototype is not a certified system.',
+        'A structurally valid citation is not a business validation of the answer.',
+        'Complex PDF structures can reduce extraction and retrieval quality.',
+      ],
+    },
+  },
   errors: {
     emptyQuestion: 'Enter a question before searching the documentation.',
     api: 'The answer could not be retrieved. Check that the API is available and try again.',
@@ -155,6 +219,72 @@ const french = {
     pdfIndex: 'Index PDF',
     empty: 'Aucune citation validée n’a été retournée pour cette réponse.',
   },
+  help: {
+    eyebrow: 'Guide du produit',
+    title: 'Comment fonctionne AeroSpec AI',
+    introduction:
+      'AeroSpec AI aide les ingénieurs à interroger un corpus documentaire technique et à relier les réponses aux éléments retrouvés.',
+    workflowTitle: 'De la question à une réponse traçable',
+    steps: [
+      {
+        title: 'Demander',
+        description:
+          'Saisissez une question technique ciblée avec une terminologie produit précise.',
+      },
+      {
+        title: 'Rechercher',
+        description:
+          'AeroSpec recherche les passages les plus pertinents dans la documentation.',
+      },
+      {
+        title: 'Répondre et citer',
+        description:
+          'Une réponse est générée depuis le contexte récupéré et les citations validées sont affichées.',
+      },
+    ],
+    citations: {
+      title: 'Comprendre les citations',
+      description:
+        '[S1], [S2] et les identifiants similaires signalent les sources utilisées dans la réponse.',
+      detailsIntroduction: 'Une citation validée permet de retrouver :',
+      fields: ['le document', 'la page', 'l’index PDF'],
+      caveat:
+        'Une citation structurellement valide ne garantit pas à elle seule qu’une réponse est correcte sur le plan sémantique ou technique.',
+    },
+    cannotAnswer: {
+      title: 'Quand AeroSpec ne peut pas répondre',
+      description:
+        'Lorsque les informations disponibles sont insuffisantes, AeroSpec peut s’abstenir plutôt que de présenter une réponse non fondée.',
+    },
+    tips: {
+      title: 'Conseils pour de meilleures questions',
+      items: [
+        'Mentionnez le produit ou la famille de connecteurs.',
+        'Demandez une caractéristique précise.',
+        'Incluez une référence connue lorsqu’elle est disponible.',
+        'Évitez les questions excessivement larges ou vagues.',
+      ],
+    },
+    scope: {
+      title: 'Périmètre actuel du prototype',
+      introduction:
+        'AeroSpec AI est un prototype d’ingénierie dont le périmètre est volontairement limité.',
+      capabilitiesTitle: 'Capacités actuelles',
+      capabilities: [
+        'Recherche sémantique dans le corpus documentaire.',
+        'Réponses fondées sur les passages récupérés.',
+        'Citations avec document et page.',
+        'Conversion déterministe d’unités disponible via l’API.',
+      ],
+      limitationsTitle: 'Limites actuelles',
+      limitations: [
+        'Le corpus documentaire est limité.',
+        'Ce prototype n’est pas un système certifié.',
+        'Une citation structurellement valide ne constitue pas une validation métier de la réponse.',
+        'Les structures PDF complexes peuvent réduire la qualité de l’extraction et de la recherche.',
+      ],
+    },
+  },
   errors: {
     emptyQuestion: 'Saisissez une question avant de lancer la recherche.',
     api: 'La réponse n’a pas pu être obtenue. Vérifiez que l’API est disponible, puis réessayez.',
@@ -230,6 +360,72 @@ const italian = {
     page: 'Pagina',
     pdfIndex: 'Indice PDF',
     empty: 'Non sono state restituite citazioni convalidate per questa risposta.',
+  },
+  help: {
+    eyebrow: 'Guida del prodotto',
+    title: 'Come funziona AeroSpec AI',
+    introduction:
+      'AeroSpec AI aiuta gli ingegneri a interrogare un corpus di documenti tecnici e a ricondurre le risposte alle evidenze recuperate.',
+    workflowTitle: 'Dalla domanda a una risposta tracciabile',
+    steps: [
+      {
+        title: 'Chiedi',
+        description:
+          'Inserisci una domanda tecnica mirata usando una terminologia di prodotto precisa.',
+      },
+      {
+        title: 'Recupera',
+        description:
+          'AeroSpec cerca nella documentazione i passaggi più pertinenti.',
+      },
+      {
+        title: 'Rispondi e cita',
+        description:
+          'Una risposta viene generata dal contesto recuperato e vengono mostrate le citazioni convalidate.',
+      },
+    ],
+    citations: {
+      title: 'Comprendere le citazioni',
+      description:
+        '[S1], [S2] e identificatori simili indicano le fonti utilizzate nella risposta.',
+      detailsIntroduction: 'Una citazione convalidata consente di ritrovare:',
+      fields: ['il documento', 'la pagina', 'l’indice PDF'],
+      caveat:
+        'Una citazione strutturalmente valida non garantisce da sola che una risposta sia semanticamente o tecnicamente corretta.',
+    },
+    cannotAnswer: {
+      title: 'Quando AeroSpec non può rispondere',
+      description:
+        'Quando le informazioni disponibili non sono sufficienti, AeroSpec può astenersi invece di presentare una risposta non fondata.',
+    },
+    tips: {
+      title: 'Suggerimenti per domande migliori',
+      items: [
+        'Indica il prodotto o la famiglia di connettori.',
+        'Richiedi una caratteristica specifica.',
+        'Includi un riferimento noto quando disponibile.',
+        'Evita domande eccessivamente ampie o vaghe.',
+      ],
+    },
+    scope: {
+      title: 'Ambito attuale del prototipo',
+      introduction:
+        'AeroSpec AI è un prototipo ingegneristico con un ambito volutamente limitato.',
+      capabilitiesTitle: 'Funzionalità attuali',
+      capabilities: [
+        'Ricerca semantica nel corpus documentale.',
+        'Risposte basate sui passaggi recuperati.',
+        'Citazioni con documento e pagina.',
+        'Conversione deterministica delle unità disponibile tramite API.',
+      ],
+      limitationsTitle: 'Limiti attuali',
+      limitations: [
+        'Il corpus documentale è limitato.',
+        'Questo prototipo non è un sistema certificato.',
+        'Una citazione strutturalmente valida non costituisce una validazione professionale della risposta.',
+        'Le strutture PDF complesse possono ridurre la qualità dell’estrazione e della ricerca.',
+      ],
+    },
   },
   errors: {
     emptyQuestion: 'Inserisci una domanda prima di cercare nella documentazione.',
