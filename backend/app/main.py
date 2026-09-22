@@ -3,6 +3,7 @@ import logging
 import os
 from collections.abc import Awaitable, Callable
 from functools import lru_cache
+from ipaddress import ip_address
 from pathlib import Path
 from time import perf_counter
 from typing import Annotated
@@ -16,6 +17,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from .generation import OpenAITextGenerator, TextGenerator, is_abstention
 from .rag import answer_question
+from .rate_limit import AskRateLimiter
 from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
 from .tools import Unit, convert_unit
 
@@ -25,6 +27,8 @@ DEFAULT_FRONTEND_ORIGINS = (
     "http://localhost:5173",
     "http://localhost:8080",
 )
+DEFAULT_ASK_RATE_LIMIT_PER_MINUTE = 5
+DEFAULT_ASK_DAILY_LIMIT = 100
 
 
 def parse_frontend_origins(value: str | None) -> list[str]:
@@ -32,9 +36,38 @@ def parse_frontend_origins(value: str | None) -> list[str]:
         return list(DEFAULT_FRONTEND_ORIGINS)
     return [origin.strip() for origin in value.split(",") if origin.strip()]
 
+
+def parse_non_negative_int(name: str, default: int) -> int:
+    value = int(os.getenv(name, str(default)))
+    if value < 0:
+        raise ValueError(f"{name} doit être positif ou nul.")
+    return value
+
+
+def identify_client(request: Request) -> str:
+    if os.getenv("RENDER", "").lower() == "true":
+        forwarded_for = request.headers.get("x-forwarded-for")
+        if forwarded_for:
+            candidate = forwarded_for.split(",", maxsplit=1)[0].strip()
+            try:
+                return str(ip_address(candidate))
+            except ValueError:
+                pass
+
+    if request.client is None:
+        return "unknown"
+    return request.client.host
+
 logger = logging.getLogger(__name__)
 app = FastAPI(title="AeroSpec AI")
 FRONTEND_ORIGINS = parse_frontend_origins(os.getenv("FRONTEND_ORIGINS"))
+ask_rate_limiter = AskRateLimiter(
+    per_minute=parse_non_negative_int(
+        "ASK_RATE_LIMIT_PER_MINUTE",
+        DEFAULT_ASK_RATE_LIMIT_PER_MINUTE,
+    ),
+    daily=parse_non_negative_int("ASK_DAILY_LIMIT", DEFAULT_ASK_DAILY_LIMIT),
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,
@@ -201,6 +234,33 @@ RetrievalIndex = Annotated[Chroma, Depends(get_retrieval_index)]
 AnswerGenerator = Annotated[TextGenerator, Depends(get_text_generator)]
 
 
+async def get_ask_rate_limiter() -> AskRateLimiter:
+    return ask_rate_limiter
+
+
+async def enforce_ask_rate_limit(
+    request: Request,
+    limiter: Annotated[AskRateLimiter, Depends(get_ask_rate_limiter)],
+) -> None:
+    decision = limiter.check(identify_client(request))
+    if decision.allowed:
+        return
+
+    request.state.rag_observation = {
+        "event": "rag_request_rate_limited",
+        "request_id": request.state.request_id,
+        "status": "rate_limited",
+        "limit_type": decision.limit_type,
+    }
+    raise HTTPException(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        detail="Trop de requêtes. Réessayez plus tard.",
+    )
+
+
+AskRateLimit = Annotated[None, Depends(enforce_ask_rate_limit)]
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -260,6 +320,7 @@ async def search(
 async def ask(
     request: AskRequest,
     http_request: Request,
+    _rate_limit: AskRateLimit,
     vector_store: RetrievalIndex,
     llm: AnswerGenerator,
 ) -> AskResponse:

@@ -22,6 +22,24 @@ Configure these environment variables in Render:
 - `FRONTEND_ORIGINS`: exact Vercel frontend origin, without a trailing slash.
   Multiple explicit origins can be supplied as a comma-separated list when
   preview origins also need access. Do not use `*` in production.
+- `ASK_RATE_LIMIT_PER_MINUTE`: maximum accepted `/ask` requests per client and
+  minute (`5` by default, `0` disables this limit).
+- `ASK_DAILY_LIMIT`: maximum accepted `/ask` requests per instance and UTC day
+  (`100` by default, `0` disables this limit).
+
+Requests exceeding either limit receive HTTP `429` before retrieval, index
+initialization, or generation. On Render, the limiter uses the first validated
+IP in `X-Forwarded-For` only when Render's automatic `RENDER=true` variable is
+present. Elsewhere it uses the direct connection address, so an arbitrary
+forwarded header is not trusted. Render documents `X-Forwarded-For` as the way
+to obtain the client IP behind its edge, but IP-based limits remain approximate
+for shared networks, VPNs, and changing client addresses.
+
+Counters live only in the Python process. They reset on restart or redeploy and
+are not shared by multiple processes or Render instances. This is suitable for
+the current single-instance demo, not a distributed production quota. Keep an
+independent OpenAI project budget and provider-side usage limits as a second
+line of defense.
 
 The image downloads the pinned `sentence-transformers/all-MiniLM-L6-v2`
 model during the Docker build and runs Hugging Face in offline mode afterward.
