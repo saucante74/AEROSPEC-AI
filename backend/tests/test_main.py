@@ -1,17 +1,22 @@
+import json
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
+from uuid import UUID
 
 from httpx import ASGITransport, AsyncClient, Response
 from langchain_core.documents import Document
 from openai import OpenAIError
 
+from backend.app.generation import ABSTENTION_MESSAGE
 from backend.app.main import (
     FRONTEND_ORIGINS,
     app,
+    get_ask_rate_limiter,
     get_retrieval_index,
     get_text_generator,
     load_retrieval_index,
 )
+from backend.app.rate_limit import AskRateLimiter
 
 
 class FakeVectorStore:
@@ -51,15 +56,24 @@ class SearchApiTest(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         self.vector_store = FakeVectorStore()
         self.text_generator = FakeTextGenerator()
+        self.retrieval_dependency_calls = 0
+        self.generator_dependency_calls = 0
+        self.rate_limiter = AskRateLimiter(1_000, 10_000)
 
         async def override_retrieval_index() -> FakeVectorStore:
+            self.retrieval_dependency_calls += 1
             return self.vector_store
 
         async def override_text_generator() -> FakeTextGenerator:
+            self.generator_dependency_calls += 1
             return self.text_generator
+
+        async def override_rate_limiter() -> AskRateLimiter:
+            return self.rate_limiter
 
         app.dependency_overrides[get_retrieval_index] = override_retrieval_index
         app.dependency_overrides[get_text_generator] = override_text_generator
+        app.dependency_overrides[get_ask_rate_limiter] = override_rate_limiter
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
@@ -70,9 +84,10 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         path: str,
         json: dict[str, object] | None = None,
         headers: dict[str, str] | None = None,
+        client_ip: str = "127.0.0.1",
     ) -> Response:
         async with AsyncClient(
-            transport=ASGITransport(app=app),
+            transport=ASGITransport(app=app, client=(client_ip, 123)),
             base_url="http://test",
         ) as client:
             return await client.request(method, path, json=json, headers=headers)
@@ -250,13 +265,16 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.json(), {"detail": "Aucun PDF trouvé"})
 
     async def test_ask_returns_grounded_answer_and_retrieval_sources(self) -> None:
-        response = await self.request(
-            "POST",
-            "/ask",
-            json={"question": "What is the helium leak rate?", "top_k": 3},
-        )
+        with self.assertLogs("backend.app.main", level="INFO") as captured_logs:
+            response = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "What is the helium leak rate?", "top_k": 3},
+            )
 
         self.assertEqual(response.status_code, 200)
+        request_id = response.headers["X-Request-ID"]
+        self.assertEqual(str(UUID(request_id)), request_id)
         self.assertEqual(
             response.json(),
             {
@@ -272,6 +290,55 @@ class SearchApiTest(IsolatedAsyncioTestCase):
                 "citations": [],
             },
         )
+        event = json.loads(captured_logs.records[0].getMessage())
+        self.assertEqual(event["event"], "rag_request_completed")
+        self.assertEqual(event["request_id"], request_id)
+        self.assertEqual(event["status"], "answered")
+        self.assertEqual(event["retrieved_count"], 1)
+        self.assertEqual(event["citation_count"], 0)
+        for duration_name in (
+            "total_duration_ms",
+            "retrieval_duration_ms",
+            "generation_duration_ms",
+        ):
+            self.assertGreaterEqual(event[duration_name], 0)
+
+    async def test_ask_returns_a_distinct_request_id_for_each_request(self) -> None:
+        first_response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "First question", "top_k": 3},
+        )
+        second_response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Second question", "top_k": 3},
+        )
+
+        self.assertNotEqual(
+            first_response.headers["X-Request-ID"],
+            second_response.headers["X-Request-ID"],
+        )
+
+    async def test_ask_logs_abstention_without_sensitive_content(self) -> None:
+        sensitive_question = "SENSITIVE_QUESTION_42"
+        sensitive_answer = ABSTENTION_MESSAGE
+        self.text_generator = FakeTextGenerator(sensitive_answer)
+
+        with self.assertLogs("backend.app.main", level="INFO") as captured_logs:
+            response = await self.request(
+                "POST",
+                "/ask",
+                json={"question": sensitive_question, "top_k": 3},
+            )
+
+        event_text = captured_logs.records[0].getMessage()
+        event = json.loads(event_text)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(event["status"], "abstained")
+        self.assertNotIn(sensitive_question, event_text)
+        self.assertNotIn(f"Result for {sensitive_question}", event_text)
+        self.assertNotIn(sensitive_answer, event_text)
 
     async def test_ask_returns_only_valid_resolved_citations(self) -> None:
         self.text_generator = FakeTextGenerator(
@@ -335,6 +402,160 @@ class SearchApiTest(IsolatedAsyncioTestCase):
             response.json(),
             {"detail": "Le fournisseur LLM n'a pas pu générer de réponse."},
         )
+        request_id = response.headers["X-Request-ID"]
+        event_text = captured_logs.records[0].getMessage()
+        event = json.loads(event_text)
         self.assertNotIn("secret provider diagnostic", response.text)
-        self.assertIn("exception_type=OpenAIError", captured_logs.output[0])
-        self.assertIn("message=secret provider diagnostic", captured_logs.output[0])
+        self.assertEqual(event["event"], "rag_request_completed")
+        self.assertEqual(event["request_id"], request_id)
+        self.assertEqual(event["status"], "error")
+        self.assertEqual(event["error_type"], "OpenAIError")
+        self.assertGreaterEqual(event["total_duration_ms"], 0)
+        self.assertNotIn("What is the helium leak rate?", event_text)
+        self.assertNotIn("Result for What is the helium leak rate?", event_text)
+        self.assertNotIn("secret provider diagnostic", event_text)
+
+    async def test_ask_enforces_per_minute_limit_before_rag_dependencies(
+        self,
+    ) -> None:
+        self.rate_limiter = AskRateLimiter(2, 10)
+
+        first = await self.request("POST", "/ask", json={"question": "First"})
+        second = await self.request("POST", "/ask", json={"question": "Second"})
+        rejected = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Rejected"},
+        )
+
+        self.assertEqual([first.status_code, second.status_code], [200, 200])
+        self.assertEqual(rejected.status_code, 429)
+        self.assertEqual(
+            rejected.json(),
+            {"detail": "Trop de requêtes. Réessayez plus tard."},
+        )
+        self.assertIn("X-Request-ID", rejected.headers)
+        self.assertEqual(self.retrieval_dependency_calls, 2)
+        self.assertEqual(self.generator_dependency_calls, 2)
+
+    async def test_ask_per_minute_limit_is_separate_for_each_client(self) -> None:
+        self.rate_limiter = AskRateLimiter(1, 10)
+
+        first_client = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "First client"},
+            client_ip="192.0.2.1",
+        )
+        second_client = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Second client"},
+            client_ip="192.0.2.2",
+        )
+
+        self.assertEqual(first_client.status_code, 200)
+        self.assertEqual(second_client.status_code, 200)
+
+    async def test_ask_uses_render_forwarded_client_ip_only_on_render(self) -> None:
+        self.rate_limiter = AskRateLimiter(1, 10)
+
+        with patch.dict("os.environ", {"RENDER": "true"}):
+            first_client = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "First client"},
+                headers={"X-Forwarded-For": "198.51.100.1"},
+            )
+            second_client = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "Second client"},
+                headers={"X-Forwarded-For": "198.51.100.2"},
+            )
+
+        self.assertEqual(first_client.status_code, 200)
+        self.assertEqual(second_client.status_code, 200)
+
+    async def test_ask_ignores_forged_forwarded_ip_outside_render(self) -> None:
+        self.rate_limiter = AskRateLimiter(1, 10)
+
+        with patch.dict("os.environ", {"RENDER": ""}):
+            allowed = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "Allowed"},
+                headers={"X-Forwarded-For": "198.51.100.1"},
+            )
+            rejected = await self.request(
+                "POST",
+                "/ask",
+                json={"question": "Rejected"},
+                headers={"X-Forwarded-For": "198.51.100.2"},
+            )
+
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(rejected.status_code, 429)
+
+    async def test_ask_daily_limit_is_global_across_clients(self) -> None:
+        self.rate_limiter = AskRateLimiter(0, 2)
+
+        responses = [
+            await self.request(
+                "POST",
+                "/ask",
+                json={"question": f"Question {index}"},
+                client_ip=f"192.0.2.{index}",
+            )
+            for index in range(1, 4)
+        ]
+
+        self.assertEqual(
+            [response.status_code for response in responses],
+            [200, 200, 429],
+        )
+        self.assertEqual(self.retrieval_dependency_calls, 2)
+        self.assertEqual(self.generator_dependency_calls, 2)
+
+    async def test_rate_limited_log_excludes_sensitive_content(self) -> None:
+        self.rate_limiter = AskRateLimiter(1, 10)
+        await self.request("POST", "/ask", json={"question": "Allowed"})
+        sensitive_question = "SENSITIVE_RATE_LIMITED_QUESTION"
+
+        with self.assertLogs("backend.app.main", level="INFO") as captured_logs:
+            response = await self.request(
+                "POST",
+                "/ask",
+                json={"question": sensitive_question},
+            )
+
+        event_text = captured_logs.records[0].getMessage()
+        event = json.loads(event_text)
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(event["event"], "rag_request_rate_limited")
+        self.assertEqual(event["request_id"], response.headers["X-Request-ID"])
+        self.assertEqual(event["status"], "rate_limited")
+        self.assertEqual(event["limit_type"], "per_minute")
+        self.assertNotIn(sensitive_question, event_text)
+        self.assertNotIn("Result for", event_text)
+        self.assertNotIn("The helium leak rate", event_text)
+
+    async def test_health_and_convert_are_not_rate_limited(self) -> None:
+        self.rate_limiter = AskRateLimiter(1, 1)
+
+        health_responses = [await self.request("GET", "/health") for _ in range(3)]
+        convert_responses = [
+            await self.request(
+                "POST",
+                "/convert",
+                json={"value": 25.4, "from_unit": "mm", "to_unit": "inch"},
+            )
+            for _ in range(3)
+        ]
+
+        self.assertTrue(
+            all(response.status_code == 200 for response in health_responses)
+        )
+        self.assertTrue(
+            all(response.status_code == 200 for response in convert_responses)
+        )

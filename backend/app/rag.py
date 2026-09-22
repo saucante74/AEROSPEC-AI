@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 
 from .generation import TextGenerator, generate_answer
 from .retrieval import SimilaritySearchStore, search_retrieval
@@ -25,6 +26,9 @@ class RagResult:
     sources: list[RagSource]
     citation_validation: CitationValidation
     citation_sources: dict[str, RagSource]
+    retrieval_duration_ms: float
+    generation_duration_ms: float
+    retrieved_count: int
 
 
 def _validate_citations(answer: str, passage_count: int) -> CitationValidation:
@@ -51,8 +55,13 @@ def answer_question(
     top_k: int,
     llm: TextGenerator,
 ) -> RagResult:
+    retrieval_started_at = perf_counter()
     results = search_retrieval(vector_store, question, top_k)
+    retrieval_duration_ms = (perf_counter() - retrieval_started_at) * 1_000
+
+    generation_started_at = perf_counter()
     answer = generate_answer(question, results, llm)
+    generation_duration_ms = (perf_counter() - generation_started_at) * 1_000
     citation_validation = _validate_citations(answer, len(results))
     citation_sources: dict[str, RagSource] = {}
     for citation_id in citation_validation.valid_ids:
@@ -85,4 +94,7 @@ def answer_question(
         sources=sources,
         citation_validation=citation_validation,
         citation_sources=citation_sources,
+        retrieval_duration_ms=retrieval_duration_ms,
+        generation_duration_ms=generation_duration_ms,
+        retrieved_count=len(results),
     )
