@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { askQuestion, convertUnit } from './api/client'
 import type { AskResponse, ConvertResponse } from './api/client'
+import evaluationSummary from './data/evaluation-summary.json'
 import { I18nProvider } from './i18n/I18nContext'
 import { languageStorageKey } from './i18n/translations'
 
@@ -38,6 +39,17 @@ function submitQuestion(question: string) {
     target: { value: question },
   })
   fireEvent.click(screen.getByRole('button', { name: 'Ask' }))
+}
+
+function formatEnglishPercentage(rate: number | null) {
+  if (rate === null) {
+    return 'Not applicable'
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 1,
+  }).format(rate)
 }
 
 beforeEach(() => {
@@ -77,12 +89,91 @@ describe('App', () => {
     expect(
       within(navigation).getByRole('button', { name: 'Assistant' }),
     ).toHaveAttribute('aria-pressed', 'true')
+    expect(
+      within(navigation).getByRole('button', { name: 'Evaluation' }),
+    ).toHaveAttribute('aria-pressed', 'false')
     expect(within(navigation).getByRole('button', { name: 'Help' })).toHaveAttribute(
       'aria-pressed',
       'false',
     )
     expect(within(navigation).queryByText('Examples')).not.toBeInTheDocument()
     expect(within(navigation).queryByText('About')).not.toBeInTheDocument()
+  })
+
+  it('affiche la vue Evaluation et les métriques de l’artefact réel', () => {
+    renderApp()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Evaluation' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'RAG Evaluation' }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Ask. Find. Engineer with confidence.',
+      }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Evaluation' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+
+    const sourceHitAtOne = evaluationSummary.metrics.retrieval.source_hit_at_1
+    const evidenceHitAtThree =
+      evaluationSummary.metrics.retrieval.evidence_hit_at_3
+    const sourceCard = screen.getByRole('article', { name: 'Source Hit@1' })
+    const evidenceCards = screen.getAllByRole('article', {
+      name: 'Evidence Hit@3',
+    })
+
+    expect(sourceCard).toHaveTextContent(
+      `${sourceHitAtOne.numerator} / ${sourceHitAtOne.denominator}`,
+    )
+    expect(sourceCard).toHaveTextContent(
+      formatEnglishPercentage(sourceHitAtOne.rate),
+    )
+    expect(evidenceCards[0]).toHaveTextContent(
+      `${evidenceHitAtThree.numerator} / ${evidenceHitAtThree.denominator}`,
+    )
+    expect(evidenceCards[0]).toHaveTextContent(
+      formatEnglishPercentage(evidenceHitAtThree.rate),
+    )
+    expect(
+      screen.getByText(
+        /Results measured on a small manually curated benchmark\./,
+      ),
+    ).toBeVisible()
+  })
+
+  it('conserve Evaluation en français puis revient vers Assistant', () => {
+    renderApp()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Evaluation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Évaluation RAG' }),
+    ).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Évaluation' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Demandez. Trouvez. Concevez en toute confiance.',
+      }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Assistant' }))
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Demandez. Trouvez. Concevez en toute confiance.',
+      }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: 'Évaluation RAG' }),
+    ).not.toBeInTheDocument()
   })
 
   it('navigue vers Help puis revient sur Assistant', () => {
