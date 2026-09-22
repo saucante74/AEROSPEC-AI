@@ -24,6 +24,10 @@ from backend.app.retrieval import (
     SimilaritySearchStore,
     build_retrieval_index,
 )
+from evaluation.evaluation_summary import (
+    DEFAULT_SUMMARY_PATH,
+    write_evaluation_summary,
+)
 
 TOP_K = 3
 DEFAULT_OUTPUT_PATH = Path("evaluation/rag_run.json")
@@ -50,6 +54,11 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("pdf_directory", type=Path)
     parser.add_argument("cases_path", type=Path)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
+    parser.add_argument(
+        "--summary-output",
+        type=Path,
+        default=DEFAULT_SUMMARY_PATH,
+    )
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
     return parser.parse_args()
 
@@ -386,9 +395,11 @@ def main() -> None:
         json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    write_evaluation_summary(arguments.output, arguments.summary_output)
 
     print_summary(summary)
     print(f"Artefact écrit : {arguments.output}")
+    print(f"Summary frontend écrit : {arguments.summary_output}")
 
 
 if __name__ == "__main__":

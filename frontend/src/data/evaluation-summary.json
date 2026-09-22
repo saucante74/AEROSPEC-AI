@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "benchmark": {
+    "type": "manual_rag_benchmark",
+    "scope": "small",
+    "total_cases": 12,
+    "answerable_cases": 8,
+    "unanswerable_cases": 4,
+    "general_performance_guarantee": false,
+    "production_performance_guarantee": false
+  },
+  "provenance": {
+    "source_artifact": "evaluation/rag_run.json",
+    "dataset_file": "rag_cases.json",
+    "campaign_configuration": {
+      "created_at_utc": "2026-09-22T11:56:42.306819+00:00",
+      "python_version": "3.12.7",
+      "provider": "OpenAI",
+      "model": "gpt-5.4-mini",
+      "top_k": 3,
+      "abstention_message": "L'information n'est pas disponible dans les documents fournis.",
+      "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+      "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "pdf_count": 5,
+      "document_count": 103,
+      "chunk_count": 290
+    }
+  },
+  "metrics": {
+    "retrieval": {
+      "source_hit_at_1": {
+        "numerator": 7,
+        "denominator": 8,
+        "rate": 0.875
+      },
+      "source_hit_at_3": {
+        "numerator": 7,
+        "denominator": 8,
+        "rate": 0.875
+      },
+      "evidence_hit_at_1": {
+        "numerator": 1,
+        "denominator": 8,
+        "rate": 0.125
+      },
+      "evidence_hit_at_3": {
+        "numerator": 3,
+        "denominator": 8,
+        "rate": 0.375
+      }
+    },
+    "abstention": {
+      "correct_abstentions": {
+        "numerator": 4,
+        "denominator": 4,
+        "rate": 1.0
+      },
+      "false_abstentions": {
+        "numerator": 5,
+        "denominator": 8,
+        "rate": 0.625
+      }
+    },
+    "citations": {
+      "responses_with_citations": {
+        "numerator": 3,
+        "denominator": 12,
+        "rate": 0.25
+      },
+      "valid_emitted_citation_ids": {
+        "numerator": 3,
+        "denominator": 3,
+        "rate": 1.0
+      },
+      "resolved_citation_ids": {
+        "numerator": 3,
+        "denominator": 3,
+        "rate": 1.0
+      },
+      "unknown_citation_ids": {
+        "numerator": 0,
+        "denominator": 3,
+        "rate": 0.0
+      }
+    },
+    "human_review": {
+      "answer_correctness": {
+        "numerator": 5,
+        "denominator": 12,
+        "rate": 0.4167
+      },
+      "fully_grounded_substantive_responses": {
+        "numerator": 1,
+        "denominator": 3,
+        "rate": 0.3333
+      },
+      "citation_coverage": {
+        "numerator": 3,
+        "denominator": 3,
+        "rate": 1.0
+      },
+      "citation_support": {
+        "numerator": 1,
+        "denominator": 3,
+        "rate": 0.3333
+      }
+    }
+  }
+}
