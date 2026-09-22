@@ -11,12 +11,12 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
-import { askQuestion } from './api'
-import type { AskResponse } from './api'
+import { askQuestion } from './api/client'
+import type { AskResponse } from './api/client'
 import { I18nProvider } from './i18n/I18nContext'
 import { languageStorageKey } from './i18n/translations'
 
-vi.mock('./api', () => ({
+vi.mock('./api/client', () => ({
   askQuestion: vi.fn(),
 }))
 

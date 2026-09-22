@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { askQuestion } from './api'
-import type { AskResponse } from './api'
+import { askQuestion } from './client'
+import type { AskResponse } from './client'
 
 describe('askQuestion', () => {
   afterEach(() => {
