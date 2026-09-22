@@ -1,26 +1,50 @@
-# RAG evaluation history
+# RAG evaluation
 
-`rag_cases.json` is the current benchmark. A `benchmark_version` identifies a
-fixed dataset, while `rag_config` identifies the system configuration being
-measured. A run is one execution of that configuration on that benchmark.
+The evaluation workspace separates source data, generated artifacts, immutable
+history, diagnostics, tooling, tests, and the experiment registry.
 
-Archived runs live under `history/<experiment-id>/` with their benchmark
-snapshot, unchanged run artifact, and summary generated from that run.
-`experiments.json` records their configuration, artifact paths, change,
-hypothesis, date, and direct comparability.
+```text
+benchmarks/          Current RAG and retrieval datasets
+runs/current/        Latest generated RAG run and summary
+runs/history/        Immutable experiment snapshots
+diagnostics/         Derived analyses that are not official metrics
+scripts/             Evaluation, summary, and archival commands
+tests/               Deterministic evaluation tests
+experiments.json     Catalogue of archived experiments
+```
 
-Archive a validated run separately from evaluation:
+`benchmarks/rag_cases.json` is the current benchmark. Run the complete RAG
+evaluation from the repository root with:
 
 ```bash
-python -m evaluation.archive_evaluation RUN_ID BENCHMARK_VERSION \
+python -m evaluation.scripts.evaluate_rag \
+  data/sample_docs evaluation/benchmarks/rag_cases.json
+```
+
+This command writes the current run to `runs/current/rag_run.json` and the
+frontend summary to `frontend/src/data/evaluation-summary.json`. To regenerate
+only the current internal summary or synchronize the frontend without calling
+OpenAI:
+
+```bash
+python -m evaluation.scripts.evaluation_summary \
+  --output evaluation/runs/current/summary.json
+python -m evaluation.scripts.evaluation_summary
+```
+
+Archive a validated current run separately from evaluation:
+
+```bash
+python -m evaluation.scripts.archive_evaluation RUN_ID BENCHMARK_VERSION \
   --change "What changed" \
   --hypothesis "Expected effect"
 ```
 
-The archiver never executes a benchmark or calls OpenAI. It selects and
-validates the cases referenced by the run, generates the summary, records the
-archive time automatically, and refuses to overwrite an existing archive.
+The archiver validates the current benchmark and run, writes an immutable
+snapshot under `runs/history/<experiment-id>/`, generates its summary, and
+updates `experiments.json`. It never executes the benchmark or calls OpenAI.
 
-Only runs with the same `benchmark_version` are directly comparable as a
-measure of RAG change. Scores from different benchmarks remain useful on their
-own, but their difference does not establish an improvement or regression.
+`benchmark_version` identifies the fixed dataset used by a run. `rag_config`
+records the system configuration measured on that dataset. Experiments are
+directly comparable as a measure of RAG change only when their
+`benchmark_version` values are identical.

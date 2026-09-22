@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, ClassVar
 from unittest import TestCase
 
-CASES_PATH = Path(__file__).with_name("rag_cases.json")
+CASES_PATH = Path(__file__).parent.parent / "benchmarks" / "rag_cases.json"
 REQUIRED_FIELDS = {
     "id",
     "question",

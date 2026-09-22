@@ -4,16 +4,16 @@ from tempfile import TemporaryDirectory
 from typing import Any, ClassVar
 from unittest import TestCase
 
-from evaluation.archive_evaluation import (
+from evaluation.scripts.archive_evaluation import (
     EXPERIMENT_FIELDS,
     archive_experiment,
     are_directly_comparable,
     validate_registry,
 )
-from evaluation.evaluation_summary import build_evaluation_summary
+from evaluation.scripts.evaluation_summary import build_evaluation_summary
 
-EVALUATION_DIRECTORY = Path(__file__).parent
-ARCHIVE_DIRECTORY = EVALUATION_DIRECTORY / "history" / "baseline-12"
+EVALUATION_DIRECTORY = Path(__file__).parent.parent
+ARCHIVE_DIRECTORY = EVALUATION_DIRECTORY / "runs" / "history" / "baseline-12"
 REGISTRY_PATH = EVALUATION_DIRECTORY / "experiments.json"
 
 
@@ -107,14 +107,22 @@ class BaselineArchiveTest(TestCase):
             root = Path(temporary_directory)
             history_root = root / "history"
             registry_path = root / "experiments.json"
+
             def archive_test_run() -> None:
                 archive_experiment(
                     experiment_id="copied-baseline",
                     benchmark_version="baseline-12",
                     change="Test copy",
                     hypothesis="Test archive behavior",
-                    cases_path=EVALUATION_DIRECTORY / "rag_cases.json",
-                    run_path=EVALUATION_DIRECTORY / "rag_run.json",
+                    cases_path=(
+                        EVALUATION_DIRECTORY / "benchmarks" / "rag_cases.json"
+                    ),
+                    run_path=(
+                        EVALUATION_DIRECTORY
+                        / "runs"
+                        / "current"
+                        / "rag_run.json"
+                    ),
                     history_root=history_root,
                     registry_path=registry_path,
                     archived_at_utc="2026-09-22T00:00:00+00:00",

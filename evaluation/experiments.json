@@ -25,12 +25,12 @@
         "distance_metric": "cosine"
       },
       "artifacts": {
-        "benchmark": "history/baseline-12/rag_cases.json",
-        "run": "history/baseline-12/rag_run.json",
-        "summary": "history/baseline-12/summary.json"
+        "benchmark": "runs/history/baseline-12/rag_cases.json",
+        "run": "runs/history/baseline-12/rag_run.json",
+        "summary": "runs/history/baseline-12/summary.json"
       },
       "metrics": {
-        "summary_path": "history/baseline-12/summary.json"
+        "summary_path": "runs/history/baseline-12/summary.json"
       },
       "comparable_to": []
     },
@@ -58,12 +58,12 @@
         "abstention_message": "L'information n'est pas disponible dans les documents fournis."
       },
       "artifacts": {
-        "benchmark": "history/baseline-36/rag_cases.json",
-        "run": "history/baseline-36/rag_run.json",
-        "summary": "history/baseline-36/summary.json"
+        "benchmark": "runs/history/baseline-36/rag_cases.json",
+        "run": "runs/history/baseline-36/rag_run.json",
+        "summary": "runs/history/baseline-36/summary.json"
       },
       "metrics": {
-        "summary_path": "history/baseline-36/summary.json"
+        "summary_path": "runs/history/baseline-36/summary.json"
       },
       "comparable_to": []
     },
@@ -91,12 +91,12 @@
         "abstention_message": "L'information n'est pas disponible dans les documents fournis."
       },
       "artifacts": {
-        "benchmark": "history/baseline-72/rag_cases.json",
-        "run": "history/baseline-72/rag_run.json",
-        "summary": "history/baseline-72/summary.json"
+        "benchmark": "runs/history/baseline-72/rag_cases.json",
+        "run": "runs/history/baseline-72/rag_run.json",
+        "summary": "runs/history/baseline-72/summary.json"
       },
       "metrics": {
-        "summary_path": "history/baseline-72/summary.json"
+        "summary_path": "runs/history/baseline-72/summary.json"
       },
       "comparable_to": []
     }

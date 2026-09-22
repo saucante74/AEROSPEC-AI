@@ -5,11 +5,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 
-from evaluation.evaluation_summary import build_evaluation_summary
+from evaluation.scripts.evaluation_summary import build_evaluation_summary
 
-DEFAULT_CASES_PATH = Path("evaluation/rag_cases.json")
-DEFAULT_RUN_PATH = Path("evaluation/rag_run.json")
-DEFAULT_HISTORY_ROOT = Path("evaluation/history")
+DEFAULT_CASES_PATH = Path("evaluation/benchmarks/rag_cases.json")
+DEFAULT_RUN_PATH = Path("evaluation/runs/current/rag_run.json")
+DEFAULT_HISTORY_ROOT = Path("evaluation/runs/history")
 DEFAULT_REGISTRY_PATH = Path("evaluation/experiments.json")
 RAG_CONFIG_FIELDS = (
     "chunk_size",

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "diagnostic_of": "baseline-36",
   "source_artifacts": {
-    "benchmark": "evaluation/history/baseline-36/rag_cases.json",
-    "run": "evaluation/history/baseline-36/rag_run.json",
-    "summary": "evaluation/history/baseline-36/summary.json"
+    "benchmark": "evaluation/runs/history/baseline-36/rag_cases.json",
+    "run": "evaluation/runs/history/baseline-36/rag_run.json",
+    "summary": "evaluation/runs/history/baseline-36/summary.json"
   },
   "human_review_completed": false,
   "classification_method": {

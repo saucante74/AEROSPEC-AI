@@ -10,7 +10,7 @@
     "production_performance_guarantee": false
   },
   "provenance": {
-    "source_artifact": "evaluation/rag_run.json",
+    "source_artifact": "evaluation/runs/current/rag_run.json",
     "dataset_file": "rag_cases.json",
     "campaign_configuration": {
       "created_at_utc": "2026-09-22T21:19:47.608363+00:00",

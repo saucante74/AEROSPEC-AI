@@ -25,13 +25,13 @@ from backend.app.retrieval import (
     SimilaritySearchStore,
     build_retrieval_index,
 )
-from evaluation.evaluation_summary import (
+from evaluation.scripts.evaluation_summary import (
     DEFAULT_SUMMARY_PATH,
     write_evaluation_summary,
 )
 
 TOP_K = 3
-DEFAULT_OUTPUT_PATH = Path("evaluation/rag_run.json")
+DEFAULT_OUTPUT_PATH = Path("evaluation/runs/current/rag_run.json")
 
 
 class RecordingSimilaritySearchStore:

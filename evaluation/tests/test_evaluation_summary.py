@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 from typing import Any
 from unittest import TestCase
 
-from evaluation.evaluation_summary import (
+from evaluation.scripts.evaluation_summary import (
     DEFAULT_RUN_PATH,
     DEFAULT_SUMMARY_PATH,
     build_evaluation_summary,
@@ -61,7 +61,7 @@ def sample_run() -> dict[str, Any]:
         "configuration": {
             "model": "recorded-model",
             "top_k": 3,
-            "dataset_path": "/project/evaluation/rag_cases.json",
+            "dataset_path": "/project/evaluation/benchmarks/rag_cases.json",
         },
         "results": [
             make_result(

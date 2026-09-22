@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
-DEFAULT_RUN_PATH = Path("evaluation/rag_run.json")
+DEFAULT_RUN_PATH = Path("evaluation/runs/current/rag_run.json")
 DEFAULT_SUMMARY_PATH = Path("frontend/src/data/evaluation-summary.json")
 
 CONFIGURATION_FIELDS = (
