@@ -12,8 +12,7 @@ const english = {
     primaryLabel: 'Primary navigation',
     homeLabel: 'AeroSpec AI home',
     assistant: 'Assistant',
-    examples: 'Examples',
-    about: 'About',
+    help: 'Help',
     languageSelector: 'Language selection',
     selectLanguage: {
       en: 'Switch to English',
@@ -99,8 +98,7 @@ const french = {
     primaryLabel: 'Navigation principale',
     homeLabel: 'Accueil AeroSpec AI',
     assistant: 'Assistant',
-    examples: 'Exemples',
-    about: 'À propos',
+    help: 'Aide',
     languageSelector: 'Sélection de la langue',
     selectLanguage: {
       en: 'Passer à l’anglais',
@@ -176,8 +174,7 @@ const italian = {
     primaryLabel: 'Navigazione principale',
     homeLabel: 'Home AeroSpec AI',
     assistant: 'Assistente',
-    examples: 'Esempi',
-    about: 'Informazioni',
+    help: 'Aiuto',
     languageSelector: 'Selezione della lingua',
     selectLanguage: {
       en: 'Passa all’inglese',

@@ -50,6 +50,10 @@ describe('App', () => {
   it("affiche l'état initial", () => {
     renderApp()
 
+    const navigation = screen.getByRole('navigation', {
+      name: 'Primary navigation',
+    })
+
     expect(
       screen.getByRole('heading', {
         name: 'Ask. Find. Engineer with confidence.',
@@ -64,6 +68,13 @@ describe('App', () => {
     expect(
       screen.getByRole('button', { name: 'Switch to English' }),
     ).toHaveAttribute('aria-pressed', 'true')
+    expect(within(navigation).getByRole('link', { name: 'Assistant' })).toBeVisible()
+    expect(within(navigation).getByText('Help')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+    expect(within(navigation).queryByText('Examples')).not.toBeInTheDocument()
+    expect(within(navigation).queryByText('About')).not.toBeInTheDocument()
   })
 
   it('passe en français et restaure la langue persistée', () => {
@@ -78,6 +89,11 @@ describe('App', () => {
     ).toBeVisible()
     expect(
       screen.getByRole('heading', { name: 'Posez une question technique' }),
+    ).toBeVisible()
+    expect(
+      within(
+        screen.getByRole('navigation', { name: 'Navigation principale' }),
+      ).getByText('Aide'),
     ).toBeVisible()
     expect(document.documentElement).toHaveAttribute('lang', 'fr')
     expect(localStorage.getItem(languageStorageKey)).toBe('fr')
@@ -105,6 +121,13 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { name: 'Fai una domanda tecnica' }),
     ).toBeVisible()
+    const italianNavigation = screen.getByRole('navigation', {
+      name: 'Navigazione principale',
+    })
+    expect(
+      within(italianNavigation).getByRole('link', { name: 'Assistente' }),
+    ).toBeVisible()
+    expect(within(italianNavigation).getByText('Aiuto')).toBeVisible()
     expect(document.documentElement).toHaveAttribute('lang', 'it')
   })
 

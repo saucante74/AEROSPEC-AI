@@ -154,14 +154,15 @@ p {
   gap: 30px;
 }
 
-.navigation-controls {
+.navigation-primary {
   display: flex;
   align-items: stretch;
   align-self: stretch;
-  gap: 28px;
+  gap: 42px;
 }
 
-.navigation-links a {
+.navigation-links a,
+.navigation-link-pending {
   position: relative;
   display: grid;
   place-items: center;
@@ -169,6 +170,10 @@ p {
   font-size: 0.87rem;
   font-weight: 650;
   text-decoration: none;
+}
+
+.navigation-link-pending[aria-disabled="true"] {
+  color: #91a8be;
 }
 
 .navigation-links a::after {
@@ -782,7 +787,7 @@ h1 {
     gap: 16px;
   }
 
-  .navigation-controls {
+  .navigation-primary {
     width: 100%;
     justify-content: space-between;
     gap: 18px;
@@ -794,6 +799,8 @@ h1 {
 
   .language-selector {
     flex: 0 0 auto;
+    align-self: flex-end;
+    min-height: 36px;
   }
 
   .hero {
@@ -891,7 +898,7 @@ h1 {
 }
 
 @media (max-width: 430px) {
-  .navigation-controls {
+  .navigation-primary {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
@@ -901,10 +908,6 @@ h1 {
     width: 100%;
   }
 
-  .language-selector {
-    align-self: flex-end;
-    min-height: 36px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
