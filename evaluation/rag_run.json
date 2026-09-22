@@ -1,0 +1,973 @@
+{
+  "configuration": {
+    "created_at_utc": "2026-09-22T11:56:42.306819+00:00",
+    "python_version": "3.12.7",
+    "provider": "OpenAI",
+    "model": "gpt-5.4-mini",
+    "top_k": 3,
+    "abstention_message": "L'information n'est pas disponible dans les documents fournis.",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "corpus_directory": "/home/sebastien/Documents/Projects/AERO/AeroSpec/data/sample_docs",
+    "dataset_path": "/home/sebastien/Documents/Projects/AERO/AeroSpec/evaluation/rag_cases.json",
+    "pdf_count": 5,
+    "document_count": 103,
+    "chunk_count": 290
+  },
+  "summary": {
+    "cases": 12,
+    "answerable_cases": 8,
+    "unanswerable_cases": 4,
+    "retrieval": {
+      "source_hit_at_1": {
+        "count": 7,
+        "total": 8,
+        "percentage": 87.5
+      },
+      "source_hit_at_3": {
+        "count": 7,
+        "total": 8,
+        "percentage": 87.5
+      },
+      "evidence_hit_at_1": {
+        "count": 1,
+        "total": 8,
+        "percentage": 12.5
+      },
+      "evidence_hit_at_3": {
+        "count": 3,
+        "total": 8,
+        "percentage": 37.5
+      }
+    },
+    "abstention": {
+      "correct_on_unanswerable": {
+        "count": 4,
+        "total": 4,
+        "percentage": 100.0
+      },
+      "false_on_answerable": {
+        "count": 5,
+        "total": 8,
+        "percentage": 62.5
+      }
+    },
+    "citations": {
+      "responses_with_citations": {
+        "count": 3,
+        "total": 12,
+        "percentage": 25.0
+      },
+      "valid_emitted_ids": {
+        "count": 3,
+        "total": 3,
+        "percentage": 100.0
+      },
+      "resolved_valid_ids": {
+        "count": 3,
+        "total": 3,
+        "percentage": 100.0
+      },
+      "responses_with_unknown_ids": {
+        "count": 0,
+        "total": 12,
+        "percentage": 0.0
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "rag-001",
+      "question": "What base material is specified for Harwin Datamate signal contacts?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "The contacts use a copper alloy.",
+        "required_facts": [
+          {
+            "fact": "The Datamate contacts are made from a copper alloy.",
+            "evidence": [
+              {
+                "source": "HARWIN_connector_datasheet.pdf",
+                "page_label": "3",
+                "text_anchor": "Contacts: Copper Alloy, Gold finish on contact area"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "HT005 – Datamate L-Tek Female Crimp Retention  \nHT016 – Datamate L-Tek Female Crimp Forces   \nHT011 – Datamate L-Tek Crimp High Temp. plastic material \nHT025 – Datamate L-Tek Vibration/Shock/Bump  \nHT012 – Datamate L-Tek Horizontal SMT Contacts  \nHT017 – Datamate L-Tek 3 and 15 years Artificial Aging \nHT044 – Datamate L-Tek number of latch operations  \nHT079 – Backshells, Shielded Cables Attenuation Testing\nDOWNLOADS\nSpecifications are subject to change.\nVIEW FULL SERIES & SPECIFICATIONS HERE",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page": 5,
+          "page_label": "6",
+          "distance": 0.5017905235290527
+        },
+        {
+          "rank": 2,
+          "content": "159\nAmphenolAerospace\nContact Amphenol Aerospace for more information at 800-678-0141  •  www.amphenol-aerospace.com\nII  \nDualok  \nIII\nSJT  \n38999    \nI \nPCB \nAccessories\nAquacon\nHD  \nHerm/Seal\nFiber Optics\nContacts\nConnectors\nCables\nHigH  \nSpeed\n26482\nMatrix 2  \n83723 iii\nMatrix|pyle\n5015\nCrimp Rear\nRelease \nMatrix\n26500 \npyle  \n22992 \nClass L  \nBack- \nShells\nOptions \nOthers\neMi Filter\nT\nransient\nInsert Arrangement #22-35 / 23-35\nConnector Type:\nJT \nMIL-DTL-38999 \nSeries II\nLJT \nMIL-DTL-38999 \nSeries I\nTri-Start \nMIL-DTL-38999 \nSeries III\nNumber of \nContacts\nContact \nSize\nService \nRating\nInsert Designation: 22-35 23-35 23-35 100 22D M\nContact Locations\nFront face of pin insert shown\nContact Hole Locations\nContact \nNumber\nLocation\nX Axis Y Axis\n1 –.428 +.241\n2 –.467 +.154\n3 –.488 +.061\n4 –.415  \n.000\n5 –.488 –.061\n6 –.428 –.142\n7 –.428 –.237\n8 –.332 +.333\n9 –.332 +.238\n10 –.332 +.143\n11 –.332 +.048\n12 –.332 –.047\n13 –.332 –.142\n14 –.332 –.237\n15 –.332 –.332\n16 –.249 +.380",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 16,
+          "page_label": "159",
+          "distance": 0.5304889678955078
+        },
+        {
+          "rank": 3,
+          "content": "171\nAmphenolAerospace\nContact Amphenol Aerospace for more information at 800-678-0141  •  www.amphenol-aerospace.com\nII  \nDualok  \nIII\nSJT  \n38999    \nI \nPCB \nAccessories\nAquacon\nHD  \nHerm/Seal\nFiber Optics\nContacts\nConnectors\nCables\nHigH  \nSpeed\n26482\nMatrix 2  \n83723 iii\nMatrix|pyle\n5015\nCrimp Rear\nRelease \nMatrix\n26500 \npyle  \n22992 \nClass L  \nBack- \nShells\nOptions \nOthers\neMi Filter\nT\nransient\n†  R ed band indicates fully mated\n†\n  R\ned band indicates fully mated\n38999, Series III  Hermetic with PCB Contacts\nTVSIY Stainless Steel \nSolder Mounting Receptacle\n38999, Series III Hermetic, Stainless Steel - PCB Contacts\nShell \nSize Part Number\nB Thread Class \n2A 0.1P-0.3L-TS \n(Plated)\nL\n+.011\n–.005\nM\n+.006\n–.005\nGG Dia.\n+.011\n–.010\nKK Dia\n+.011\n–.005\n  9 10-626481-XXX   .6250 .806 .125   .750   .672\n11 482-XXX   .7500 .806 .125   .844   .781\n13 483-XXX   .8750 .806 .125   .969   .906\n15 484-XXX 1.0000 .806 .125 1.094 1.031\n17 485-XXX 1.1875 .806 .125 1.218 1.156",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 28,
+          "page_label": "171",
+          "distance": 0.536821186542511
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": true
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": false
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention incorrecte : la preuve Copper Alloy existe dans le corpus, mais elle est absente des passages récupérés."
+      }
+    },
+    {
+      "id": "rag-002",
+      "question": "What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "They use ASTM E-595-93 rated hermetic epoxy.",
+        "required_facts": [
+          {
+            "fact": "The sealing material is ASTM E-595-93 rated hermetic epoxy.",
+            "evidence": [
+              {
+                "source": "MIL_connector_datasheet.pdf",
+                "page_label": "2",
+                "text_anchor": "ASTM E-595-93 Rated Hermetic Epoxy"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "•  Series I & III Circular Connectors \n• Choose from standard box mount or jam nut  \nmounting options\n• Integrate solder cups, PC tails, or wire leads\n• Military & Aerospace\n• Instrumentation & Controls\n• Oil & Gas\n• Industrial & IoT\nFEATURES APPLICATIONS\nHERMETIC  \nMIL-DTL-38999 \nCONNECTORS\nOVERVIEW\nDouglas Electrical Components’ hermetic MIL-DTL-38999 connectors are designed for power, signal, and \nnetworking applications across various industries. Its compact and lightweight design, coupled with  \nrobust metal housing and various pin counts, offers design flexibility without compromising durability  \nin harsh environments.\nMOISTURE-TIGHT, HERMETICALLY SEALED  \nCONNECTORS IN 4-6 WEEKS",
+          "source": "MIL_connector_datasheet.pdf",
+          "page": 0,
+          "page_label": "1",
+          "distance": 0.24639356136322021
+        },
+        {
+          "rank": 2,
+          "content": "DESIGN OPTIONS INCLUDE:\n• Choose connection types from traditionally non-\nhermetic 38999 designs\n• Integrate wires, cables, flex and rigid circuits, \nand optical fibers\n• Customize the mechanical assembly in various \nmaterials, interfaces, and design features\n• Add increased protection with shielding, sleeves, \nand markings\nBEYOND THE CATALOG\nDouglas Electrical Components specializes in the design and manufacture of customized hermetic \nconnector solutions. Our hermetic technology permits the design flexibility to integrate virtually any \nconductor or optical fiber into a plug-and-play assembly. We can customize the electrical and mechanical \ninterface to create a Design for Manufacturing (DFM) moisture-tight, hermetic solution for harsh \nenvironments and challenging applications.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page": 7,
+          "page_label": "8",
+          "distance": 0.4328410029411316
+        },
+        {
+          "rank": 3,
+          "content": "149\nAmphenolAerospace\nContact Amphenol Aerospace for more information at 800-678-0141  •  www.amphenol-aerospace.com\nII  \nDualok  \nIII\nSJT  \n38999    \nI \nPCB \nAccessories\nAquacon\nHD  \nHerm/Seal\nFiber Optics\nContacts\nConnectors\nCables\nHigH  \nSpeed\n26482\nMatrix 2  \n83723 iii\nMatrix|pyle\n5015\nCrimp Rear\nRelease \nMatrix\n26500 \npyle  \n22992 \nClass L  \nBack- \nShells\nOptions \nOthers\neMi Filter\nT\nransient\nAC\nB\n.038\n.075\n.065\n.065\nInsert Arrangement #8-98 / 9-98\nConnector Type:\nJT \nMIL-DTL-38999 \nSeries II\nLJT \nMIL-DTL-38999 \nSeries I\nTri-Start \nMIL-DTL-38999 \nSeries III\nInsert Designation: 8-98 9-98 9-98\nContact Locations\nFront face of pin insert shown\nAE\nD B\nC\n.065\n.065\n.130\n.056\n.065\n.113\n.113\nInsert Arrangement #10-5 /  11-5\nConnector Type:\nJT \nMIL-DTL-38999 \nSeries II\nLJT \nMIL-DTL-38999 \nSeries I\nTri-Start \nMIL-DTL-38999 \nSeries III\nInsert Designation: 10-5 11-5 11-5\nContact Locations\nFront face of pin insert shown\nCircular Connectors – PCB Contacts \nInsert Arrangements",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 6,
+          "page_label": "149",
+          "distance": 0.48103803396224976
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": true
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": false
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention incorrecte : aucun passage récupéré ne contient la preuve relative à l'époxy ASTM E-595-93."
+      }
+    },
+    {
+      "id": "rag-003",
+      "question": "What is the maximum operating temperature of the Molex .093 Series 03-09 nylon connectors?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "The maximum operating temperature is 105 °C.",
+        "required_facts": [
+          {
+            "fact": "The Series 03-09 nylon connectors operate up to 105 °C.",
+            "evidence": [
+              {
+                "source": "MOLEX_connector_datasheet.pdf",
+                "page_label": "4",
+                "text_anchor": "Nylon connectors operate to a maximum of 105° C"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "nal. Molex 1991 connectors are \ndesignerl to meet European and \nJapanese requirements in addition \nto those of ULand CSA. \nTerminals .093 inches in dia­\nmeter (2,4mm) , for 14- through \n30-gauge insulated wire, can be \nspecified in tin-plated brass, tin­\nplated phosphor bronze, selective \nand overall gold plating. \n6 \nThe connectors are UL listed, \nper circuit, for 600V AC at 11 amps \n(3 circuit), 9 amps (6-circuit), 8 \namps (9-circuit) , and 6 amps (15-\ncircuit). They also accept heavier \nthan usual insulation on leads. \nSPECIFICATIONS \nSeries 19-09 nylon 6/6 \nModels : 1991-3, 1991-6, 1991 -9, 1991 -15 . \nCircuits: 3, 6, 9, 15 (query for 12-circuit \navailability). \nTerminal size: .093-in. dia. (2,4mm) . \nTerminal material: Tin-plated brass, tin­\nplated phosphor bronze, selective or over­\nall gold plating. \nWire size: 14- through 30-gauge, heavy insu­\nlation. \nAmp rating: Per circuit at 600VAC : 11 amps \n(3-circuit), 9 amps (6-circuit), 8 amps (9-\ncircuit), 6 amps (15 -circuit) .",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 7,
+          "page_label": "8",
+          "distance": 0.38460052013397217
+        },
+        {
+          "rank": 2,
+          "content": "nals lock into the connector, but \nare easily removed. \nMolex standard pin connectors \nare UL and CSA listed for maxi­\nmums of 250V and 12 amps per \ncircuit for 1-3 circuits; 9 amps 4-9 \ncircuits; and 7.5 amps 12-15 cir­\ncuits. Nylon connectors operate to \na maximum of 105° C. Maximum \nfor phenolic is 325o F. \nModel ~951 is a !-circuit, high-\nlledllll11 \nvoltage connector rated for 5,000 \nvolts and 12 amps. \nMost of the nylon connectors \nhave integrally molded mounting \nears for snap-in, quick mounting \nof either the plug or receptacle in \nan .093-inch thick panel (note \nmodel 1261 detail). Most have a \nholding tab (model 1375 detail), \nand all are polarity keyed. \nMale and female terminals may \nbe assembled in either the plug or \nreceptacle. Normally, male termi­\nnals are housed in the plug and \nmate with female terminals in the \nreceptacle (models 1545/1360) , \nbut may be interchanged or mixed \n(models 1816 and 1375 detail) . \nPhenolic connectors can be",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 3,
+          "page_label": "4",
+          "distance": 0.4151461720466614
+        },
+        {
+          "rank": 3,
+          "content": "plug, and easily are inserted or re­\nmoved with simple hand tools. \nMolded nylon connectors are sup­\nplied for 1 through 36 circuits , and \nphenolic types for 4 through 104 \ncircuits. \n4 \nModii11Z&-4 \nModel1821-& \nThese connectors are UL and \nCSA listed for maximum use at \n250V per circuit. They are designed \nfor 5 amps per circuit for 1- to 15-\ncircuit models, and 4 amps per cir­\ncuit in the 24- and 36-circuit \nmodels. Molex miniature connec­\ntors of nylon function without \nloss of contact stability to maxi­\nmum operating temperatures of \n1050 C, and to 3250 F for phenolic \ntypes. \nMale and female terminals can \nbe inserted in either the plug or \nreceptacle , or they can be inter­\nmixed (note models 2004 and \n1625-9 detail). Normally, the male \nterminals are housed in the plug \nand mate with female terminals in \nthe receptacle (models 1625-3 and \n1625-6). \nMost of the nylon connectors \nare available with integrally molded \nmounting ears (model 1625-12",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 5,
+          "page_label": "6",
+          "distance": 0.43800246715545654
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": true
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": true
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention incorrecte malgré la preuve explicite de la température maximale de 105 °C dans S2."
+      }
+    },
+    {
+      "id": "rag-004",
+      "question": "Up to what frequency does Samtec specify its push-on miniature interface that is 30% smaller than SMP?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "The SMPM interface is specified up to 65 GHz.",
+        "required_facts": [
+          {
+            "fact": "The SMPM interface is specified for 65 GHz.",
+            "evidence": [
+              {
+                "source": "SAMTEC_connector_datasheet.pdf",
+                "page_label": "2",
+                "text_anchor": "65 GHz, SMPM"
+              },
+              {
+                "source": "SAMTEC_connector_datasheet.pdf",
+                "page_label": "9",
+                "text_anchor": "65 GHz, SMPM, PRFM0 Series"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "Samtec indique que son interface miniature push-on, 30 % plus petite que SMP, fonctionne jusqu’à **40 GHz** [S1].",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "PRECISION RF\nCABLE CONNECTORS\nsamtec.com/RF-CableConnectors\nSamtec offers a variety of precision, high frequency cable connectors that are specifically designed to \nterminate to cables commonly used within the RF microwave/millimeter wave industry. Samtec’s cable \nconnectors are manufactured with a precise tolerance interface to ensure superior repeatability and high \nmechanical stability. Visit the Series page on samtec.com for access to prints with termination instructions, \nand view the Cable Connector Compatibility Guide to reference compatibility with industry standard cables. \nCABLE CONNECTORS\nFREQUENCY / TYPE / SERIES\n110 GHz, 1.00 mm, PRF10 Series 50 GHz, 2.40 mm, PRF24 Series 34 GHz, SSMA, PRFS1 Series 40 GHz, SMP , PRF00 Series\n90 GHz, 1.35 mm, PRF13 Series 40 GHz, 2.92 mm, PRF92 Series\n18 GHz & 26.5 GHz, SMA,  \nPRF01 Series 18 GHz, N Type, PRF06 Series\n65 GHz, 1.85 mm, PRF18 Series 34 GHz, 3.50 mm, PRF35 Series 65 GHz, SMPM, PRFM0 Series 18 GHz, TNCA, PRF04 Series",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 8,
+          "page_label": "9",
+          "distance": 0.44169503450393677
+        },
+        {
+          "rank": 2,
+          "content": "SAMTEC LOW FREQUENCY ORIGINAL SOLUTIONS  •  DC to 10 GHz\nVisit samtec.com/OriginalRF for specifications, and to explore Samtec's full line of Original RF Solutions.\nIsoRate® High Isolation System \n• 50 Ω board stacking & cable assemblies\n• Half the cost of traditional RF at virtually \nthe same performance\nMini & Micro-Mini Interconnects\n• 75 Ω impedance MCX & MMCX\n• 50 Ω high-vibration MMCX\nHigh Cycle U.FL Cable Plug\n• 500 cycle U.FL compatible plug\n• .047\" DIA flexible cable\nShielded Twisted Pair System\n• 100 Ω differential pair system \n• 28 AWG shielded twisted pair cable\n• High reliability BeCu contacts\n• 1/4-turn bayonet lock\nGanged Micro-Mini System\n• 50 Ω & 75 Ω board stacking and \ncable assemblies\n• High performance rugged contacts\n• Variety of End 2 connectors\n75 Ω SOLUTIONS\nType\nBNC DIN 1.0/2.3 HD-BNC MCX MMCX SMB\nMax Frequency  \n(GHz) 12 6 4\nSeries\nCable \nAssemblies\nRFC6T, RF179, \nRFA6T, RFB6T, \nGRF7H-C \nRFC6T, RFC8T, \nRF179, RFA6T, \nRFB6T, RFB8T, \nGRF7H-C",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 10,
+          "page_label": "11",
+          "distance": 0.4529155492782593
+        },
+        {
+          "rank": 3,
+          "content": "to learn more about \nthis Samtec exclusive \ntechnology.\nAlignment grooves facilitate easy visual matching to fiducial markers on the \nPCB and ensure repeatable peak connector performance.\n1.35 mm  •  90 GHz, 50 Ohm  •  Solderless\n135 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\n1.85 mm  •  65 GHz, 50 Ohm  •  Solderless\n185 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\n2.40 mm  •  50 GHz, 50 Ohm  •  Solderless\n240 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\n2.92 mm  •  40 GHz, 50 Ohm  •  Solderless\n292 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\nMating Cable Assemblies\nRF047-A, RF086, RF23C, RF085,  \nLL110, LL095, LL071, LL043, LL032",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 3,
+          "page_label": "4",
+          "distance": 0.4653955101966858
+        }
+      ],
+      "citations": {
+        "citations_present": true,
+        "valid_ids": [
+          "[S1]"
+        ],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": true,
+        "all_valid_ids_resolved": true,
+        "resolved": [
+          {
+            "id": "[S1]",
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page": 8,
+            "page_label": "9"
+          }
+        ]
+      },
+      "abstention": {
+        "detected": false,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": true,
+        "evidence_hit_at_3": true
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": false,
+        "citation_coverage_pass": true,
+        "citation_support_pass": false,
+        "review_note": "Réponse incorrecte : S1 associe 40 GHz à SMP et 65 GHz à SMPM ; la citation est valide mais ne soutient pas l'affirmation."
+      }
+    },
+    {
+      "id": "rag-005",
+      "question": "What maximum current per contact and mating durability are specified for Harwin Datamate connectors?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "They are rated for 3.3 A maximum per contact and 500 mating cycles.",
+        "required_facts": [
+          {
+            "fact": "The maximum current is 3.3 A per contact.",
+            "evidence": [
+              {
+                "source": "HARWIN_connector_datasheet.pdf",
+                "page_label": "3",
+                "text_anchor": "Current per contact: 3.3A max"
+              }
+            ]
+          },
+          {
+            "fact": "The specified durability is 500 mating cycles.",
+            "evidence": [
+              {
+                "source": "HARWIN_connector_datasheet.pdf",
+                "page_label": "3",
+                "text_anchor": "Durability: 500 mating cycles"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "nal. Molex 1991 connectors are \ndesignerl to meet European and \nJapanese requirements in addition \nto those of ULand CSA. \nTerminals .093 inches in dia­\nmeter (2,4mm) , for 14- through \n30-gauge insulated wire, can be \nspecified in tin-plated brass, tin­\nplated phosphor bronze, selective \nand overall gold plating. \n6 \nThe connectors are UL listed, \nper circuit, for 600V AC at 11 amps \n(3 circuit), 9 amps (6-circuit), 8 \namps (9-circuit) , and 6 amps (15-\ncircuit). They also accept heavier \nthan usual insulation on leads. \nSPECIFICATIONS \nSeries 19-09 nylon 6/6 \nModels : 1991-3, 1991-6, 1991 -9, 1991 -15 . \nCircuits: 3, 6, 9, 15 (query for 12-circuit \navailability). \nTerminal size: .093-in. dia. (2,4mm) . \nTerminal material: Tin-plated brass, tin­\nplated phosphor bronze, selective or over­\nall gold plating. \nWire size: 14- through 30-gauge, heavy insu­\nlation. \nAmp rating: Per circuit at 600VAC : 11 amps \n(3-circuit), 9 amps (6-circuit), 8 amps (9-\ncircuit), 6 amps (15 -circuit) .",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 7,
+          "page_label": "8",
+          "distance": 0.4672966003417969
+        },
+        {
+          "rank": 2,
+          "content": "nals lock into the connector, but \nare easily removed. \nMolex standard pin connectors \nare UL and CSA listed for maxi­\nmums of 250V and 12 amps per \ncircuit for 1-3 circuits; 9 amps 4-9 \ncircuits; and 7.5 amps 12-15 cir­\ncuits. Nylon connectors operate to \na maximum of 105° C. Maximum \nfor phenolic is 325o F. \nModel ~951 is a !-circuit, high-\nlledllll11 \nvoltage connector rated for 5,000 \nvolts and 12 amps. \nMost of the nylon connectors \nhave integrally molded mounting \nears for snap-in, quick mounting \nof either the plug or receptacle in \nan .093-inch thick panel (note \nmodel 1261 detail). Most have a \nholding tab (model 1375 detail), \nand all are polarity keyed. \nMale and female terminals may \nbe assembled in either the plug or \nreceptacle. Normally, male termi­\nnals are housed in the plug and \nmate with female terminals in the \nreceptacle (models 1545/1360) , \nbut may be interchanged or mixed \n(models 1816 and 1375 detail) . \nPhenolic connectors can be",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 3,
+          "page_label": "4",
+          "distance": 0.4761289358139038
+        },
+        {
+          "rank": 3,
+          "content": "159\nAmphenolAerospace\nContact Amphenol Aerospace for more information at 800-678-0141  •  www.amphenol-aerospace.com\nII  \nDualok  \nIII\nSJT  \n38999    \nI \nPCB \nAccessories\nAquacon\nHD  \nHerm/Seal\nFiber Optics\nContacts\nConnectors\nCables\nHigH  \nSpeed\n26482\nMatrix 2  \n83723 iii\nMatrix|pyle\n5015\nCrimp Rear\nRelease \nMatrix\n26500 \npyle  \n22992 \nClass L  \nBack- \nShells\nOptions \nOthers\neMi Filter\nT\nransient\nInsert Arrangement #22-35 / 23-35\nConnector Type:\nJT \nMIL-DTL-38999 \nSeries II\nLJT \nMIL-DTL-38999 \nSeries I\nTri-Start \nMIL-DTL-38999 \nSeries III\nNumber of \nContacts\nContact \nSize\nService \nRating\nInsert Designation: 22-35 23-35 23-35 100 22D M\nContact Locations\nFront face of pin insert shown\nContact Hole Locations\nContact \nNumber\nLocation\nX Axis Y Axis\n1 –.428 +.241\n2 –.467 +.154\n3 –.488 +.061\n4 –.415  \n.000\n5 –.488 –.061\n6 –.428 –.142\n7 –.428 –.237\n8 –.332 +.333\n9 –.332 +.238\n10 –.332 +.143\n11 –.332 +.048\n12 –.332 –.047\n13 –.332 –.142\n14 –.332 –.237\n15 –.332 –.332\n16 –.249 +.380",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 16,
+          "page_label": "159",
+          "distance": 0.47649937868118286
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": true
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": false,
+        "source_hit_at_3": false,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": false
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention incorrecte : les passages récupérés concernent Molex ou Amphenol et ne contiennent ni 3,3 A ni 500 cycles pour Datamate."
+      }
+    },
+    {
+      "id": "rag-006",
+      "question": "What board thickness range and board-mount torque are specified for Samtec's two-port GPPC compression-mount connector?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "It supports 0.016 to 0.125 inch boards and a mounting torque of 0.9 to 1.3 in-lbs.",
+        "required_facts": [
+          {
+            "fact": "The supported board thickness is 0.016 to 0.125 inch.",
+            "evidence": [
+              {
+                "source": "SAMTEC_connector_datasheet.pdf",
+                "page_label": "6",
+                "text_anchor": "Board thickness: 0.016\" to 0.125\""
+              }
+            ]
+          },
+          {
+            "fact": "The board-mount torque is 0.9 to 1.3 in-lbs.",
+            "evidence": [
+              {
+                "source": "SAMTEC_connector_datasheet.pdf",
+                "page_label": "6",
+                "text_anchor": "Torque (board mount): 0.9~1.3 in-lbs"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "Le connecteur GPPC compression-mount à deux ports spécifie une épaisseur de carte de **0.016\" à 0.125\"** et un couple de montage de **0.9 à 1.3 in-lbs** [S2].",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "MUL TI-CHANNEL\nBOARD CONNECTORS\nsamtec.com/RF-BoardConnectors\nGanged, SMPM Push-On Connectors\nCOMPRESSION MOUNT, TWO-PORT\n• Differential pair test & measurement \n• Two-port SMPM with a solderless \ncompression mount design (-CMM)\n• Saves board real estate (2x savings) \n• Cable-to-board or board-to-board\nGPPC (-CMM) Series\nCOMPRESSION MOUNT, RIGHT-ANGLE\n• Extremely low profile, right-angle connector (-RA-SM)\n• Belly-to-belly, surface mount PCB connection for \nmaximum density \n• Body height: 3.94 mm (.155\")\nGPPC (-RA-SM) Series\nEDGE MOUNT OR STANDARD SURFACE MOUNT\n• Single row; 2, 4, 6, 8, 10 positions\n• Custom pitch and row counts available\n• Edge mount (-EM) or standard surface mount \n(-SL Stub Launch) with alignment pins\nSURFACE MOUNT WITH SWEPT CONTACT\n• Swept right-angle contact allows visible trace alignment with slight \nperformance tradeoffs \nGPPB (-SM) Series\n3.56 mm (.140\") Channel Pitch \nGPPC (-SL) Series\n• Board thickness:  \n0.016\" to 0.125\"\n• Torque (board mount):",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 5,
+          "page_label": "6",
+          "distance": 0.332813560962677
+        },
+        {
+          "rank": 2,
+          "content": "performance tradeoffs \nGPPB (-SM) Series\n3.56 mm (.140\") Channel Pitch \nGPPC (-SL) Series\n• Board thickness:  \n0.016\" to 0.125\"\n• Torque (board mount):  \n0.9~1.3 in-lbs\n• Alignment features ensure \npeak connector performance\nGPPC (-EM) Series\nStub \nLaunch\nSwept \nContact\nBelly-to-Belly \nApplication",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 5,
+          "page_label": "6",
+          "distance": 0.3632050156593323
+        },
+        {
+          "rank": 3,
+          "content": "to learn more about \nthis Samtec exclusive \ntechnology.\nAlignment grooves facilitate easy visual matching to fiducial markers on the \nPCB and ensure repeatable peak connector performance.\n1.35 mm  •  90 GHz, 50 Ohm  •  Solderless\n135 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\n1.85 mm  •  65 GHz, 50 Ohm  •  Solderless\n185 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\n2.40 mm  •  50 GHz, 50 Ohm  •  Solderless\n240 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\n2.92 mm  •  40 GHz, 50 Ohm  •  Solderless\n292 Series Vertical\nBoard Thickness 0.016\" to 0.125\"\nTorque (board mount) 0.5 ~ 0.8 in-lbs\nMating Cable Assemblies\nRF047-A, RF086, RF23C, RF085,  \nLL110, LL095, LL071, LL043, LL032",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 3,
+          "page_label": "4",
+          "distance": 0.37895309925079346
+        }
+      ],
+      "citations": {
+        "citations_present": true,
+        "valid_ids": [
+          "[S2]"
+        ],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": true,
+        "all_valid_ids_resolved": true,
+        "resolved": [
+          {
+            "id": "[S2]",
+            "source": "SAMTEC_connector_datasheet.pdf",
+            "page": 5,
+            "page_label": "6"
+          }
+        ]
+      },
+      "abstention": {
+        "detected": false,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": true
+      },
+      "human_review": {
+        "answer_correct": true,
+        "fully_grounded": false,
+        "citation_coverage_pass": true,
+        "citation_support_pass": false,
+        "review_note": "Verdict grounding/support strict et ambigu : les valeurs sont présentes, mais leur attribution à la variante GPPC -CMM n'est pas explicite dans le passage récupéré."
+      }
+    },
+    {
+      "id": "rag-007",
+      "question": "What contact pitch does Harwin Datamate use, and how do its backshells provide EMC shielding?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "Datamate uses a 2.00 mm pitch, and its backshells use a metal braid with micro-band fixing for EMC shielding.",
+        "required_facts": [
+          {
+            "fact": "The Datamate contact pitch is 2.00 mm.",
+            "evidence": [
+              {
+                "source": "HARWIN_connector_datasheet.pdf",
+                "page_label": "3",
+                "text_anchor": "Pitch: 2.00mm"
+              }
+            ]
+          },
+          {
+            "fact": "The backshell EMC shielding uses a metal braid and micro-band fixing.",
+            "evidence": [
+              {
+                "source": "HARWIN_connector_datasheet.pdf",
+                "page_label": "5",
+                "text_anchor": "EMC shielding with metal braid and micro-band fixing"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "L’information sur le contact pitch de Harwin Datamate n’est pas disponible dans les documents fournis. Les backshells fournissent un blindage EMC avec une tresse métallique et une fixation micro-band, et ce sont des coques robustes pour une protection physique à long terme [S1].",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "Backshells\nLightweight aluminium alloy backshells for cable and PCB mounting, \ncompatible with male and female connectors. EMC shielding with metal \nbraid and micro-band fixing. Robust hoods for long-term physical \nprotection.\nPre-Cabled Contacts\nIndividual cable contacts pre-crimped to lengths of equipment wire. \nAvailable in single or double ended options. Eliminates the additional \nexpense of crimp tooling – great for prototyping and volume production.\nPRODUCT CATEGORIES\nSpecifications are subject to change.\nVIEW FULL SERIES & SPECIFICATIONS HERE",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page": 4,
+          "page_label": "5",
+          "distance": 0.5457724332809448
+        },
+        {
+          "rank": 2,
+          "content": "HT005 – Datamate L-Tek Female Crimp Retention  \nHT016 – Datamate L-Tek Female Crimp Forces   \nHT011 – Datamate L-Tek Crimp High Temp. plastic material \nHT025 – Datamate L-Tek Vibration/Shock/Bump  \nHT012 – Datamate L-Tek Horizontal SMT Contacts  \nHT017 – Datamate L-Tek 3 and 15 years Artificial Aging \nHT044 – Datamate L-Tek number of latch operations  \nHT079 – Backshells, Shielded Cables Attenuation Testing\nDOWNLOADS\nSpecifications are subject to change.\nVIEW FULL SERIES & SPECIFICATIONS HERE",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page": 5,
+          "page_label": "6",
+          "distance": 0.6060447096824646
+        },
+        {
+          "rank": 3,
+          "content": "• Ligh tweight, compact, high density and high reliability cylindrical\n•\n Oper\nating voltage to 900 VAC (RMS) at sea level\n•\n En\nvironmentally resistant\n•\n S\nolder or crimp rear release contacts in mating plug\n•\n S\neries I (LJT) - Bayonet coupling \n•   Scoop-proof (recessed pins) offers maximum contact protection\n•\n  S\neries II (JT) - Bayonet coupling \n•   For applications requiring maximum weight/space savings and reliability\n•\n S\neries III (Tri-Start) - Threaded, quick coupling in one \ncomplete turn \n•   Designed for general duty as well as severe  \n     environmental applications \n•   Superior EMI shielding with grounding fingers and \n     metal-to-metal mating \n•   Filter/Transient protection versions available \n•   Scoop-proof contact protection \n•   Stainless steel firewall versions, and composite versions \n•   Available in Hermetics\nSee MIL-DTL-38999 Series I, II, and III sections of this catalog  \nfor more detailed information.\nNote: MIL-DTL-38999 supersedes MIL-C-38999.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 1,
+          "page_label": "144",
+          "distance": 0.6071586012840271
+        }
+      ],
+      "citations": {
+        "citations_present": true,
+        "valid_ids": [
+          "[S1]"
+        ],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": true,
+        "all_valid_ids_resolved": true,
+        "resolved": [
+          {
+            "id": "[S1]",
+            "source": "HARWIN_connector_datasheet.pdf",
+            "page": 4,
+            "page_label": "5"
+          }
+        ]
+      },
+      "abstention": {
+        "detected": false,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": false
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": true,
+        "citation_coverage_pass": true,
+        "citation_support_pass": true,
+        "review_note": "Réponse incomplète car le pitch de 2,00 mm manque ; les affirmations sur le blindage et les coques sont soutenues et citées par S1."
+      }
+    },
+    {
+      "id": "rag-008",
+      "question": "How many total contacts does the MIL-DTL-38999 Series I 23-35 insert arrangement provide?",
+      "answerable": true,
+      "ground_truth": {
+        "reference_answer": "The 23-35 insert arrangement provides 100 contacts.",
+        "required_facts": [
+          {
+            "fact": "The Series I 23-35 insert arrangement has 100 contacts.",
+            "evidence": [
+              {
+                "source": "MIL_connector_datasheet.pdf",
+                "page_label": "3",
+                "text_anchor": "23-35 100"
+              },
+              {
+                "source": "AMPHENOL_connector_datasheet.pdf",
+                "page_label": "146",
+                "text_anchor": "22-35 23-35 23-35 M 100 100"
+              }
+            ]
+          }
+        ],
+        "unanswerable_reason": null
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "Series I\nTri-Start \nMIL-DTL-38999 \nSeries III\nInsert Designation: 10-5 11-5 11-5\nContact Locations\nFront face of pin insert shown\nCircular Connectors – PCB Contacts \nInsert Arrangements\nAll dimensions for reference only. For alternate rotations see page 147 .\nNote: Shown in this catalog are the most common insert patterns for PCB applications. For availability of other arrangements, consult \nAmphenol Aerospace.\nNumber of \nContacts\nContact \nSize\nService \nRating\n5 20 I\nNumber of \nContacts\nContact \nSize\nService \nRating\n3 20 I",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 6,
+          "page_label": "149",
+          "distance": 0.31725043058395386
+        },
+        {
+          "rank": 2,
+          "content": "5 +.266 –.010\n6 +.247 –.098\n7 +.200 –.175\n8 +.130 –.232\n9 +.045 –.262\n10 –.045 –.262\n11 –.130 –.232\n12 –.200 –.175\n13 –.247 –.098\n14 –.266 –.010\n15 –.254 +.080\n16 –.211 +.160\n17 –.123 +.217\n18 –.045 +.262\n19 +.045 +.172\n20 +.123 +.119\nInsert Arrangement #14-35 / 15-35\nConnector Type:\nJT \nMIL-DTL-38999 \nSeries II\nLJT \nMIL-DTL-38999 \nSeries I\nTri-Start \nMIL-DTL-38999 \nSeries III\nNumber of \nContacts\nContact \nSize\nService \nRating\nInsert Designation: 14-35 15-35 15-35 37 22D M\nContact Locations\nFront face of pin insert shown\n1\n2131\n11\nCircular Connectors – PCB Contacts \nInsert Arrangements\nContact Hole Locations\nContact \nNumber\nLocation\nX Axis Y Axis\n21 +.170 +.040\n22 +.170 –.050\n23 +.123 –.127\n24 +.045 –.172\n25 –.045 –.172\n26 –.123 –.127\n27 –.170 –.050\n28 –.170 +.040\n29 –.123 +.119\n30 –.045 +.172\n31 +.045 +.074\n32 +.090 –.004\n33 +.045 –.082\n34 –.045 –.082\n35 –.090 –.004\n36 –.045 +.074\n37  \n.000 –.004\nAll dimensions for reference only. For alternate rotations see page 147 .",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 10,
+          "page_label": "153",
+          "distance": 0.381259560585022
+        },
+        {
+          "rank": 3,
+          "content": "Note: Shown in this catalog are the most common insert patterns for PCB applications. For availability of other arrangements,  \nconsult Amphenol Aerospace.\nCircular Connectors – PCB Contacts \nInsert Arrangements\n.065\nC\nB\nA\nE\nD\nFG\nJ\nH\nU\nT\nL\nK\nN\nM\nV R\nS\n.225\n.225\n.065\n.113\n.113\n.195\n.260\n.195\n.260\n.130 .130\nNumber of \nContacts\nContact \nSize\nService \nRating\n19 20 I\nNumber of \nContacts\nContact \nSize\nService \nRating\n18 20 I\nInsert Arrangement #14-19 / 15-19\nConnector Type:\nJT \nMIL-DTL-38999 \nSeries II\nLJT \nMIL-DTL-38999 \nSeries I\nTri-Start \nMIL-DTL-38999 \nSeries III\nInsert Designation: 14-19 15-19 15-19\nContact Locations\nFront face of pin insert shown",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 9,
+          "page_label": "152",
+          "distance": 0.38825172185897827
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": false,
+        "false_on_answerable": true
+      },
+      "retrieval_metrics": {
+        "source_hit_at_1": true,
+        "source_hit_at_3": true,
+        "evidence_hit_at_1": false,
+        "evidence_hit_at_3": false
+      },
+      "human_review": {
+        "answer_correct": false,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention incorrecte : les passages portent sur d'autres arrangements et ne contiennent pas la preuve 23-35 / 100 contacts."
+      }
+    },
+    {
+      "id": "rag-009",
+      "question": "What IP ingress-protection rating is specified for Harwin Datamate connectors?",
+      "answerable": false,
+      "ground_truth": {
+        "reference_answer": null,
+        "required_facts": [],
+        "unanswerable_reason": "The corpus specifies Datamate temperature, humidity classification, vibration and shock performance, but none of the five PDFs gives an IP ingress-protection code for Datamate."
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "nal. Molex 1991 connectors are \ndesignerl to meet European and \nJapanese requirements in addition \nto those of ULand CSA. \nTerminals .093 inches in dia­\nmeter (2,4mm) , for 14- through \n30-gauge insulated wire, can be \nspecified in tin-plated brass, tin­\nplated phosphor bronze, selective \nand overall gold plating. \n6 \nThe connectors are UL listed, \nper circuit, for 600V AC at 11 amps \n(3 circuit), 9 amps (6-circuit), 8 \namps (9-circuit) , and 6 amps (15-\ncircuit). They also accept heavier \nthan usual insulation on leads. \nSPECIFICATIONS \nSeries 19-09 nylon 6/6 \nModels : 1991-3, 1991-6, 1991 -9, 1991 -15 . \nCircuits: 3, 6, 9, 15 (query for 12-circuit \navailability). \nTerminal size: .093-in. dia. (2,4mm) . \nTerminal material: Tin-plated brass, tin­\nplated phosphor bronze, selective or over­\nall gold plating. \nWire size: 14- through 30-gauge, heavy insu­\nlation. \nAmp rating: Per circuit at 600VAC : 11 amps \n(3-circuit), 9 amps (6-circuit), 8 amps (9-\ncircuit), 6 amps (15 -circuit) .",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 7,
+          "page_label": "8",
+          "distance": 0.5472784042358398
+        },
+        {
+          "rank": 2,
+          "content": "nals lock into the connector, but \nare easily removed. \nMolex standard pin connectors \nare UL and CSA listed for maxi­\nmums of 250V and 12 amps per \ncircuit for 1-3 circuits; 9 amps 4-9 \ncircuits; and 7.5 amps 12-15 cir­\ncuits. Nylon connectors operate to \na maximum of 105° C. Maximum \nfor phenolic is 325o F. \nModel ~951 is a !-circuit, high-\nlledllll11 \nvoltage connector rated for 5,000 \nvolts and 12 amps. \nMost of the nylon connectors \nhave integrally molded mounting \nears for snap-in, quick mounting \nof either the plug or receptacle in \nan .093-inch thick panel (note \nmodel 1261 detail). Most have a \nholding tab (model 1375 detail), \nand all are polarity keyed. \nMale and female terminals may \nbe assembled in either the plug or \nreceptacle. Normally, male termi­\nnals are housed in the plug and \nmate with female terminals in the \nreceptacle (models 1545/1360) , \nbut may be interchanged or mixed \n(models 1816 and 1375 detail) . \nPhenolic connectors can be",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 3,
+          "page_label": "4",
+          "distance": 0.5688967704772949
+        },
+        {
+          "rank": 3,
+          "content": "HIGH RELIABILITY \nRECTANGULAR SIGNAL\nMINIATURE CONNECTORS\n// WWW.HARWIN.COM",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page": 0,
+          "page_label": "1",
+          "distance": 0.5739745497703552
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": true,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": null,
+      "human_review": {
+        "answer_correct": true,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention correcte : aucun classement IP pour Harwin Datamate n'est présent dans les passages fournis."
+      }
+    },
+    {
+      "id": "rag-010",
+      "question": "How many mating cycles is the Samtec SMPM-EM connector rated for?",
+      "answerable": false,
+      "ground_truth": {
+        "reference_answer": null,
+        "required_facts": [],
+        "unanswerable_reason": "The Samtec document identifies SMPM-EM as a 65 GHz edge-mount option but gives no mating-cycle rating for it; none of the other four PDFs supplies that Samtec product specification."
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "PRECISION RF\nCABLE CONNECTORS\nsamtec.com/RF-CableConnectors\nSamtec offers a variety of precision, high frequency cable connectors that are specifically designed to \nterminate to cables commonly used within the RF microwave/millimeter wave industry. Samtec’s cable \nconnectors are manufactured with a precise tolerance interface to ensure superior repeatability and high \nmechanical stability. Visit the Series page on samtec.com for access to prints with termination instructions, \nand view the Cable Connector Compatibility Guide to reference compatibility with industry standard cables. \nCABLE CONNECTORS\nFREQUENCY / TYPE / SERIES\n110 GHz, 1.00 mm, PRF10 Series 50 GHz, 2.40 mm, PRF24 Series 34 GHz, SSMA, PRFS1 Series 40 GHz, SMP , PRF00 Series\n90 GHz, 1.35 mm, PRF13 Series 40 GHz, 2.92 mm, PRF92 Series\n18 GHz & 26.5 GHz, SMA,  \nPRF01 Series 18 GHz, N Type, PRF06 Series\n65 GHz, 1.85 mm, PRF18 Series 34 GHz, 3.50 mm, PRF35 Series 65 GHz, SMPM, PRFM0 Series 18 GHz, TNCA, PRF04 Series",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 8,
+          "page_label": "9",
+          "distance": 0.46556907892227173
+        },
+        {
+          "rank": 2,
+          "content": "MUL TI-CHANNEL\nBOARD CONNECTORS\nsamtec.com/RF-BoardConnectors\nGanged, SMPM Push-On Connectors\nCOMPRESSION MOUNT, TWO-PORT\n• Differential pair test & measurement \n• Two-port SMPM with a solderless \ncompression mount design (-CMM)\n• Saves board real estate (2x savings) \n• Cable-to-board or board-to-board\nGPPC (-CMM) Series\nCOMPRESSION MOUNT, RIGHT-ANGLE\n• Extremely low profile, right-angle connector (-RA-SM)\n• Belly-to-belly, surface mount PCB connection for \nmaximum density \n• Body height: 3.94 mm (.155\")\nGPPC (-RA-SM) Series\nEDGE MOUNT OR STANDARD SURFACE MOUNT\n• Single row; 2, 4, 6, 8, 10 positions\n• Custom pitch and row counts available\n• Edge mount (-EM) or standard surface mount \n(-SL Stub Launch) with alignment pins\nSURFACE MOUNT WITH SWEPT CONTACT\n• Swept right-angle contact allows visible trace alignment with slight \nperformance tradeoffs \nGPPB (-SM) Series\n3.56 mm (.140\") Channel Pitch \nGPPC (-SL) Series\n• Board thickness:  \n0.016\" to 0.125\"\n• Torque (board mount):",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 5,
+          "page_label": "6",
+          "distance": 0.49133431911468506
+        },
+        {
+          "rank": 3,
+          "content": "samtec.com/RF\nType Standard Mated Sets\n40 GHz, 2.92 mm\n• Robust threaded coupling\n• PCB: compression mount\n• Intermateable with 3.50 mm  \nand SMA\nCables: LL043, LL032, \nRF047-A, RF086, RF23C, \nRF085\nCable Connector: PRF92\nBoard Connectors: 292 \n(-CM, -CMM, -EL)\n34 GHz, 3.50 mm & SSMA\n• 3.50 mm is intermateable with  \n2.92 mm and SMA\n• SSMA features a reduced size for \nhigh-density\n• SSMA available as cable \nconnector only (PRFS1)\nCable:  \nRF23S (3.50 mm)\nCable Connectors: PRF35 \n(3.50 mm), PRFS1 (SSMA)\n18/26.5 GHz, SMA\n• Robust threaded coupling\n• PCB: solder termination\n• Intermateable with 2.92 mm and \n3.50 mm\nCables: LL071, LL043, \nLL018, RF047-A, RF086, \nRF23C, RF180, RF280, \nRF25S, RF405, RF402\nCable Connector: PRF01\nBoard Connectors:  \nSMA (-TH, -SM, -MT, -EM)\n18 GHz, N Type\n• Robust threaded coupling\n• Superior power handling\nCables: RF180, RF280\nCable Connector: PRF06\n18 GHz, TNCA\n• Robust interface with environmental \nseal and threaded coupling\nCables: RF180, RF280",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page": 2,
+          "page_label": "3",
+          "distance": 0.5043215155601501
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": true,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": null,
+      "human_review": {
+        "answer_correct": true,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention correcte : les passages mentionnent SMPM, mais aucune durabilité en cycles pour SMPM-EM."
+      }
+    },
+    {
+      "id": "rag-011",
+      "question": "Which has the lower maximum contact resistance: Harwin Datamate or the Molex .093 standard pin connector?",
+      "answerable": false,
+      "ground_truth": {
+        "reference_answer": null,
+        "required_facts": [],
+        "unanswerable_reason": "Harwin specifies 25 mΩ maximum for Datamate, but the Molex .093 standard pin connector pages provide no contact-resistance value, so the comparison cannot be completed from any of the five PDFs."
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "~ molex \n'-../ \nConnectors-Plugs and Receptacles with Terminals \n.093 INTERNATIONAL PIN CONNECTORS \nSeries 19-09 Nylon \nInternational connector specifica­\ntions often vary from those of the \nU.S. The Molex international con­\nnector , series 19-09, meets foreign \nrequirements with 3-, 6-, 9-, and \n15-circuit 1991 molded nylon \nmodels. In addition a 12-circuit \nmodel is planned for production \nin the near future. \nThe 1991 connectors feature \nthe Molex integrally molded recep­\ntacle/plug locking device and op­\ntional mounting ears for panel as­\nsembly. Their \"egg-crate\" housing \ndesign for terminal protection pro­\nvides for 4mm over-surface spacing \nbetween terminals (note detail \ndrawing), and 4mm spacing be­\ntween the back of the connector \nand the end of the crimped termi­\nnal. Molex 1991 connectors are \ndesignerl to meet European and \nJapanese requirements in addition \nto those of ULand CSA. \nTerminals .093 inches in dia­\nmeter (2,4mm) , for 14- through",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 7,
+          "page_label": "8",
+          "distance": 0.4313223361968994
+        },
+        {
+          "rank": 2,
+          "content": "nal. Molex 1991 connectors are \ndesignerl to meet European and \nJapanese requirements in addition \nto those of ULand CSA. \nTerminals .093 inches in dia­\nmeter (2,4mm) , for 14- through \n30-gauge insulated wire, can be \nspecified in tin-plated brass, tin­\nplated phosphor bronze, selective \nand overall gold plating. \n6 \nThe connectors are UL listed, \nper circuit, for 600V AC at 11 amps \n(3 circuit), 9 amps (6-circuit), 8 \namps (9-circuit) , and 6 amps (15-\ncircuit). They also accept heavier \nthan usual insulation on leads. \nSPECIFICATIONS \nSeries 19-09 nylon 6/6 \nModels : 1991-3, 1991-6, 1991 -9, 1991 -15 . \nCircuits: 3, 6, 9, 15 (query for 12-circuit \navailability). \nTerminal size: .093-in. dia. (2,4mm) . \nTerminal material: Tin-plated brass, tin­\nplated phosphor bronze, selective or over­\nall gold plating. \nWire size: 14- through 30-gauge, heavy insu­\nlation. \nAmp rating: Per circuit at 600VAC : 11 amps \n(3-circuit), 9 amps (6-circuit), 8 amps (9-\ncircuit), 6 amps (15 -circuit) .",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 7,
+          "page_label": "8",
+          "distance": 0.44477009773254395
+        },
+        {
+          "rank": 3,
+          "content": "~ molex \n'-..._/ \nPrinted Circuit Connectors and Terminals \nEDGECON® Edge Connectors \nSeries 09-01 \nFast assembly, reliability ,and econ­\nomy are the major benefits in using \nEdgecon,straight-on and right-angle \nMolex edge connectors. \nThe color-coded nylon housings \nare designed for 5 through 24 cir­\ncuits. Individual terminals are on \n.156-inch spacing with each circuit \nrated to 10 amps maximum , for 18-\nthrough 30-gauge wire. \nEdgecon connectors mate with \nPC boards of .063-inch thickness. \nThe Molex bifurcated flat terminal \nmakes excellent contact with both \nboard terminal contact faces. Ter­\nminals are available in loose or \nchain form for hand or machine \ncrimping. \nSPECIFICATIONS \nSeries 09-01 nylon 6/6 \nModels : 1796 straight-on. \nCircuits : 6, 9, 12, 15, 18, 21, 22 , 24, \nwit h .156-in. spacing. \nTerminal material: Tin-plated brass , tin­\nplated phosphor bronze, selective or \noverall gold plat ing on nick el. \nWire size: 18- through 30-gauge, insulated ,",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page": 14,
+          "page_label": "15",
+          "distance": 0.4461749792098999
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": true,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": null,
+      "human_review": {
+        "answer_correct": true,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention correcte : la résistance de contact Molex nécessaire à la comparaison n'est pas fournie."
+      }
+    },
+    {
+      "id": "rag-012",
+      "question": "Which hydraulic fluid is recommended for an aircraft braking system?",
+      "answerable": false,
+      "ground_truth": {
+        "reference_answer": null,
+        "required_facts": [],
+        "unanswerable_reason": "The five PDFs are connector catalogs or datasheets and contain no aircraft braking-system hydraulic-fluid recommendation."
+      },
+      "response_raw": "L'information n'est pas disponible dans les documents fournis.",
+      "passages": [
+        {
+          "rank": 1,
+          "content": "SPECIFICATIONS\nMATERIALS\nHousings:\nGlass-Filled Thermoplastic,  \nUL94V-0\nContacts:\nCopper Alloy, Gold finish \non contact area\nLatches:\nBeryllium Copper, Tin finish\nJackscrews:\nStainless Steel\nMetal Backshells:\nAluminium Alloy\nELECTRICAL\nCurrent per contact:\n3.3A max\nWorking voltage:\n800V AC/DC (Connectors)\n300V AC/DC (Cable assemblies)\nMaximum voltage:\n1,200V AC/DC\nContact resistance:\n25mΩ max\nInsulation resistance:\n100MΩ min\nMECHANICAL\nDurability:\n500 mating cycles\nInsertion force (per contact):\n2.0N max\nWithdrawal force (per contact):\n0.2N min\nContact retention in housing:\n10N min\nPitch:\n2.00mm\nENVIRONMENTAL\nOperating temperature:\n-55°C to +125°C\nEnvironmental classification:\n55/125/56 days at 95% RH\nVibration resistance:\n10G (196m/s²) for 6 hrs\n20G (98m/s²) for 2 hrs\nShock resistance:\n100G (981m/s²)\nCompliance:\nRoHS Compliant\nREACH / CMRT statements\nSpecifications are subject to change. \nVIEW FULL SERIES & SPECIFICATIONS HERE",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page": 2,
+          "page_label": "3",
+          "distance": 0.802041232585907
+        },
+        {
+          "rank": 2,
+          "content": "fits of using \nflex technology include:\n•\n A\nvailable for MIL-DTL-38999 (including filter EMI/EMP types) circular connectors\n•\n \nSculptures® Flexible Circuits with built-in terminations\n•\n Elimina\ntes failures associated with crimped or solder-on contacts\n•\n G\neometrically fit tight space requirements and create a self-locking \nterminal pad\nShould Other PC Tail Contact Types be Considered?\nPress-Fit Connectors with compliant pins are available which engage the plated  \nthrough-holes in the board without the need for soldering. This optional contact style  \noffers the following benefits:\n•\n I\nmproved board processing time\n•\n Ex\ncellent temperature performance\n•\n Ideal f\nor low-lead applications\nFor more information on Press-Fit connectors with compliant pins see page 557.\nSpecial Quadrax contacts have been designed with PC tails. Coax, twi\n nax and tr\niax  \ncontacts can also have PC tails. Refer to the High Speed contacts section of this catalog.\nQuadrax Contacts with PC",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 2,
+          "page_label": "145",
+          "distance": 0.8120307326316833
+        },
+        {
+          "rank": 3,
+          "content": "• Ligh tweight, compact, high density and high reliability cylindrical\n•\n Oper\nating voltage to 900 VAC (RMS) at sea level\n•\n En\nvironmentally resistant\n•\n S\nolder or crimp rear release contacts in mating plug\n•\n S\neries I (LJT) - Bayonet coupling \n•   Scoop-proof (recessed pins) offers maximum contact protection\n•\n  S\neries II (JT) - Bayonet coupling \n•   For applications requiring maximum weight/space savings and reliability\n•\n S\neries III (Tri-Start) - Threaded, quick coupling in one \ncomplete turn \n•   Designed for general duty as well as severe  \n     environmental applications \n•   Superior EMI shielding with grounding fingers and \n     metal-to-metal mating \n•   Filter/Transient protection versions available \n•   Scoop-proof contact protection \n•   Stainless steel firewall versions, and composite versions \n•   Available in Hermetics\nSee MIL-DTL-38999 Series I, II, and III sections of this catalog  \nfor more detailed information.\nNote: MIL-DTL-38999 supersedes MIL-C-38999.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page": 1,
+          "page_label": "144",
+          "distance": 0.8204142451286316
+        }
+      ],
+      "citations": {
+        "citations_present": false,
+        "valid_ids": [],
+        "unknown_ids": [],
+        "all_emitted_ids_valid": false,
+        "all_valid_ids_resolved": true,
+        "resolved": []
+      },
+      "abstention": {
+        "detected": true,
+        "correct_on_unanswerable": true,
+        "false_on_answerable": false
+      },
+      "retrieval_metrics": null,
+      "human_review": {
+        "answer_correct": true,
+        "fully_grounded": null,
+        "citation_coverage_pass": null,
+        "citation_support_pass": null,
+        "review_note": "Abstention correcte : les passages sur les connecteurs ne contiennent aucune recommandation de fluide hydraulique."
+      }
+    }
+  ]
+}
