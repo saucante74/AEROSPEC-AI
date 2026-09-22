@@ -1,9 +1,22 @@
 import { useState } from 'react'
 import type { SubmitEvent } from 'react'
 
-import { askQuestion } from '../api/client'
-import type { AskResponse } from '../api/client'
+import { askQuestion, convertUnit, supportedUnits } from '../api/client'
+import type { AskResponse, ConvertResponse, Unit } from '../api/client'
 import { useI18n } from '../i18n/useI18n'
+
+const compatibleTargets: Record<Unit, readonly Unit[]> = {
+  mm: ['inch'],
+  inch: ['mm'],
+  N: ['lbf'],
+  lbf: ['N'],
+  '°C': ['°F'],
+  '°F': ['°C'],
+}
+
+function isUnit(value: string): value is Unit {
+  return value in compatibleTargets
+}
 
 export default function AssistantPage() {
   const { t } = useI18n()
@@ -11,6 +24,15 @@ export default function AssistantPage() {
   const [result, setResult] = useState<AskResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [errorType, setErrorType] = useState<'emptyQuestion' | 'api' | null>(null)
+  const [conversionValue, setConversionValue] = useState('')
+  const [fromUnit, setFromUnit] = useState<Unit>('mm')
+  const [toUnit, setToUnit] = useState<Unit>('inch')
+  const [conversionResult, setConversionResult] =
+    useState<ConvertResponse | null>(null)
+  const [isConverting, setIsConverting] = useState(false)
+  const [conversionError, setConversionError] = useState<
+    'emptyValue' | 'invalidValue' | 'apiError' | null
+  >(null)
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -37,6 +59,65 @@ export default function AssistantPage() {
   function selectExample(example: string) {
     setQuestion(example)
     setErrorType(null)
+  }
+
+  function updateConversionValue(value: string) {
+    setConversionValue(value)
+    setConversionError(null)
+    setConversionResult(null)
+  }
+
+  function updateFromUnit(value: string) {
+    if (!isUnit(value)) {
+      return
+    }
+
+    setFromUnit(value)
+    setToUnit(compatibleTargets[value][0])
+    setConversionError(null)
+    setConversionResult(null)
+  }
+
+  function updateToUnit(value: string) {
+    if (isUnit(value) && compatibleTargets[fromUnit].includes(value)) {
+      setToUnit(value)
+      setConversionError(null)
+      setConversionResult(null)
+    }
+  }
+
+  async function handleConversion(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const normalizedValue = conversionValue.trim()
+
+    if (!normalizedValue) {
+      setConversionError('emptyValue')
+      return
+    }
+
+    const numericValue = Number(normalizedValue)
+    if (!Number.isFinite(numericValue)) {
+      setConversionError('invalidValue')
+      return
+    }
+
+    setIsConverting(true)
+    setConversionError(null)
+    setConversionResult(null)
+
+    try {
+      setConversionResult(
+        await convertUnit({
+          value: numericValue,
+          from_unit: fromUnit,
+          to_unit: toUnit,
+        }),
+      )
+    } catch {
+      setConversionError('apiError')
+    } finally {
+      setIsConverting(false)
+    }
   }
 
   return (
@@ -143,6 +224,96 @@ export default function AssistantPage() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="engineering-tools" aria-labelledby="conversion-title">
+          <div className="tools-heading">
+            <p className="section-label">{t.tools.eyebrow}</p>
+            <h2 id="conversion-title">{t.tools.title}</h2>
+            <p>{t.tools.description}</p>
+          </div>
+
+          <form
+            className="converter-form"
+            onSubmit={handleConversion}
+            aria-busy={isConverting}
+          >
+            <div className="converter-field converter-value-field">
+              <label htmlFor="conversion-value">{t.tools.value}</label>
+              <input
+                id="conversion-value"
+                name="conversion-value"
+                type="number"
+                step="any"
+                inputMode="decimal"
+                value={conversionValue}
+                onChange={(event) => updateConversionValue(event.target.value)}
+                disabled={isConverting}
+              />
+            </div>
+
+            <div className="converter-field">
+              <label htmlFor="conversion-from">{t.tools.from}</label>
+              <select
+                id="conversion-from"
+                name="conversion-from"
+                value={fromUnit}
+                onChange={(event) => updateFromUnit(event.target.value)}
+                disabled={isConverting}
+              >
+                {supportedUnits.map((unit) => (
+                  <option value={unit} key={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <span className="conversion-direction" aria-hidden="true">
+              →
+            </span>
+
+            <div className="converter-field">
+              <label htmlFor="conversion-to">{t.tools.to}</label>
+              <select
+                id="conversion-to"
+                name="conversion-to"
+                value={toUnit}
+                onChange={(event) => updateToUnit(event.target.value)}
+                disabled={isConverting}
+              >
+                {compatibleTargets[fromUnit].map((unit) => (
+                  <option value={unit} key={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button type="submit" disabled={isConverting}>
+              {isConverting ? t.tools.converting : t.tools.convert}
+            </button>
+          </form>
+
+          {conversionError && (
+            <p className="converter-error" role="alert">
+              {t.tools[conversionError]}
+            </p>
+          )}
+
+          {conversionResult && (
+            <output
+              className="converter-result"
+              role="status"
+              aria-label={t.tools.result}
+            >
+              <span>{conversionResult.value}</span>
+              <span>{conversionResult.from_unit}</span>
+              <span aria-hidden="true">→</span>
+              <strong>{conversionResult.converted_value}</strong>
+              <span>{conversionResult.to_unit}</span>
+            </output>
+          )}
         </section>
 
         {result && (

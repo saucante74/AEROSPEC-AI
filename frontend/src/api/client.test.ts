@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { askQuestion } from './client'
-import type { AskResponse } from './client'
+import { askQuestion, convertUnit } from './client'
+import type { AskResponse, ConvertResponse } from './client'
 
 describe('askQuestion', () => {
   afterEach(() => {
@@ -50,5 +50,48 @@ describe('askQuestion', () => {
     await expect(askQuestion('Question indisponible')).rejects.toThrow(
       'API request failed with status 503',
     )
+  })
+})
+
+describe('convertUnit', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('envoie le payload exact en JSON à POST /convert et parse la réponse', async () => {
+    const apiResponse: ConvertResponse = {
+      value: 100,
+      from_unit: 'N',
+      to_unit: 'lbf',
+      converted_value: 22.480894309971,
+    }
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(apiResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(
+      convertUnit({ value: 100, from_unit: 'N', to_unit: 'lbf' }),
+    ).resolves.toEqual(apiResponse)
+    expect(fetchMock).toHaveBeenCalledOnce()
+    expect(fetchMock).toHaveBeenCalledWith('http://localhost:8000/convert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: 100, from_unit: 'N', to_unit: 'lbf' }),
+    })
+  })
+
+  it('rejette la conversion lorsque la réponse HTTP est en erreur', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 422 })),
+    )
+
+    await expect(
+      convertUnit({ value: 1, from_unit: 'mm', to_unit: 'inch' }),
+    ).rejects.toThrow('API request failed with status 422')
   })
 })
