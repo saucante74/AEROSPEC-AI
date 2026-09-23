@@ -211,11 +211,12 @@ class EvaluationSummaryTest(TestCase):
 
         self.assertEqual(
             [entry["id"] for entry in history],
-            ["baseline-72", "baseline-36", "baseline-12"],
+            ["top-k-5", "baseline-72", "baseline-36", "baseline-12"],
         )
-        self.assertTrue(history[0]["is_current"])
-        self.assertFalse(history[1]["is_current"])
+        self.assertFalse(history[0]["is_current"])
+        self.assertTrue(history[1]["is_current"])
         self.assertFalse(history[2]["is_current"])
+        self.assertFalse(history[3]["is_current"])
 
         for entry in history:
             experiment = experiments[entry["id"]]

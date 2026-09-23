@@ -21,6 +21,11 @@ python -m evaluation.scripts.evaluate_rag \
   data/sample_docs evaluation/benchmarks/rag_cases.json
 ```
 
+For a controlled retrieval-depth experiment, use the evaluation-only option
+`--top-k`. It defaults to the production value of 3; for example, `--top-k 5`
+retrieves five passages while the reported Hit@3 metrics remain limited to the
+first three results.
+
 This command writes the current run to `runs/current/rag_run.json` and the
 frontend summary to `frontend/src/data/evaluation-summary.json`. The frontend
 summary also joins registered experiments with their archived summaries to

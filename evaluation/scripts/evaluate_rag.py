@@ -20,6 +20,7 @@ from backend.app.rag import RagResult, answer_question
 from backend.app.retrieval import (
     DEFAULT_CHUNK_OVERLAP,
     DEFAULT_CHUNK_SIZE,
+    DEFAULT_TOP_K,
     EMBEDDING_MODEL,
     EMBEDDING_MODEL_REVISION,
     SimilaritySearchStore,
@@ -30,7 +31,6 @@ from evaluation.scripts.evaluation_summary import (
     write_evaluation_summary,
 )
 
-TOP_K = 3
 DEFAULT_OUTPUT_PATH = Path("evaluation/runs/current/rag_run.json")
 
 
@@ -61,6 +61,7 @@ def parse_arguments() -> argparse.Namespace:
         default=DEFAULT_SUMMARY_PATH,
     )
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
+    parser.add_argument("--top-k", type=int, default=DEFAULT_TOP_K, choices=range(1, 21))
     return parser.parse_args()
 
 
@@ -171,8 +172,9 @@ def evaluate_case(
     case: dict[str, Any],
     store: RecordingSimilaritySearchStore,
     llm: TextGenerator,
+    top_k: int = DEFAULT_TOP_K,
 ) -> dict[str, Any]:
-    result = answer_question(store, case["question"], TOP_K, llm)
+    result = answer_question(store, case["question"], top_k, llm)
     matches = store.last_matches
     abstention_detected = is_abstention(result.answer)
 
@@ -180,9 +182,9 @@ def evaluate_case(
     if case["answerable"]:
         retrieval_metrics = {
             "source_hit_at_1": source_hit_at_k(case, matches, 1),
-            "source_hit_at_3": source_hit_at_k(case, matches, TOP_K),
+            "source_hit_at_3": source_hit_at_k(case, matches, 3),
             "evidence_hit_at_1": evidence_hit_at_k(case, matches, 1),
-            "evidence_hit_at_3": evidence_hit_at_k(case, matches, TOP_K),
+            "evidence_hit_at_3": evidence_hit_at_k(case, matches, 3),
         }
 
     return {
@@ -368,7 +370,9 @@ def main() -> None:
     results = []
     for index, case in enumerate(cases, start=1):
         print(f"[{index}/{len(cases)}] {case['id']} — {case['question']}")
-        results.append(evaluate_case(case, recording_store, llm))
+        results.append(
+            evaluate_case(case, recording_store, llm, top_k=arguments.top_k)
+        )
 
     summary = build_summary(results)
     artifact = {
@@ -377,7 +381,7 @@ def main() -> None:
             "python_version": platform.python_version(),
             "provider": "OpenAI",
             "model": arguments.model,
-            "top_k": TOP_K,
+            "top_k": arguments.top_k,
             "abstention_message": ABSTENTION_MESSAGE,
             "embedding_model": EMBEDDING_MODEL,
             "embedding_model_revision": EMBEDDING_MODEL_REVISION,
