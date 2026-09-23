@@ -2,8 +2,9 @@ import { supportedLanguages } from '../i18n/translations'
 import { useI18n } from '../i18n/useI18n'
 
 interface HeaderProps {
-  activePage: 'assistant' | 'evaluation' | 'help'
+  activePage: 'assistant' | 'documents' | 'evaluation' | 'help'
   onAssistantSelect: () => void
+  onDocumentsSelect: () => void
   onEvaluationSelect: () => void
   onHelpSelect: () => void
 }
@@ -11,6 +12,7 @@ interface HeaderProps {
 export default function Header({
   activePage,
   onAssistantSelect,
+  onDocumentsSelect,
   onEvaluationSelect,
   onHelpSelect,
 }: HeaderProps) {
@@ -34,6 +36,13 @@ export default function Header({
               onClick={onAssistantSelect}
             >
               {t.nav.assistant}
+            </button>
+            <button
+              type="button"
+              aria-pressed={activePage === 'documents'}
+              onClick={onDocumentsSelect}
+            >
+              {t.nav.documents}
             </button>
             <button
               type="button"

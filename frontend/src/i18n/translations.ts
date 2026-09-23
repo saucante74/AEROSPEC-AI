@@ -12,6 +12,7 @@ const english = {
     primaryLabel: 'Primary navigation',
     homeLabel: 'AeroSpec AI home',
     assistant: 'Assistant',
+    documents: 'Documents',
     evaluation: 'Evaluation',
     help: 'Help',
     languageSelector: 'Language selection',
@@ -44,7 +45,8 @@ const english = {
     hint: 'Enter adds a new line. Use the Ask button to submit.',
     submit: 'Ask',
     searching: 'Searching…',
-    loading: 'Searching documents and preparing an answer…',
+    loading: 'Searching technical documentation…',
+    seconds: 's elapsed',
   },
   examples: {
     eyebrow: 'Explore the corpus',
@@ -84,6 +86,22 @@ const english = {
     page: 'Page',
     pdfIndex: 'PDF index',
     empty: 'No validated citations were returned for this answer.',
+  },
+  documents: {
+    eyebrow: 'Source library',
+    title: 'Technical documents',
+    introduction:
+      'Open the five PDF datasheets used by the AeroSpec AI document corpus.',
+    listLabel: 'Available technical documents',
+    open: 'Open PDF',
+    openDocument: 'Open PDF document',
+    items: [
+      'Amphenol connector datasheet',
+      'Harwin connector datasheet',
+      'MIL connector datasheet',
+      'Molex connector datasheet',
+      'Samtec connector datasheet',
+    ],
   },
   help: {
     eyebrow: 'Product guide',
@@ -248,6 +266,7 @@ const french = {
     primaryLabel: 'Navigation principale',
     homeLabel: 'Accueil AeroSpec AI',
     assistant: 'Assistant',
+    documents: 'Documents',
     evaluation: 'Évaluation',
     help: 'Aide',
     languageSelector: 'Sélection de la langue',
@@ -280,7 +299,8 @@ const french = {
     hint: 'Entrée ajoute une nouvelle ligne. Utilisez le bouton Demander pour envoyer.',
     submit: 'Demander',
     searching: 'Recherche…',
-    loading: 'Recherche dans les documents et préparation de la réponse…',
+    loading: 'Recherche dans la documentation technique…',
+    seconds: 's écoulées',
   },
   examples: {
     eyebrow: 'Explorer le corpus',
@@ -320,6 +340,22 @@ const french = {
     page: 'Page',
     pdfIndex: 'Index PDF',
     empty: 'Aucune citation validée n’a été retournée pour cette réponse.',
+  },
+  documents: {
+    eyebrow: 'Bibliothèque source',
+    title: 'Documents techniques',
+    introduction:
+      'Consultez les cinq fiches techniques PDF utilisées par le corpus documentaire d’AeroSpec AI.',
+    listLabel: 'Documents techniques disponibles',
+    open: 'Ouvrir le PDF',
+    openDocument: 'Ouvrir le document PDF',
+    items: [
+      'Fiche technique des connecteurs Amphenol',
+      'Fiche technique des connecteurs Harwin',
+      'Fiche technique des connecteurs MIL',
+      'Fiche technique des connecteurs Molex',
+      'Fiche technique des connecteurs Samtec',
+    ],
   },
   help: {
     eyebrow: 'Guide du produit',
@@ -476,6 +512,7 @@ const italian = {
     primaryLabel: 'Navigazione principale',
     homeLabel: 'Home AeroSpec AI',
     assistant: 'Assistente',
+    documents: 'Documenti',
     evaluation: 'Valutazione',
     help: 'Aiuto',
     languageSelector: 'Selezione della lingua',
@@ -508,7 +545,8 @@ const italian = {
     hint: 'Invio aggiunge una nuova riga. Usa il pulsante Chiedi per inviare.',
     submit: 'Chiedi',
     searching: 'Ricerca…',
-    loading: 'Ricerca nei documenti e preparazione della risposta…',
+    loading: 'Ricerca nella documentazione tecnica…',
+    seconds: 's trascorsi',
   },
   examples: {
     eyebrow: 'Esplora il corpus',
@@ -548,6 +586,22 @@ const italian = {
     page: 'Pagina',
     pdfIndex: 'Indice PDF',
     empty: 'Non sono state restituite citazioni convalidate per questa risposta.',
+  },
+  documents: {
+    eyebrow: 'Raccolta delle fonti',
+    title: 'Documenti tecnici',
+    introduction:
+      'Consulta le cinque schede tecniche PDF utilizzate dal corpus documentale di AeroSpec AI.',
+    listLabel: 'Documenti tecnici disponibili',
+    open: 'Apri PDF',
+    openDocument: 'Apri il documento PDF',
+    items: [
+      'Scheda tecnica dei connettori Amphenol',
+      'Scheda tecnica dei connettori Harwin',
+      'Scheda tecnica dei connettori MIL',
+      'Scheda tecnica dei connettori Molex',
+      'Scheda tecnica dei connettori Samtec',
+    ],
   },
   help: {
     eyebrow: 'Guida del prodotto',

@@ -66,14 +66,24 @@ Create a Vercel project from the same repository with these settings:
 - Output Directory: `dist`.
 - Install Command: use the detected npm command (`npm install`/`npm ci`).
 
+Enable **Include source files outside of the Root Directory in the Build Step**
+in the Vercel project settings. The Vite build reads the canonical PDFs from
+`data/sample_docs` and copies them into the static output; this avoids storing a
+second copy under `frontend`.
+
 Configure `VITE_API_BASE_URL` for the desired Vercel environment. Its value is
 the public Render service origin, without a trailing slash. Vite injects this
 value at build time, so changing it requires a new frontend build. No production
-backend URL is hardcoded in the source. The frontend Dockerfile remains
-available for local/container use and is not used by Vercel.
+backend URL is hardcoded in the source.
 
 No `vercel.json` is required: Vercel detects Vite and the project has no
-client-side router that needs rewrite rules.
+client-side router that needs rewrite rules. The frontend Dockerfile remains
+available for local/container use and is not used by Vercel. Build it from the
+repository root so the canonical PDF corpus is available to Vite:
+
+```bash
+docker build --file frontend/Dockerfile .
+```
 
 ## Connect the deployments
 

@@ -59,6 +59,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  vi.useRealTimers()
 })
 
 describe('App', () => {
@@ -91,6 +92,9 @@ describe('App', () => {
     ).toHaveAttribute('aria-pressed', 'true')
     expect(
       within(navigation).getByRole('button', { name: 'Evaluation' }),
+    ).toHaveAttribute('aria-pressed', 'false')
+    expect(
+      within(navigation).getByRole('button', { name: 'Documents' }),
     ).toHaveAttribute('aria-pressed', 'false')
     expect(within(navigation).getByRole('button', { name: 'Help' })).toHaveAttribute(
       'aria-pressed',
@@ -204,6 +208,35 @@ describe('App', () => {
     expect(
       screen.queryByRole('heading', { name: 'How AeroSpec AI works' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('affiche les cinq documents du corpus avec des liens vers les PDF', () => {
+    renderApp()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Documents' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Technical documents' }),
+    ).toBeVisible()
+    const documentLinks = screen.getAllByRole('link', {
+      name: /Open PDF document:/,
+    })
+    expect(documentLinks).toHaveLength(5)
+    expect(documentLinks[0]).toHaveAttribute(
+      'href',
+      '/AMPHENOL_connector_datasheet.pdf',
+    )
+    expect(documentLinks[0]).toHaveAttribute('target', '_blank')
+    expect(documentLinks[0]).toHaveAttribute('rel', 'noopener noreferrer')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Documents techniques' }),
+    ).toBeVisible()
+    expect(
+      screen.getAllByRole('link', { name: /Ouvrir le document PDF:/ }),
+    ).toHaveLength(5)
   })
 
   it('conserve la vue Help lors des changements de langue', () => {
@@ -354,7 +387,7 @@ describe('App', () => {
 
     expect(mockedAskQuestion).toHaveBeenCalledWith(question)
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Searching documents and preparing an answer…',
+      'Searching technical documentation… 0 s elapsed',
     )
     expect(
       screen.getByRole('textbox', { name: 'Technical question' }),
@@ -376,6 +409,36 @@ describe('App', () => {
     expect(screen.getByText('Page 12')).toBeVisible()
     expect(screen.getByText('PDF index 11')).toBeVisible()
     expect(screen.getByText('Validated citations (1)')).toBeVisible()
+
+    const resultRegion = screen.getByRole('region', { name: 'Result' })
+    const examplesHeading = screen.getByRole('heading', {
+      name: 'Example questions',
+    })
+    expect(
+      resultRegion.compareDocumentPosition(examplesHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('affiche le temps écoulé et ignore les soumissions pendant la requête', async () => {
+    vi.useFakeTimers()
+    mockedAskQuestion.mockReturnValue(new Promise(() => undefined))
+    renderApp()
+
+    submitQuestion('Combien de temps faut-il chercher ?')
+    const questionForm = screen
+      .getByRole('textbox', { name: 'Technical question' })
+      .closest('form')
+
+    expect(questionForm).not.toBeNull()
+    fireEvent.submit(questionForm!)
+    expect(mockedAskQuestion).toHaveBeenCalledOnce()
+
+    act(() => vi.advanceTimersByTime(3100))
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Searching technical documentation… 3 s elapsed',
+    )
   })
 
   it('affiche explicitement une réponse sans citation', async () => {
