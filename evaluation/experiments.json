@@ -134,6 +134,41 @@
       "comparable_to": [
         "baseline-72"
       ]
+    },
+    {
+      "id": "chunk-size-600",
+      "date": "2026-09-23T20:33:07.862571+00:00",
+      "archived_at_utc": "2026-09-23T20:33:35.250809+00:00",
+      "benchmark_version": "baseline-72",
+      "total_cases": 72,
+      "answerable_cases": 48,
+      "unanswerable_cases": 24,
+      "change": "chunk_size: 1000 -> 600",
+      "hypothesis": "Measure whether smaller chunks improve retrieval of the exact supporting evidence on the frozen 72-case benchmark.",
+      "rag_config": {
+        "chunk_size": 600,
+        "chunk_overlap": 200,
+        "top_k": 3,
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+        "retrieval_strategy": "dense_vector_similarity",
+        "vector_store": "Chroma",
+        "distance_metric": "cosine",
+        "provider": "OpenAI",
+        "model": "gpt-5.4-mini",
+        "abstention_message": "L'information n'est pas disponible dans les documents fournis."
+      },
+      "artifacts": {
+        "benchmark": "runs/history/chunk-size-600/rag_cases.json",
+        "run": "runs/history/chunk-size-600/rag_run.json",
+        "summary": "runs/history/chunk-size-600/summary.json"
+      },
+      "metrics": {
+        "summary_path": "runs/history/chunk-size-600/summary.json"
+      },
+      "comparable_to": [
+        "baseline-72"
+      ]
     }
   ]
 }

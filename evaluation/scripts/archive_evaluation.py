@@ -56,10 +56,21 @@ def are_directly_comparable(
     first_experiment: dict[str, Any],
     second_experiment: dict[str, Any],
 ) -> bool:
-    return bool(
+    if (
         first_experiment["benchmark_version"]
-        == second_experiment["benchmark_version"]
-    )
+        != second_experiment["benchmark_version"]
+    ):
+        return False
+
+    first_config = first_experiment["rag_config"]
+    second_config = second_experiment["rag_config"]
+    config_fields = set(first_config) | set(second_config)
+    different_fields = [
+        field
+        for field in config_fields
+        if first_config.get(field) != second_config.get(field)
+    ]
+    return len(different_fields) <= 1
 
 
 def select_run_cases(
@@ -195,17 +206,13 @@ def archive_experiment(
     if any(item["id"] == experiment_id for item in experiments):
         raise ValueError(f"Experiment ID already exists: {experiment_id}.")
 
-    comparable_to = [
-        item["id"]
-        for item in experiments
-        if item["benchmark_version"] == benchmark_version
-    ]
     relative_archive = archive_directory.relative_to(registry_path.parent)
     relative_cases = (relative_archive / "rag_cases.json").as_posix()
     relative_run = (relative_archive / "rag_run.json").as_posix()
     relative_summary = (relative_archive / "summary.json").as_posix()
     configuration = run.get("configuration", {})
     answerable_cases = sum(case["answerable"] for case in selected_cases)
+    rag_config = build_rag_config(run, verified_config or {})
     experiment = {
         "id": experiment_id,
         "date": configuration.get("created_at_utc"),
@@ -217,15 +224,20 @@ def archive_experiment(
         "unanswerable_cases": len(selected_cases) - answerable_cases,
         "change": change,
         "hypothesis": hypothesis,
-        "rag_config": build_rag_config(run, verified_config or {}),
+        "rag_config": rag_config,
         "artifacts": {
             "benchmark": relative_cases,
             "run": relative_run,
             "summary": relative_summary,
         },
         "metrics": {"summary_path": relative_summary},
-        "comparable_to": comparable_to,
+        "comparable_to": [],
     }
+    experiment["comparable_to"] = [
+        item["id"]
+        for item in experiments
+        if are_directly_comparable(experiment, item)
+    ]
     experiments.append(experiment)
     validate_registry(registry)
 

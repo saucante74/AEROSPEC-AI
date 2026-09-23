@@ -102,6 +102,23 @@ class BaselineArchiveTest(TestCase):
                 }
             )
 
+    def test_two_configuration_changes_are_not_directly_comparable(self) -> None:
+        baseline = self.registry["experiments"][2]
+        one_change = {
+            **baseline,
+            "id": "top-k-test",
+            "rag_config": {**baseline["rag_config"], "top_k": 5},
+            "comparable_to": [],
+        }
+        two_changes = {
+            **one_change,
+            "id": "chunk-and-top-k-test",
+            "rag_config": {**one_change["rag_config"], "chunk_size": 600},
+        }
+
+        self.assertTrue(are_directly_comparable(baseline, one_change))
+        self.assertFalse(are_directly_comparable(baseline, two_changes))
+
     def test_archiver_refuses_to_overwrite_an_existing_archive(self) -> None:
         with TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

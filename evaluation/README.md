@@ -26,6 +26,10 @@ For a controlled retrieval-depth experiment, use the evaluation-only option
 retrieves five passages while the reported Hit@3 metrics remain limited to the
 first three results.
 
+Chunking experiments can likewise use evaluation-only `--chunk-size` and
+`--chunk-overlap` options. Their defaults remain the production values of 1000
+and 200, and each run records the values used to build its fresh index.
+
 This command writes the current run to `runs/current/rag_run.json` and the
 frontend summary to `frontend/src/data/evaluation-summary.json`. The frontend
 summary also joins registered experiments with their archived summaries to

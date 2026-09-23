@@ -48,7 +48,7 @@ class RecordingSimilaritySearchStore:
         return self.last_matches
 
 
-def parse_arguments() -> argparse.Namespace:
+def parse_arguments(arguments: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Exécute le benchmark RAG E2E et écrit un artefact auditable."
     )
@@ -62,7 +62,14 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
     parser.add_argument("--top-k", type=int, default=DEFAULT_TOP_K, choices=range(1, 21))
-    return parser.parse_args()
+    parser.add_argument("--chunk-size", type=int, default=DEFAULT_CHUNK_SIZE)
+    parser.add_argument("--chunk-overlap", type=int, default=DEFAULT_CHUNK_OVERLAP)
+    parsed_arguments = parser.parse_args(arguments)
+    if parsed_arguments.chunk_size <= 0:
+        parser.error("--chunk-size must be greater than zero")
+    if not 0 <= parsed_arguments.chunk_overlap < parsed_arguments.chunk_size:
+        parser.error("--chunk-overlap must be non-negative and smaller than --chunk-size")
+    return parsed_arguments
 
 
 def load_cases(path: Path) -> list[dict[str, Any]]:
@@ -358,7 +365,9 @@ def main() -> None:
     cases = load_cases(arguments.cases_path)
     llm = OpenAITextGenerator(model=arguments.model)
     vector_store, pdf_count, document_count, chunk_count = build_retrieval_index(
-        arguments.pdf_directory
+        arguments.pdf_directory,
+        chunk_size=arguments.chunk_size,
+        chunk_overlap=arguments.chunk_overlap,
     )
     recording_store = RecordingSimilaritySearchStore(vector_store)
 
@@ -388,8 +397,8 @@ def main() -> None:
             "retrieval_strategy": "dense_vector_similarity",
             "vector_store": "Chroma",
             "distance_metric": "cosine",
-            "chunk_size": DEFAULT_CHUNK_SIZE,
-            "chunk_overlap": DEFAULT_CHUNK_OVERLAP,
+            "chunk_size": arguments.chunk_size,
+            "chunk_overlap": arguments.chunk_overlap,
             "corpus_directory": str(arguments.pdf_directory.resolve()),
             "dataset_path": str(arguments.cases_path.resolve()),
             "pdf_count": pdf_count,

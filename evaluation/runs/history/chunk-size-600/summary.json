@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "benchmark": {
+    "type": "manual_rag_benchmark",
+    "scope": "small",
+    "total_cases": 72,
+    "answerable_cases": 48,
+    "unanswerable_cases": 24,
+    "general_performance_guarantee": false,
+    "production_performance_guarantee": false
+  },
+  "provenance": {
+    "source_artifact": "evaluation/runs/history/chunk-size-600/rag_run.json",
+    "dataset_file": "rag_cases.json",
+    "campaign_configuration": {
+      "created_at_utc": "2026-09-23T20:33:07.862571+00:00",
+      "python_version": "3.12.7",
+      "provider": "OpenAI",
+      "model": "gpt-5.4-mini",
+      "top_k": 3,
+      "abstention_message": "L'information n'est pas disponible dans les documents fournis.",
+      "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+      "embedding_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "retrieval_strategy": "dense_vector_similarity",
+      "vector_store": "Chroma",
+      "distance_metric": "cosine",
+      "chunk_size": 600,
+      "chunk_overlap": 200,
+      "pdf_count": 5,
+      "document_count": 103,
+      "chunk_count": 529
+    }
+  },
+  "metrics": {
+    "retrieval": {
+      "source_hit_at_1": {
+        "numerator": 42,
+        "denominator": 48,
+        "rate": 0.875
+      },
+      "source_hit_at_3": {
+        "numerator": 44,
+        "denominator": 48,
+        "rate": 0.9167
+      },
+      "evidence_hit_at_1": {
+        "numerator": 14,
+        "denominator": 48,
+        "rate": 0.2917
+      },
+      "evidence_hit_at_3": {
+        "numerator": 26,
+        "denominator": 48,
+        "rate": 0.5417
+      }
+    },
+    "abstention": {
+      "correct_abstentions": {
+        "numerator": 20,
+        "denominator": 24,
+        "rate": 0.8333
+      },
+      "false_abstentions": {
+        "numerator": 13,
+        "denominator": 48,
+        "rate": 0.2708
+      }
+    },
+    "citations": {
+      "responses_with_citations": {
+        "numerator": 38,
+        "denominator": 72,
+        "rate": 0.5278
+      },
+      "valid_emitted_citation_ids": {
+        "numerator": 51,
+        "denominator": 51,
+        "rate": 1.0
+      },
+      "resolved_citation_ids": {
+        "numerator": 51,
+        "denominator": 51,
+        "rate": 1.0
+      },
+      "unknown_citation_ids": {
+        "numerator": 0,
+        "denominator": 51,
+        "rate": 0.0
+      }
+    },
+    "human_review": {
+      "answer_correctness": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null
+      },
+      "fully_grounded_substantive_responses": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null
+      },
+      "citation_coverage": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null
+      },
+      "citation_support": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null
+      }
+    }
+  }
+}
