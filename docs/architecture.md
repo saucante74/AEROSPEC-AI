@@ -6,6 +6,14 @@ This document describes the architecture and repository organization of AeroSpec
 
 It is intentionally concise.
 
+## `POST /ask` observability
+
+Each `POST /ask` response includes a server-generated UUID in the
+`X-Request-ID` header. A JSON log event records the final status, total,
+retrieval and generation durations, retrieved result count, and final citation
+count. Questions, prompts, chunk contents, complete LLM responses, document
+contents, and secrets are deliberately excluded from this event.
+
 Rules:
 - `AGENTS.md` defines how the project must be developed.
 - This file defines where responsibilities belong.

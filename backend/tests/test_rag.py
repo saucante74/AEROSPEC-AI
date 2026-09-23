@@ -4,7 +4,6 @@ from langchain_core.documents import Document
 
 from backend.app.rag import (
     CitationValidation,
-    RagResult,
     RagSource,
     _validate_citations,
     answer_question,
@@ -78,40 +77,44 @@ class RagWorkflowTest(TestCase):
             llm,
         )
 
+        self.assertEqual(result.answer, "Grounded answer [S1][S3]")
         self.assertEqual(
-            result,
-            RagResult(
-                answer="Grounded answer [S1][S3]",
-                sources=[
-                    RagSource(
-                        source="datasheet.pdf",
-                        page=4,
-                        page_label="5",
-                    ),
-                    RagSource(
-                        source="datasheet.pdf",
-                        page=7,
-                        page_label="8",
-                    ),
-                ],
-                citation_validation=CitationValidation(
-                    valid_ids=["[S1]", "[S3]"],
-                    unknown_ids=[],
+            result.sources,
+            [
+                RagSource(
+                    source="datasheet.pdf",
+                    page=4,
+                    page_label="5",
                 ),
-                citation_sources={
-                    "[S1]": RagSource(
-                        source="datasheet.pdf",
-                        page=4,
-                        page_label="5",
-                    ),
-                    "[S3]": RagSource(
-                        source="datasheet.pdf",
-                        page=7,
-                        page_label="8",
-                    ),
-                },
-            ),
+                RagSource(
+                    source="datasheet.pdf",
+                    page=7,
+                    page_label="8",
+                ),
+            ],
         )
+        self.assertEqual(
+            result.citation_validation,
+            CitationValidation(valid_ids=["[S1]", "[S3]"], unknown_ids=[]),
+        )
+        self.assertEqual(
+            result.citation_sources,
+            {
+                "[S1]": RagSource(
+                    source="datasheet.pdf",
+                    page=4,
+                    page_label="5",
+                ),
+                "[S3]": RagSource(
+                    source="datasheet.pdf",
+                    page=7,
+                    page_label="8",
+                ),
+            },
+        )
+        self.assertGreaterEqual(result.retrieval_duration_ms, 0)
+        self.assertGreaterEqual(result.generation_duration_ms, 0)
+        self.assertEqual(result.retrieved_count, 3)
         self.assertEqual(list(result.citation_sources), ["[S1]", "[S3]"])
         received_prompt = llm.received_prompt
         assert received_prompt is not None

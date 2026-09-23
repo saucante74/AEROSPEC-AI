@@ -14,6 +14,7 @@ from backend.app.generation import (
     DEFAULT_LLM_MODEL,
     OpenAITextGenerator,
     TextGenerator,
+    is_abstention,
 )
 from backend.app.rag import RagResult, answer_question
 from backend.app.retrieval import (
@@ -24,9 +25,13 @@ from backend.app.retrieval import (
     SimilaritySearchStore,
     build_retrieval_index,
 )
+from evaluation.scripts.evaluation_summary import (
+    DEFAULT_SUMMARY_PATH,
+    write_evaluation_summary,
+)
 
 TOP_K = 3
-DEFAULT_OUTPUT_PATH = Path("evaluation/rag_run.json")
+DEFAULT_OUTPUT_PATH = Path("evaluation/runs/current/rag_run.json")
 
 
 class RecordingSimilaritySearchStore:
@@ -50,6 +55,11 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("pdf_directory", type=Path)
     parser.add_argument("cases_path", type=Path)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
+    parser.add_argument(
+        "--summary-output",
+        type=Path,
+        default=DEFAULT_SUMMARY_PATH,
+    )
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
     return parser.parse_args()
 
@@ -164,7 +174,7 @@ def evaluate_case(
 ) -> dict[str, Any]:
     result = answer_question(store, case["question"], TOP_K, llm)
     matches = store.last_matches
-    abstention_detected = result.answer.strip() == ABSTENTION_MESSAGE
+    abstention_detected = is_abstention(result.answer)
 
     retrieval_metrics = None
     if case["answerable"]:
@@ -371,6 +381,9 @@ def main() -> None:
             "abstention_message": ABSTENTION_MESSAGE,
             "embedding_model": EMBEDDING_MODEL,
             "embedding_model_revision": EMBEDDING_MODEL_REVISION,
+            "retrieval_strategy": "dense_vector_similarity",
+            "vector_store": "Chroma",
+            "distance_metric": "cosine",
             "chunk_size": DEFAULT_CHUNK_SIZE,
             "chunk_overlap": DEFAULT_CHUNK_OVERLAP,
             "corpus_directory": str(arguments.pdf_directory.resolve()),
@@ -386,9 +399,11 @@ def main() -> None:
         json.dumps(artifact, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    write_evaluation_summary(arguments.output, arguments.summary_output)
 
     print_summary(summary)
     print(f"Artefact écrit : {arguments.output}")
+    print(f"Summary frontend écrit : {arguments.summary_output}")
 
 
 if __name__ == "__main__":
