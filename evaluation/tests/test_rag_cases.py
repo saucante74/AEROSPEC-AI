@@ -3,7 +3,14 @@ from pathlib import Path
 from typing import Any, ClassVar
 from unittest import TestCase
 
+from evaluation.scripts.generate_baseline_72_diagnostics import build_diagnostic
+
 CASES_PATH = Path(__file__).parent.parent / "benchmarks" / "rag_cases.json"
+DIAGNOSTIC_PATH = (
+    Path(__file__).parent.parent
+    / "diagnostics"
+    / "baseline_72_retrieval_failures.json"
+)
 REQUIRED_FIELDS = {
     "id",
     "question",
@@ -63,3 +70,27 @@ class RagCasesTest(TestCase):
                 self.assertEqual(case["required_facts"], [])
                 self.assertIsInstance(case["unanswerable_reason"], str)
                 self.assertTrue(case["unanswerable_reason"].strip())
+
+    def test_baseline_retrieval_diagnostic_covers_all_failed_cases(self) -> None:
+        diagnostic = build_diagnostic()
+        cases = diagnostic["cases"]
+
+        self.assertEqual(
+            json.loads(DIAGNOSTIC_PATH.read_text(encoding="utf-8")),
+            diagnostic,
+        )
+        self.assertEqual(len(cases), 22)
+        self.assertEqual(
+            diagnostic["summary"]["correct_source_in_top_3_count"], 17
+        )
+        self.assertEqual(
+            diagnostic["summary"]["source_retrieval_failure_count"], 5
+        )
+        self.assertEqual(
+            sum(diagnostic["summary"]["category_counts"].values()), 22
+        )
+        for case in cases:
+            with self.subTest(case=case["case_id"]):
+                self.assertTrue(case["expected_evidence"])
+                self.assertEqual(len(case["retrieved_top_3"]), 3)
+                self.assertFalse(case["evidence_hit_at_3"])

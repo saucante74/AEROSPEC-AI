@@ -1,0 +1,1354 @@
+{
+  "schema_version": 1,
+  "diagnostic_of": "baseline-72",
+  "scope": "answerable cases with Evidence Hit@3=false",
+  "source_artifacts": {
+    "benchmark": "evaluation/runs/history/baseline-72/rag_cases.json",
+    "baseline_run": "evaluation/runs/history/baseline-72/rag_run.json",
+    "secondary_experiments": {
+      "top-k-5": "evaluation/runs/history/top-k-5/rag_run.json",
+      "chunk-size-600": "evaluation/runs/history/chunk-size-600/rag_run.json",
+      "chunk-overlap-400": "evaluation/runs/history/chunk-overlap-400/rag_run.json"
+    }
+  },
+  "method": {
+    "automatic": "Expected anchors and Top 3 metadata were joined from immutable artifacts; aggregate counts were computed from reviewed cases.",
+    "human_review": "Expected PDF text, reconstructed baseline chunks, retrieved passages, and archived experiment outcomes were inspected.",
+    "categories": {
+      "A": "Correct document, wrong page/chunk",
+      "B": "Correct page/context retrieved, incomplete evidence",
+      "C": "Wrong document / source retrieval failure",
+      "D": "Evidence split across chunks or pages",
+      "E": "Parsing / extraction issue",
+      "F": "Semantic / terminology mismatch",
+      "G": "Table / structured-content issue",
+      "H": "Benchmark / evidence-anchor issue",
+      "UNCERTAIN": "Insufficient evidence for a reliable diagnosis"
+    }
+  },
+  "summary": {
+    "failure_count": 22,
+    "category_counts": {
+      "A": 5,
+      "B": 4,
+      "C": 5,
+      "D": 1,
+      "E": 0,
+      "F": 2,
+      "G": 5,
+      "H": 0,
+      "UNCERTAIN": 0
+    },
+    "category_percentages": {
+      "A": 22.7,
+      "B": 18.2,
+      "C": 22.7,
+      "D": 4.5,
+      "E": 0.0,
+      "F": 9.1,
+      "G": 22.7,
+      "H": 0.0,
+      "UNCERTAIN": 0.0
+    },
+    "correct_source_in_top_3_count": 17,
+    "source_retrieval_failure_count": 5,
+    "chunk_related_count": 5,
+    "parsing_or_table_related_count": 8,
+    "semantic_or_terminology_related_count": 4,
+    "manual_review_case_ids": [
+      "rag-008",
+      "rag-042",
+      "rag-043",
+      "rag-051",
+      "rag-057",
+      "rag-058",
+      "rag-060"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "rag-001",
+      "question": "What base material is specified for Harwin Datamate signal contacts?",
+      "expected_sources": [
+        "HARWIN_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "HARWIN_connector_datasheet.pdf#page=3"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The Datamate contacts are made from a copper alloy.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "Contacts: Copper Alloy, Gold finish on contact area"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "6",
+          "distance": 0.5017905235290527,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "159",
+          "distance": 0.5304889678955078,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "171",
+          "distance": 0.536821186542511,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "F",
+      "primary_failure_label": "Semantic / terminology mismatch",
+      "secondary_factors": [
+        "correct_source_wrong_page"
+      ],
+      "explanation": "The expected Harwin page-3 specification is one complete baseline chunk, but retrieval selected Harwin page 6 and two Amphenol passages. The query says 'base material' while the document labels the field 'Contacts'.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-002",
+      "question": "What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?",
+      "expected_sources": [
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MIL_connector_datasheet.pdf#page=2"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The sealing material is ASTM E-595-93 rated hermetic epoxy.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "2",
+          "text_anchor": "ASTM E-595-93 Rated Hermetic Epoxy"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "1",
+          "distance": 0.24639356136322021,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "8",
+          "distance": 0.4328410029411316,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "149",
+          "distance": 0.48103803396224976,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "F",
+      "primary_failure_label": "Semantic / terminology mismatch",
+      "secondary_factors": [
+        "correct_source_wrong_page"
+      ],
+      "explanation": "The epoxy anchor exists in one chunk on Douglas page 2, while the Top 3 contains Douglas pages 1 and 8. 'Sealing material' is expressed as an ASTM-rated hermetic epoxy specification in the source.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-005",
+      "question": "What maximum current per contact and mating durability are specified for Harwin Datamate connectors?",
+      "expected_sources": [
+        "HARWIN_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "HARWIN_connector_datasheet.pdf#page=3"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The maximum current is 3.3 A per contact.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "Current per contact: 3.3A max"
+        },
+        {
+          "fact": "The specified durability is 500 mating cycles.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "Durability: 500 mating cycles"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "8",
+          "distance": 0.4672966003417969,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.4761289358139038,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "159",
+          "distance": 0.47649937868118286,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": false,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "C",
+      "primary_failure_label": "Wrong document / source retrieval failure",
+      "secondary_factors": [
+        "semantic_terminology_mismatch",
+        "chunk_window_or_ranking_sensitivity"
+      ],
+      "explanation": "Both Harwin anchors coexist in one page-3 chunk, but no Harwin passage is in the baseline Top 3. Overlap 400 retrieves both anchors together, which shows chunk-window sensitivity but not a baseline evidence split.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": true
+      }
+    },
+    {
+      "case_id": "rag-007",
+      "question": "What contact pitch does Harwin Datamate use, and how do its backshells provide EMC shielding?",
+      "expected_sources": [
+        "HARWIN_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "HARWIN_connector_datasheet.pdf#page=3",
+        "HARWIN_connector_datasheet.pdf#page=5"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The Datamate contact pitch is 2.00 mm.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "Pitch: 2.00mm"
+        },
+        {
+          "fact": "The backshell EMC shielding uses a metal braid and micro-band fixing.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "5",
+          "text_anchor": "EMC shielding with metal braid and micro-band fixing"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "5",
+          "distance": 0.5457724332809448,
+          "matched_expected_anchors": [
+            "EMC shielding with metal braid and micro-band fixing"
+          ]
+        },
+        {
+          "rank": 2,
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "6",
+          "distance": 0.6060447096824646,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "144",
+          "distance": 0.6071586012840271,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "D",
+      "primary_failure_label": "Evidence split across chunks or pages",
+      "secondary_factors": [
+        "multi_page_evidence",
+        "partial_evidence_retrieved"
+      ],
+      "explanation": "The shielding anchor is retrieved from Harwin page 5, but the pitch anchor is in a separate page-3 chunk that is absent from the Top 3.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-008",
+      "question": "How many total contacts does the MIL-DTL-38999 Series I 23-35 insert arrangement provide?",
+      "expected_sources": [
+        "AMPHENOL_connector_datasheet.pdf",
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "AMPHENOL_connector_datasheet.pdf#page=146",
+        "MIL_connector_datasheet.pdf#page=3"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The Series I 23-35 insert arrangement has 100 contacts.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "23-35 100"
+        },
+        {
+          "fact": "The Series I 23-35 insert arrangement has 100 contacts.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "146",
+          "text_anchor": "22-35 23-35 23-35 M 100 100"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "149",
+          "distance": 0.31725043058395386,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "153",
+          "distance": 0.381259560585022,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "152",
+          "distance": 0.38825172185897827,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "G",
+      "primary_failure_label": "Table / structured-content issue",
+      "secondary_factors": [
+        "correct_source_wrong_page",
+        "benchmark_manual_review"
+      ],
+      "explanation": "The expected 23-35 row is in a densely linearized insert-arrangement table. Retrieval selects nearby Amphenol table pages 149, 153, and 152 instead of the expected Douglas page 3 or Amphenol page 146 row.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-013",
+      "question": "How do the working-voltage ratings differ between Harwin Datamate connectors and Datamate cable assemblies?",
+      "expected_sources": [
+        "HARWIN_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "HARWIN_connector_datasheet.pdf#page=3"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Datamate connectors have an 800 V AC/DC working-voltage rating.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "800V AC/DC (Connectors)"
+        },
+        {
+          "fact": "Datamate cable assemblies have a 300 V AC/DC working-voltage rating.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "300V AC/DC (Cable assemblies)"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.4530029892921448,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "6",
+          "distance": 0.4774426221847534,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "2",
+          "distance": 0.5491921901702881,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "A",
+      "primary_failure_label": "Correct document, wrong page/chunk",
+      "secondary_factors": [
+        "dense_ranking"
+      ],
+      "explanation": "Both voltage anchors coexist in the Harwin page-3 specification chunk, while retrieval selects Harwin pages 4, 6, and 2.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-016",
+      "question": "What standard operating-temperature range does Douglas specify for its hermetic MIL-DTL-38999 connectors, and how high can expanded-range assemblies go?",
+      "expected_sources": [
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MIL_connector_datasheet.pdf#page=2"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The standard operating range is -40 °F to 225 °F (-40 °C to 107 °C).",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "2",
+          "text_anchor": "-40°F to 225°F (-40°C to 107°C)"
+        },
+        {
+          "fact": "Expanded thermal-range assemblies are available up to 200 °C.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "2",
+          "text_anchor": "range assemblies up to 200°C"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "1",
+          "distance": 0.31730490922927856,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "143",
+          "distance": 0.49053066968917847,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "8",
+          "distance": 0.5277134776115417,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "A",
+      "primary_failure_label": "Correct document, wrong page/chunk",
+      "secondary_factors": [
+        "dense_ranking"
+      ],
+      "explanation": "Both temperature anchors coexist in one Douglas page-2 chunk. The Top 3 selects Douglas pages 1 and 8 plus an Amphenol passage.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-017",
+      "question": "For a Douglas 38999 Series I box-mount connector with shell size 23, what dimensional values are listed for N and D?",
+      "expected_sources": [
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MIL_connector_datasheet.pdf#page=4"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The shell-size 23 row lists N as 1.457 and D as 1.47.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "4",
+          "text_anchor": "23 1.457 0.790 1.07 1.47"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "163",
+          "distance": 0.40120798349380493,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "166",
+          "distance": 0.43218863010406494,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "181",
+          "distance": 0.43225568532943726,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": false,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "C",
+      "primary_failure_label": "Wrong document / source retrieval failure",
+      "secondary_factors": [
+        "structured_table_linearization",
+        "cross_document_family_confusion"
+      ],
+      "explanation": "The expected shell-size row is a compact Douglas dimensional table. The Top 3 contains only similarly worded Amphenol MIL-DTL-38999 dimension pages.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-040",
+      "question": "What maximum pin count does Harwin state for Datamate connectors?",
+      "expected_sources": [
+        "HARWIN_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "HARWIN_connector_datasheet.pdf#page=2"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Datamate options are available in pin counts up to 50.",
+          "source": "HARWIN_connector_datasheet.pdf",
+          "page_label": "2",
+          "text_anchor": "options in pin counts up to 50"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.4924836754798889,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.5069705247879028,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "16",
+          "distance": 0.5296098589897156,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": false,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "C",
+      "primary_failure_label": "Wrong document / source retrieval failure",
+      "secondary_factors": [
+        "semantic_terminology_mismatch",
+        "chunk_granularity_sensitivity"
+      ],
+      "explanation": "The Harwin page-2 prose states the pin-count limit, but all Top 3 passages are Molex. Chunk size 600 retrieves the anchor, indicating granularity or ranking sensitivity rather than missing corpus text.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": true,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-041",
+      "question": "Which standard housing materials does Douglas list for its hermetic MIL-DTL-38999 connectors?",
+      "expected_sources": [
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MIL_connector_datasheet.pdf#page=2"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Standard housing options include aluminum and stainless steel.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "2",
+          "text_anchor": "Standard options include aluminum and stainless steel"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "1",
+          "distance": 0.2269720435142517,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "143",
+          "distance": 0.40594494342803955,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "149",
+          "distance": 0.40817713737487793,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "A",
+      "primary_failure_label": "Correct document, wrong page/chunk",
+      "secondary_factors": [
+        "dense_ranking"
+      ],
+      "explanation": "The housing-material anchor is in Douglas page 2, while retrieval selects Douglas page 1 and two Amphenol passages.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-042",
+      "question": "How do the Series I 25-35 and 25-61 insert arrangements differ in contact count and contact size?",
+      "expected_sources": [
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MIL_connector_datasheet.pdf#page=3"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Series I arrangement 25-35 has 128 size-22D contacts.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "25-35 128"
+        },
+        {
+          "fact": "Series I arrangement 25-61 has 61 size-20 contacts.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "25-61 61"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "149",
+          "distance": 0.4063476324081421,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "160",
+          "distance": 0.4492916464805603,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "150",
+          "distance": 0.4588550329208374,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": false,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "C",
+      "primary_failure_label": "Wrong document / source retrieval failure",
+      "secondary_factors": [
+        "structured_table_linearization",
+        "cross_document_family_confusion",
+        "benchmark_manual_review"
+      ],
+      "explanation": "Both expected rows coexist in the Douglas page-3 insert-arrangement table. Retrieval instead selects nearby Amphenol arrangement-table pages.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-043",
+      "question": "How many size-22D contacts does the Douglas Series III F45 insert arrangement provide?",
+      "expected_sources": [
+        "MIL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MIL_connector_datasheet.pdf#page=3"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The Series III F45 arrangement provides 67 size-22D contacts.",
+          "source": "MIL_connector_datasheet.pdf",
+          "page_label": "3",
+          "text_anchor": "F45 67"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "149",
+          "distance": 0.36219799518585205,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "160",
+          "distance": 0.36842381954193115,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "150",
+          "distance": 0.3787757158279419,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": false,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "C",
+      "primary_failure_label": "Wrong document / source retrieval failure",
+      "secondary_factors": [
+        "structured_table_linearization",
+        "cross_document_family_confusion",
+        "benchmark_manual_review"
+      ],
+      "explanation": "The F45 row exists in the Douglas page-3 table, but retrieval selects Amphenol arrangement pages with similar numeric identifiers.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-046",
+      "question": "At 250 V, how does the per-circuit current rating of Molex .062 miniature nylon connectors change between 1-15 circuits and 24-36 circuits?",
+      "expected_sources": [
+        "MOLEX_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MOLEX_connector_datasheet.pdf#page=6"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The maximum-use voltage is 250 V per circuit.",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "6",
+          "text_anchor": "maximum use at 250V per circuit"
+        },
+        {
+          "fact": "Models with 1-15 circuits are rated for 5 A per circuit.",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "6",
+          "text_anchor": "5 amps per circuit for 1- to 15- circuit models"
+        },
+        {
+          "fact": "The 24- and 36-circuit models are rated for 4 A per circuit.",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "6",
+          "text_anchor": "24- and 36-circuit"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "9",
+          "distance": 0.3395739197731018,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.3744056224822998,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "8",
+          "distance": 0.37843894958496094,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "A",
+      "primary_failure_label": "Correct document, wrong page/chunk",
+      "secondary_factors": [
+        "chunk_window_or_ranking_sensitivity",
+        "structured_specification"
+      ],
+      "explanation": "All three rating anchors coexist in one Molex page-6 chunk, while the Top 3 selects Molex pages 9, 4, and 8. Both chunking experiments retrieve the complete page-6 evidence.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": true,
+        "chunk-overlap-400": true
+      }
+    },
+    {
+      "case_id": "rag-047",
+      "question": "What circuit-count range is specified for Molex .062 miniature phenolic connectors?",
+      "expected_sources": [
+        "MOLEX_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MOLEX_connector_datasheet.pdf#page=6"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Phenolic versions are supplied for 4 through 104 circuits.",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "6",
+          "text_anchor": "phenolic types for 4 through 104 circuits"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.3246062994003296,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.3411952257156372,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "16",
+          "distance": 0.3624553680419922,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "A",
+      "primary_failure_label": "Correct document, wrong page/chunk",
+      "secondary_factors": [
+        "dense_ranking",
+        "structured_specification"
+      ],
+      "explanation": "The phenolic circuit-range anchor is in the Molex page-6 specification, while the Top 3 selects Molex pages 4, 4, and 16.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-049",
+      "question": "What insulated-wire range is specified for Molex Series 06-01 quarter-inch flat-blade connectors?",
+      "expected_sources": [
+        "MOLEX_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "MOLEX_connector_datasheet.pdf#page=9"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The specified wire range is 10 through 20 gauge, insulated.",
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "9",
+          "text_anchor": "Wire size: 10- through 20-gauge, insulated"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "8",
+          "distance": 0.29598569869995117,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "9",
+          "distance": 0.32554394006729126,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "MOLEX_connector_datasheet.pdf",
+          "page_label": "15",
+          "distance": 0.3619128465652466,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "B",
+      "primary_failure_label": "Correct page/context retrieved, incomplete evidence",
+      "secondary_factors": [
+        "correct_page_wrong_chunk",
+        "structured_specification"
+      ],
+      "explanation": "Molex page 9 is rank 2, but the retrieved chunk is a different product section and does not contain the insulated-wire-range anchor.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-051",
+      "question": "Which interface size and maximum frequency correspond to Samtec's vertical 135, 185, 240, and 292 Series connectors?",
+      "expected_sources": [
+        "SAMTEC_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "SAMTEC_connector_datasheet.pdf#page=4"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Vertical 135 Series uses a 1.35 mm interface and is specified for 90 GHz.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "4",
+          "text_anchor": "1.35 mm • 90 GHz, 50 Ohm • Solderless 135 Series Vertical"
+        },
+        {
+          "fact": "Vertical 185 Series uses a 1.85 mm interface and is specified for 65 GHz.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "4",
+          "text_anchor": "1.85 mm • 65 GHz, 50 Ohm • Solderless 185 Series Vertical"
+        },
+        {
+          "fact": "Vertical 240 Series uses a 2.40 mm interface and is specified for 50 GHz.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "4",
+          "text_anchor": "2.40 mm • 50 GHz, 50 Ohm • Solderless 240 Series Vertical"
+        },
+        {
+          "fact": "Vertical 292 Series uses a 2.92 mm interface and is specified for 40 GHz.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "4",
+          "text_anchor": "2.92 mm • 40 GHz, 50 Ohm • Solderless 292 Series Vertical"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "9",
+          "distance": 0.3941246271133423,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "15",
+          "distance": 0.43143486976623535,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "11",
+          "distance": 0.44956034421920776,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "G",
+      "primary_failure_label": "Table / structured-content issue",
+      "secondary_factors": [
+        "correct_source_wrong_page",
+        "benchmark_manual_review"
+      ],
+      "explanation": "All four interface/frequency pairs coexist in a structured Samtec page-4 listing. Retrieval selects Samtec pages 9, 15, and 11 instead.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-052",
+      "question": "How do Samtec's 20 GHz and 40 GHz SMP board-connector mounting options differ?",
+      "expected_sources": [
+        "SAMTEC_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "SAMTEC_connector_datasheet.pdf#page=7"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The 20 GHz SMP options are edge mount or through-hole.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "7",
+          "text_anchor": "20 GHz options: edge mount or through-hole"
+        },
+        {
+          "fact": "The 40 GHz SMP options are edge mount, through-hole, surface mount, or mixed technology.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "7",
+          "text_anchor": "40 GHz options: edge mount, through-hole, surface mount or mixed-technology"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.2779467701911926,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "7",
+          "distance": 0.31442129611968994,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "4",
+          "distance": 0.3357089161872864,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "B",
+      "primary_failure_label": "Correct page/context retrieved, incomplete evidence",
+      "secondary_factors": [
+        "correct_page_wrong_chunk",
+        "chunk_window_or_ranking_sensitivity"
+      ],
+      "explanation": "Samtec page 7 is retrieved at rank 2, but that chunk lacks both mounting anchors. Overlap 400 retrieves a different page-7 chunk containing both.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": true
+      }
+    },
+    {
+      "case_id": "rag-054",
+      "question": "What panel-density advantage does Samtec state for its 75-ohm HD-BNC solution compared with standard BNC?",
+      "expected_sources": [
+        "SAMTEC_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "SAMTEC_connector_datasheet.pdf#page=11"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The HD-BNC solution provides four times the panel density of standard BNC.",
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "11",
+          "text_anchor": "4x the panel density and 20% lighter compared to standard BNC"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "11",
+          "distance": 0.5406823754310608,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "14",
+          "distance": 0.5763518810272217,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "SAMTEC_connector_datasheet.pdf",
+          "page_label": "13",
+          "distance": 0.5768840312957764,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "B",
+      "primary_failure_label": "Correct page/context retrieved, incomplete evidence",
+      "secondary_factors": [
+        "correct_page_wrong_chunk",
+        "chunk_granularity_sensitivity"
+      ],
+      "explanation": "Samtec page 11 is rank 1, but its retrieved chunk omits the panel-density statement. Chunk size 600 retrieves the required page-11 evidence.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": true,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-056",
+      "question": "What coupling method does Amphenol state for MIL-DTL-38999 Series III PCB connectors?",
+      "expected_sources": [
+        "AMPHENOL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "AMPHENOL_connector_datasheet.pdf#page=144"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Series III uses threaded quick coupling in one complete turn.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "144",
+          "text_anchor": "III (Tri-Start) - Threaded, quick coupling in one complete turn"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "144",
+          "distance": 0.3900061845779419,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "154",
+          "distance": 0.4382915496826172,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "151",
+          "distance": 0.44210225343704224,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "B",
+      "primary_failure_label": "Correct page/context retrieved, incomplete evidence",
+      "secondary_factors": [
+        "correct_page_wrong_chunk",
+        "chunk_boundary_sensitivity"
+      ],
+      "explanation": "The rank-1 Amphenol page-144 chunk ends before the coupling statement. Overlap 400 retrieves a later page-144 chunk containing the complete anchor.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": true
+      }
+    },
+    {
+      "case_id": "rag-057",
+      "question": "What standard PCB-tail diameter does Amphenol list for MIL-DTL-38999 size-16 contacts?",
+      "expected_sources": [
+        "AMPHENOL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "AMPHENOL_connector_datasheet.pdf#page=145"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "The standard size-16 PCB-tail diameter is 0.062 ± 0.001 inch.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "145",
+          "text_anchor": "MIL-DTL-38999 .062 ±.001 .019 ±.001 .019 ±.001"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "145",
+          "distance": 0.3230588436126709,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "144",
+          "distance": 0.35487544536590576,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "157",
+          "distance": 0.37908869981765747,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "G",
+      "primary_failure_label": "Table / structured-content issue",
+      "secondary_factors": [
+        "correct_page_wrong_chunk",
+        "benchmark_manual_review"
+      ],
+      "explanation": "Amphenol page 145 is rank 1, but the required diameter is encoded in a linearized multi-column table in a different chunk on that page.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-058",
+      "question": "How many contacts and what contact size are specified for Amphenol MIL-DTL-38999 insert arrangement 19-32?",
+      "expected_sources": [
+        "AMPHENOL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "AMPHENOL_connector_datasheet.pdf#page=146"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Arrangement 19-32 has 32 size-20 contacts.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "146",
+          "text_anchor": "18-32 19-32 19-32 I 32 32"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "148",
+          "distance": 0.3141489624977112,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "151",
+          "distance": 0.32475024461746216,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "153",
+          "distance": 0.34894895553588867,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "G",
+      "primary_failure_label": "Table / structured-content issue",
+      "secondary_factors": [
+        "correct_source_wrong_page",
+        "benchmark_manual_review"
+      ],
+      "explanation": "The 19-32 row is split across overlapping chunks of the page-146 insert table; retrieval instead selects Amphenol pages 148, 151, and 153.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    },
+    {
+      "case_id": "rag-060",
+      "question": "What PCB-tail stickout range does Amphenol specify for Series III TVP00 size-22D contacts?",
+      "expected_sources": [
+        "AMPHENOL_connector_datasheet.pdf"
+      ],
+      "expected_pages": [
+        "AMPHENOL_connector_datasheet.pdf#page=163"
+      ],
+      "expected_evidence": [
+        {
+          "fact": "Size 22D contacts have a PCB-tail stickout from 0.181 to 0.242 inch.",
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "163",
+          "text_anchor": ".242 -.181 FOR SIZE 22D CONTACTS"
+        }
+      ],
+      "retrieved_top_3": [
+        {
+          "rank": 1,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "168",
+          "distance": 0.40073269605636597,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 2,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "179",
+          "distance": 0.40275442600250244,
+          "matched_expected_anchors": []
+        },
+        {
+          "rank": 3,
+          "source": "AMPHENOL_connector_datasheet.pdf",
+          "page_label": "167",
+          "distance": 0.41119998693466187,
+          "matched_expected_anchors": []
+        }
+      ],
+      "source_hit_at_3": true,
+      "evidence_hit_at_3": false,
+      "primary_failure_category": "G",
+      "primary_failure_label": "Table / structured-content issue",
+      "secondary_factors": [
+        "correct_source_wrong_page",
+        "benchmark_manual_review"
+      ],
+      "explanation": "The stickout range is a dimension callout on Amphenol page 163. Retrieval selects other nearby Series III dimension pages 168, 179, and 167.",
+      "archived_experiment_evidence_hit_at_3": {
+        "top-k-5": false,
+        "chunk-size-600": false,
+        "chunk-overlap-400": false
+      }
+    }
+  ]
+}
