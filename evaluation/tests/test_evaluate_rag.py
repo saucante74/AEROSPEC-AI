@@ -54,6 +54,15 @@ class EvaluateRagTest(TestCase):
         self.assertEqual(arguments.chunk_overlap, 200)
         self.assertEqual(arguments.top_k, 3)
 
+    def test_chunk_overlap_experiment_changes_only_chunk_overlap(self) -> None:
+        arguments = parse_arguments(
+            ["documents", "cases.json", "--chunk-overlap", "400"]
+        )
+
+        self.assertEqual(arguments.chunk_size, 1_000)
+        self.assertEqual(arguments.chunk_overlap, 400)
+        self.assertEqual(arguments.top_k, 3)
+
     def test_top_k_override_does_not_change_hit_at_3_semantics(self) -> None:
         matches = [
             (

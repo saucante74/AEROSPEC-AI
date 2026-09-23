@@ -113,6 +113,36 @@
   },
   "history": [
     {
+      "id": "chunk-overlap-400",
+      "date": "2026-09-23T20:48:43.809016+00:00",
+      "change": "chunk_overlap: 200 -> 400",
+      "benchmark_version": "baseline-72",
+      "cases": 72,
+      "metrics": {
+        "source_hit_at_3": {
+          "numerator": 44,
+          "denominator": 48,
+          "rate": 0.9167
+        },
+        "evidence_hit_at_3": {
+          "numerator": 26,
+          "denominator": 48,
+          "rate": 0.5417
+        },
+        "correct_abstentions": {
+          "numerator": 20,
+          "denominator": 24,
+          "rate": 0.8333
+        },
+        "false_abstentions": {
+          "numerator": 16,
+          "denominator": 48,
+          "rate": 0.3333
+        }
+      },
+      "is_current": false
+    },
+    {
       "id": "chunk-size-600",
       "date": "2026-09-23T20:33:07.862571+00:00",
       "change": "chunk_size: 1000 -> 600",

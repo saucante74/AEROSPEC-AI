@@ -212,6 +212,7 @@ class EvaluationSummaryTest(TestCase):
         self.assertEqual(
             [entry["id"] for entry in history],
             [
+                "chunk-overlap-400",
                 "chunk-size-600",
                 "top-k-5",
                 "baseline-72",
@@ -221,9 +222,10 @@ class EvaluationSummaryTest(TestCase):
         )
         self.assertFalse(history[0]["is_current"])
         self.assertFalse(history[1]["is_current"])
-        self.assertTrue(history[2]["is_current"])
-        self.assertFalse(history[3]["is_current"])
+        self.assertFalse(history[2]["is_current"])
+        self.assertTrue(history[3]["is_current"])
         self.assertFalse(history[4]["is_current"])
+        self.assertFalse(history[5]["is_current"])
 
         for entry in history:
             experiment = experiments[entry["id"]]
