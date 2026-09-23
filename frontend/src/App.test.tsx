@@ -8,14 +8,12 @@ import {
   screen,
   within,
 } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
 import { askQuestion, convertUnit } from './api/client'
 import type { AskResponse, ConvertResponse } from './api/client'
 import evaluationSummary from './data/evaluation-summary.json'
-import { I18nProvider } from './i18n/I18nContext'
-import { languageStorageKey } from './i18n/translations'
 
 vi.mock('./api/client', () => ({
   askQuestion: vi.fn(),
@@ -27,11 +25,7 @@ const mockedAskQuestion = vi.mocked(askQuestion)
 const mockedConvertUnit = vi.mocked(convertUnit)
 
 function renderApp() {
-  return render(
-    <I18nProvider>
-      <App />
-    </I18nProvider>,
-  )
+  return render(<App />)
 }
 
 function submitQuestion(question: string) {
@@ -52,13 +46,10 @@ function formatEnglishPercentage(rate: number | null) {
   }).format(rate)
 }
 
-beforeEach(() => {
-  localStorage.clear()
-})
-
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  vi.useRealTimers()
 })
 
 describe('App', () => {
@@ -82,15 +73,15 @@ describe('App', () => {
       screen.getByRole('heading', { name: 'Unit conversion' }),
     ).toBeVisible()
     expect(screen.queryByRole('region', { name: 'Result' })).not.toBeInTheDocument()
-    expect(document.documentElement).toHaveAttribute('lang', 'en')
-    expect(
-      screen.getByRole('button', { name: 'Switch to English' }),
-    ).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('group', { name: /language/i })).not.toBeInTheDocument()
     expect(
       within(navigation).getByRole('button', { name: 'Assistant' }),
     ).toHaveAttribute('aria-pressed', 'true')
     expect(
       within(navigation).getByRole('button', { name: 'Evaluation' }),
+    ).toHaveAttribute('aria-pressed', 'false')
+    expect(
+      within(navigation).getByRole('button', { name: 'Documents' }),
     ).toHaveAttribute('aria-pressed', 'false')
     expect(within(navigation).getByRole('button', { name: 'Help' })).toHaveAttribute(
       'aria-pressed',
@@ -145,37 +136,6 @@ describe('App', () => {
     ).toBeVisible()
   })
 
-  it('conserve Evaluation en français puis revient vers Assistant', () => {
-    renderApp()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Evaluation' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
-
-    expect(
-      screen.getByRole('heading', { name: 'Évaluation RAG' }),
-    ).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Évaluation' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    expect(
-      screen.queryByRole('heading', {
-        name: 'Demandez. Trouvez. Concevez en toute confiance.',
-      }),
-    ).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Assistant' }))
-
-    expect(
-      screen.getByRole('heading', {
-        name: 'Demandez. Trouvez. Concevez en toute confiance.',
-      }),
-    ).toBeVisible()
-    expect(
-      screen.queryByRole('heading', { name: 'Évaluation RAG' }),
-    ).not.toBeInTheDocument()
-  })
-
   it('navigue vers Help puis revient sur Assistant', () => {
     renderApp()
 
@@ -206,125 +166,38 @@ describe('App', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('conserve la vue Help lors des changements de langue', () => {
+  it('affiche les cinq documents du corpus avec des liens vers les PDF', () => {
     renderApp()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Help' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Documents' }))
 
     expect(
-      screen.getByRole('heading', { name: 'Comment fonctionne AeroSpec AI' }),
+      screen.getByRole('heading', { name: 'Technical documents' }),
     ).toBeVisible()
-    expect(
-      screen.queryByRole('heading', {
-        name: 'Demandez. Trouvez. Concevez en toute confiance.',
-      }),
-    ).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Passer à l’italien' }))
-
-    expect(
-      screen.getByRole('heading', { name: 'Come funziona AeroSpec AI' }),
-    ).toBeVisible()
-    expect(
-      screen.queryByRole('heading', {
-        name: 'Chiedi. Trova. Progetta con fiducia.',
-      }),
-    ).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Aiuto' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-  })
-
-  it('passe en français et restaure la langue persistée', () => {
-    renderApp()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
-
-    expect(
-      screen.getByRole('heading', {
-        name: 'Demandez. Trouvez. Concevez en toute confiance.',
-      }),
-    ).toBeVisible()
-    expect(
-      screen.getByRole('heading', { name: 'Posez une question technique' }),
-    ).toBeVisible()
-    expect(
-      screen.getByRole('heading', { name: 'Conversion d’unités' }),
-    ).toBeVisible()
-    expect(
-      within(
-        screen.getByRole('navigation', { name: 'Navigation principale' }),
-      ).getByText('Aide'),
-    ).toBeVisible()
-    expect(document.documentElement).toHaveAttribute('lang', 'fr')
-    expect(localStorage.getItem(languageStorageKey)).toBe('fr')
-
-    cleanup()
-    renderApp()
-
-    expect(
-      screen.getByRole('heading', {
-        name: 'Demandez. Trouvez. Concevez en toute confiance.',
-      }),
-    ).toBeVisible()
-  })
-
-  it('passe en italien sans recharger la page', () => {
-    renderApp()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Passa all’italiano' }))
-
-    expect(
-      screen.getByRole('heading', {
-        name: 'Chiedi. Trova. Progetta con fiducia.',
-      }),
-    ).toBeVisible()
-    expect(
-      screen.getByRole('heading', { name: 'Fai una domanda tecnica' }),
-    ).toBeVisible()
-    expect(
-      screen.getByRole('heading', { name: 'Conversione di unità' }),
-    ).toBeVisible()
-    const italianNavigation = screen.getByRole('navigation', {
-      name: 'Navigazione principale',
+    const documentLinks = screen.getAllByRole('link', {
+      name: /Open PDF document:/,
     })
-    expect(
-      within(italianNavigation).getByRole('button', { name: 'Assistente' }),
-    ).toBeVisible()
-    expect(within(italianNavigation).getByText('Aiuto')).toBeVisible()
-    expect(document.documentElement).toHaveAttribute('lang', 'it')
+    expect(documentLinks).toHaveLength(5)
+    expect(documentLinks[0]).toHaveAttribute(
+      'href',
+      '/AMPHENOL_connector_datasheet.pdf',
+    )
+    expect(documentLinks[0]).toHaveAttribute('target', '_blank')
+    expect(documentLinks[0]).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('retombe sur English si la langue persistée est invalide', () => {
-    localStorage.setItem(languageStorageKey, 'unknown')
-
-    renderApp()
-
-    expect(
-      screen.getByRole('heading', {
-        name: 'Ask. Find. Engineer with confidence.',
-      }),
-    ).toBeVisible()
-    expect(document.documentElement).toHaveAttribute('lang', 'en')
-    expect(localStorage.getItem(languageStorageKey)).toBe('en')
-  })
-
-  it("préremplit un exemple traduit sans l'envoyer", () => {
+  it("préremplit un exemple sans l'envoyer", () => {
     const example =
-      'Quel taux de fuite à l’hélium est spécifié pour les connecteurs hermétiques MIL-DTL-38999 ?'
+      'What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?'
     renderApp()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Passer au français' }))
 
     fireEvent.click(screen.getByRole('button', { name: example }))
 
     expect(
-      screen.getByRole('textbox', { name: 'Question technique' }),
+      screen.getByRole('textbox', { name: 'Technical question' }),
     ).toHaveValue(example)
     expect(mockedAskQuestion).not.toHaveBeenCalled()
-    expect(screen.getByRole('button', { name: 'Demander' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Ask' })).toBeEnabled()
   })
 
   it('soumet une question, affiche le chargement, la réponse et ses citations', async () => {
@@ -354,7 +227,7 @@ describe('App', () => {
 
     expect(mockedAskQuestion).toHaveBeenCalledWith(question)
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Searching documents and preparing an answer…',
+      'Searching technical documentation… 0 s elapsed',
     )
     expect(
       screen.getByRole('textbox', { name: 'Technical question' }),
@@ -376,6 +249,36 @@ describe('App', () => {
     expect(screen.getByText('Page 12')).toBeVisible()
     expect(screen.getByText('PDF index 11')).toBeVisible()
     expect(screen.getByText('Validated citations (1)')).toBeVisible()
+
+    const resultRegion = screen.getByRole('region', { name: 'Result' })
+    const examplesHeading = screen.getByRole('heading', {
+      name: 'Example questions',
+    })
+    expect(
+      resultRegion.compareDocumentPosition(examplesHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('affiche le temps écoulé et ignore les soumissions pendant la requête', async () => {
+    vi.useFakeTimers()
+    mockedAskQuestion.mockReturnValue(new Promise(() => undefined))
+    renderApp()
+
+    submitQuestion('Combien de temps faut-il chercher ?')
+    const questionForm = screen
+      .getByRole('textbox', { name: 'Technical question' })
+      .closest('form')
+
+    expect(questionForm).not.toBeNull()
+    fireEvent.submit(questionForm!)
+    expect(mockedAskQuestion).toHaveBeenCalledOnce()
+
+    act(() => vi.advanceTimersByTime(3100))
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Searching technical documentation… 3 s elapsed',
+    )
   })
 
   it('affiche explicitement une réponse sans citation', async () => {
