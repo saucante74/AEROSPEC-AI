@@ -1,4 +1,4 @@
-import { useI18n } from '../i18n/useI18n'
+import { content } from '../content'
 
 const documentFiles = [
   'AMPHENOL_connector_datasheet.pdf',
@@ -9,7 +9,7 @@ const documentFiles = [
 ] as const
 
 export default function DocumentsPage() {
-  const { t } = useI18n()
+  const { documents } = content
 
   return (
     <main className="documents-page">
@@ -17,18 +17,18 @@ export default function DocumentsPage() {
         className="documents-hero content-width"
         aria-labelledby="documents-title"
       >
-        <p className="eyebrow">{t.documents.eyebrow}</p>
-        <h1 id="documents-title">{t.documents.title}</h1>
-        <p>{t.documents.introduction}</p>
+        <p className="eyebrow">{documents.eyebrow}</p>
+        <h1 id="documents-title">{documents.title}</h1>
+        <p>{documents.introduction}</p>
       </section>
 
       <section
         className="documents-content content-width"
-        aria-label={t.documents.listLabel}
+        aria-label={documents.listLabel}
       >
         <ul className="document-grid">
           {documentFiles.map((fileName, index) => {
-            const label = t.documents.items[index]
+            const label = documents.items[index]
 
             return (
               <li className="document-card" key={fileName}>
@@ -41,9 +41,9 @@ export default function DocumentsPage() {
                   href={`/${fileName}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${t.documents.openDocument}: ${label}`}
+                  aria-label={`${documents.openDocument}: ${label}`}
                 >
-                  {t.documents.open}
+                  {documents.open}
                   <span aria-hidden="true">↗</span>
                 </a>
               </li>

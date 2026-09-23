@@ -1,6 +1,5 @@
 import evaluationSummary from '../data/evaluation-summary.json'
-import type { Language } from '../i18n/translations'
-import { useI18n } from '../i18n/useI18n'
+import { content } from '../content'
 
 interface Metric {
   numerator: number
@@ -14,12 +13,6 @@ interface MetricCardProps {
   locale: string
   metric: Metric
   notApplicable: string
-}
-
-const locales: Record<Language, string> = {
-  en: 'en-US',
-  fr: 'fr-FR',
-  it: 'it-IT',
 }
 
 function formatPercentage(rate: number | null, locale: string): string {
@@ -64,8 +57,8 @@ function MetricCard({
 }
 
 export default function EvaluationPage() {
-  const { language, t } = useI18n()
-  const locale = locales[language]
+  const t = content
+  const locale = 'en-US'
   const { benchmark, metrics, provenance } = evaluationSummary
   const configuration = provenance.campaign_configuration
   const benchmarkType =

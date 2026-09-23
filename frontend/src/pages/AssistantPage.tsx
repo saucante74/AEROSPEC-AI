@@ -3,7 +3,7 @@ import type { SubmitEvent } from 'react'
 
 import { askQuestion, convertUnit, supportedUnits } from '../api/client'
 import type { AskResponse, ConvertResponse, Unit } from '../api/client'
-import { useI18n } from '../i18n/useI18n'
+import { content } from '../content'
 
 const compatibleTargets: Record<Unit, readonly Unit[]> = {
   mm: ['inch'],
@@ -19,7 +19,7 @@ function isUnit(value: string): value is Unit {
 }
 
 export default function AssistantPage() {
-  const { t } = useI18n()
+  const t = content
   const [question, setQuestion] = useState('')
   const [result, setResult] = useState<AskResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)

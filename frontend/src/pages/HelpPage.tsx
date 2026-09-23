@@ -1,7 +1,7 @@
-import { useI18n } from '../i18n/useI18n'
+import { content } from '../content'
 
 export default function HelpPage() {
-  const { t } = useI18n()
+  const t = content
 
   return (
     <main className="help-page">
