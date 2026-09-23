@@ -225,6 +225,26 @@ export const content = {
       chunks: 'chunks',
       sourceArtifact: 'Source artifact',
     },
+    history: {
+      eyebrow: 'Archived evaluation runs',
+      title: 'Evaluation History',
+      description:
+        'Recorded baselines and controlled RAG experiments generated from archived evaluation artifacts.',
+      current: 'Current reference',
+      tableLabel: 'Scrollable evaluation history table',
+      unavailable: 'Unavailable',
+      columns: {
+        run: 'Run',
+        change: 'Change tested',
+        cases: 'Cases',
+        sourceHit: 'Source Hit@3',
+        evidenceHit: 'Evidence Hit@3',
+        correctAbstentions: 'Correct abstentions',
+        falseAbstentions: 'False abstentions',
+      },
+      comparisonNote:
+        'Historical benchmark composition evolved across baseline-12, baseline-36, and baseline-72, so these rows document evaluation history rather than controlled before/after comparisons. Future experiments that use the frozen 72-case benchmark and change one documented variable can be compared meaningfully with baseline-72.',
+    },
   },
   errors: {
     emptyQuestion: 'Enter a question before searching the documentation.',

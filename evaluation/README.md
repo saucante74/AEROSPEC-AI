@@ -22,9 +22,10 @@ python -m evaluation.scripts.evaluate_rag \
 ```
 
 This command writes the current run to `runs/current/rag_run.json` and the
-frontend summary to `frontend/src/data/evaluation-summary.json`. To regenerate
-only the current internal summary or synchronize the frontend without calling
-OpenAI:
+frontend summary to `frontend/src/data/evaluation-summary.json`. The frontend
+summary also joins registered experiments with their archived summaries to
+expose evaluation history. To regenerate only the current internal summary or
+synchronize the frontend without calling OpenAI:
 
 ```bash
 python -m evaluation.scripts.evaluation_summary \

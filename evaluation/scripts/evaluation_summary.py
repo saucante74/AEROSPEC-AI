@@ -5,6 +5,7 @@ from typing import Any, Callable
 
 DEFAULT_RUN_PATH = Path("evaluation/runs/current/rag_run.json")
 DEFAULT_SUMMARY_PATH = Path("frontend/src/data/evaluation-summary.json")
+DEFAULT_EXPERIMENTS_PATH = Path("evaluation/experiments.json")
 
 CONFIGURATION_FIELDS = (
     "created_at_utc",
@@ -188,9 +189,65 @@ def build_evaluation_summary(
     }
 
 
+def build_evaluation_history(
+    current_summary: dict[str, Any],
+    experiments_path: Path = DEFAULT_EXPERIMENTS_PATH,
+) -> list[dict[str, Any]]:
+    registry = json.loads(experiments_path.read_text(encoding="utf-8"))
+    experiments = registry.get("experiments")
+    if not isinstance(experiments, list):
+        raise ValueError("The experiment registry must contain an experiments list.")
+
+    current_timestamp = current_summary["provenance"]["campaign_configuration"].get(
+        "created_at_utc"
+    )
+    history = []
+
+    for experiment in experiments:
+        summary_path = experiments_path.parent / experiment["artifacts"]["summary"]
+        archived_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        history.append(
+            {
+                "id": experiment["id"],
+                "date": experiment["date"],
+                "change": experiment.get("change") or "Historical baseline",
+                "benchmark_version": experiment["benchmark_version"],
+                "cases": archived_summary["benchmark"]["total_cases"],
+                "metrics": {
+                    "source_hit_at_3": archived_summary["metrics"]["retrieval"][
+                        "source_hit_at_3"
+                    ],
+                    "evidence_hit_at_3": archived_summary["metrics"]["retrieval"][
+                        "evidence_hit_at_3"
+                    ],
+                    "correct_abstentions": archived_summary["metrics"]["abstention"][
+                        "correct_abstentions"
+                    ],
+                    "false_abstentions": archived_summary["metrics"]["abstention"][
+                        "false_abstentions"
+                    ],
+                },
+                "is_current": experiment["date"] == current_timestamp,
+            }
+        )
+
+    return sorted(history, key=lambda item: item["date"], reverse=True)
+
+
+def build_frontend_evaluation_summary(
+    run: dict[str, Any],
+    experiments_path: Path = DEFAULT_EXPERIMENTS_PATH,
+) -> dict[str, Any]:
+    summary = build_evaluation_summary(run)
+    summary["history"] = build_evaluation_history(summary, experiments_path)
+    return summary
+
+
 def write_evaluation_summary(run_path: Path, output_path: Path) -> None:
     run = json.loads(run_path.read_text(encoding="utf-8"))
     summary = build_evaluation_summary(run, source_artifact=run_path.as_posix())
+    if output_path == DEFAULT_SUMMARY_PATH:
+        summary["history"] = build_evaluation_history(summary)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n",

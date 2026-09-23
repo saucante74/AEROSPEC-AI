@@ -5,9 +5,12 @@ from typing import Any
 from unittest import TestCase
 
 from evaluation.scripts.evaluation_summary import (
+    DEFAULT_EXPERIMENTS_PATH,
     DEFAULT_RUN_PATH,
     DEFAULT_SUMMARY_PATH,
+    build_evaluation_history,
     build_evaluation_summary,
+    build_frontend_evaluation_summary,
     ratio,
     write_evaluation_summary,
 )
@@ -192,4 +195,36 @@ class EvaluationSummaryTest(TestCase):
         run = json.loads(DEFAULT_RUN_PATH.read_text(encoding="utf-8"))
         written = json.loads(DEFAULT_SUMMARY_PATH.read_text(encoding="utf-8"))
 
-        self.assertEqual(written, build_evaluation_summary(run))
+        self.assertEqual(written, build_frontend_evaluation_summary(run))
+
+    def test_history_uses_registered_archives_in_reverse_chronological_order(
+        self,
+    ) -> None:
+        run = json.loads(DEFAULT_RUN_PATH.read_text(encoding="utf-8"))
+        current_summary = build_evaluation_summary(run)
+        history = build_evaluation_history(current_summary)
+        registry = json.loads(DEFAULT_EXPERIMENTS_PATH.read_text(encoding="utf-8"))
+        experiments = {
+            experiment["id"]: experiment
+            for experiment in registry["experiments"]
+        }
+
+        self.assertEqual(
+            [entry["id"] for entry in history],
+            ["baseline-72", "baseline-36", "baseline-12"],
+        )
+        self.assertTrue(history[0]["is_current"])
+        self.assertFalse(history[1]["is_current"])
+        self.assertFalse(history[2]["is_current"])
+
+        for entry in history:
+            experiment = experiments[entry["id"]]
+            archived_summary = json.loads(
+                (DEFAULT_EXPERIMENTS_PATH.parent / experiment["artifacts"]["summary"])
+                .read_text(encoding="utf-8")
+            )
+            self.assertEqual(entry["change"], experiment["change"])
+            self.assertEqual(
+                entry["metrics"]["source_hit_at_3"],
+                archived_summary["metrics"]["retrieval"]["source_hit_at_3"],
+            )

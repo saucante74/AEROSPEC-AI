@@ -158,8 +158,10 @@ p {
 
 .navigation-primary {
   display: flex;
+  flex: 1;
   align-items: stretch;
   align-self: stretch;
+  justify-content: space-between;
   gap: 42px;
 }
 
@@ -860,7 +862,8 @@ h1 {
 
 .evaluation-section,
 .evaluation-context,
-.evaluation-insight {
+.evaluation-insight,
+.evaluation-history {
   border: 1px solid #d4e0eb;
   border-radius: 14px;
   padding: clamp(23px, 4vw, 34px);
@@ -1023,6 +1026,106 @@ h1 {
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.45;
+}
+
+.evaluation-history-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #dbe5ee;
+  border-radius: 10px;
+}
+
+.evaluation-history-table-wrapper:focus-visible {
+  outline: 3px solid #62b0ff;
+  outline-offset: 3px;
+}
+
+.evaluation-history-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: collapse;
+  color: #294763;
+  font-size: 0.8rem;
+}
+
+.evaluation-history-table th,
+.evaluation-history-table td {
+  border-bottom: 1px solid #dbe5ee;
+  padding: 15px 13px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.evaluation-history-table thead th {
+  color: var(--slate-500);
+  background: #f2f7fc;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.evaluation-history-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.evaluation-history-table tbody th {
+  width: 160px;
+  color: var(--navy-950);
+}
+
+.evaluation-history-table tbody th > span {
+  display: block;
+  margin-top: 5px;
+  color: var(--slate-500);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.evaluation-history-table td:nth-child(2) {
+  min-width: 250px;
+  line-height: 1.5;
+}
+
+.evaluation-history-table .current-history-run > * {
+  background: #eef6ff;
+}
+
+.evaluation-history-table .current-history-label {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 7px;
+  color: var(--blue-700);
+  background: #dbeeff;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.history-metric {
+  display: grid;
+  gap: 4px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-metric strong {
+  color: var(--navy-950);
+  font-size: 0.82rem;
+}
+
+.history-metric span {
+  color: var(--blue-700);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.evaluation-history-note {
+  margin: 18px 0 0;
+  border-left: 3px solid #7ea7d1;
+  padding-left: 14px;
+  color: var(--slate-700);
+  font-size: 0.82rem;
+  line-height: 1.6;
 }
 
 .help-hero {
@@ -1426,6 +1529,7 @@ h1 {
     width: 100%;
     align-items: flex-start;
     flex-direction: column;
+    justify-content: flex-start;
     gap: 4px;
   }
 

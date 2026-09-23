@@ -110,5 +110,97 @@
         "rate": null
       }
     }
-  }
+  },
+  "history": [
+    {
+      "id": "baseline-72",
+      "date": "2026-09-22T21:19:47.608363+00:00",
+      "change": "Expanded the reference benchmark from 36 to 72 cases without changing the RAG configuration.",
+      "benchmark_version": "baseline-72",
+      "cases": 72,
+      "metrics": {
+        "source_hit_at_3": {
+          "numerator": 43,
+          "denominator": 48,
+          "rate": 0.8958
+        },
+        "evidence_hit_at_3": {
+          "numerator": 26,
+          "denominator": 48,
+          "rate": 0.5417
+        },
+        "correct_abstentions": {
+          "numerator": 20,
+          "denominator": 24,
+          "rate": 0.8333
+        },
+        "false_abstentions": {
+          "numerator": 19,
+          "denominator": 48,
+          "rate": 0.3958
+        }
+      },
+      "is_current": true
+    },
+    {
+      "id": "baseline-36",
+      "date": "2026-09-22T20:18:45.554792+00:00",
+      "change": "Expanded the reference benchmark from 12 to 36 cases without changing the RAG configuration.",
+      "benchmark_version": "baseline-36",
+      "cases": 36,
+      "metrics": {
+        "source_hit_at_3": {
+          "numerator": 22,
+          "denominator": 24,
+          "rate": 0.9167
+        },
+        "evidence_hit_at_3": {
+          "numerator": 16,
+          "denominator": 24,
+          "rate": 0.6667
+        },
+        "correct_abstentions": {
+          "numerator": 12,
+          "denominator": 12,
+          "rate": 1.0
+        },
+        "false_abstentions": {
+          "numerator": 8,
+          "denominator": 24,
+          "rate": 0.3333
+        }
+      },
+      "is_current": false
+    },
+    {
+      "id": "baseline-12",
+      "date": "2026-09-22T11:56:42.306819+00:00",
+      "change": "Historical 12-case vector RAG baseline preserved before benchmark expansion.",
+      "benchmark_version": "baseline-12",
+      "cases": 12,
+      "metrics": {
+        "source_hit_at_3": {
+          "numerator": 7,
+          "denominator": 8,
+          "rate": 0.875
+        },
+        "evidence_hit_at_3": {
+          "numerator": 3,
+          "denominator": 8,
+          "rate": 0.375
+        },
+        "correct_abstentions": {
+          "numerator": 4,
+          "denominator": 4,
+          "rate": 1.0
+        },
+        "false_abstentions": {
+          "numerator": 5,
+          "denominator": 8,
+          "rate": 0.625
+        }
+      },
+      "is_current": false
+    }
+  ]
 }

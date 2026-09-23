@@ -59,6 +59,7 @@ describe('App', () => {
     const navigation = screen.getByRole('navigation', {
       name: 'Primary navigation',
     })
+    const navigationPrimary = navigation.querySelector('.navigation-primary')
 
     expect(
       screen.getByRole('heading', {
@@ -89,6 +90,8 @@ describe('App', () => {
     )
     expect(within(navigation).queryByText('Examples')).not.toBeInTheDocument()
     expect(within(navigation).queryByText('About')).not.toBeInTheDocument()
+    expect(navigationPrimary?.firstElementChild).toHaveClass('brand')
+    expect(navigationPrimary?.lastElementChild).toHaveClass('navigation-links')
   })
 
   it('affiche la vue Evaluation et les métriques de l’artefact réel', () => {
@@ -134,6 +137,34 @@ describe('App', () => {
         /Results measured on a small manually curated benchmark\./,
       ),
     ).toBeVisible()
+
+    const historyRegion = screen.getByRole('region', {
+      name: 'Evaluation History',
+    })
+    const historyRows = within(historyRegion).getAllByRole('row').slice(1)
+    const expectedHistory = evaluationSummary.history
+
+    expect(historyRows).toHaveLength(3)
+    expect(expectedHistory.map((run) => run.id)).toEqual([
+      'baseline-72',
+      'baseline-36',
+      'baseline-12',
+    ])
+    expectedHistory.forEach((run, index) => {
+      expect(historyRows[index]).toHaveTextContent(run.id)
+      expect(historyRows[index]).toHaveTextContent(run.change)
+      expect(historyRows[index]).toHaveTextContent(String(run.cases))
+      expect(historyRows[index]).toHaveTextContent(
+        `${run.metrics.source_hit_at_3.numerator} / ${run.metrics.source_hit_at_3.denominator}`,
+      )
+      expect(historyRows[index]).toHaveTextContent(
+        `${run.metrics.evidence_hit_at_3.numerator} / ${run.metrics.evidence_hit_at_3.denominator}`,
+      )
+    })
+    expect(historyRows[0]).toHaveTextContent('Current reference')
+    expect(
+      screen.getByText(/Historical benchmark composition evolved/),
+    ).toHaveTextContent('rather than controlled before/after comparisons')
   })
 
   it('navigue vers Help puis revient sur Assistant', () => {

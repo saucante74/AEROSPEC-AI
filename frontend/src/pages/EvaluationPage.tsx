@@ -15,6 +15,33 @@ interface MetricCardProps {
   notApplicable: string
 }
 
+function formatRunDate(value: string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+    timeZoneName: 'short',
+  }).format(new Date(value))
+}
+
+function HistoryMetric({ metric }: { metric: Metric }) {
+  return (
+    <span className="history-metric">
+      <strong>
+        {metric.numerator} / {metric.denominator}
+      </strong>
+      <span>
+        {metric.rate === null
+          ? content.evaluation.history.unavailable
+          : formatPercentage(metric.rate, 'en-US')}
+      </span>
+    </span>
+  )
+}
+
 function formatPercentage(rate: number | null, locale: string): string {
   if (rate === null) {
     return ''
@@ -59,7 +86,7 @@ function MetricCard({
 export default function EvaluationPage() {
   const t = content
   const locale = 'en-US'
-  const { benchmark, metrics, provenance } = evaluationSummary
+  const { benchmark, history, metrics, provenance } = evaluationSummary
   const configuration = provenance.campaign_configuration
   const benchmarkType =
     benchmark.type === 'manual_rag_benchmark'
@@ -290,6 +317,75 @@ export default function EvaluationPage() {
               <dd>{provenance.source_artifact}</dd>
             </div>
           </dl>
+        </section>
+
+        <section className="evaluation-history" aria-labelledby="history-title">
+          <div className="evaluation-section-heading">
+            <div>
+              <p className="section-label">{t.evaluation.history.eyebrow}</p>
+              <h2 id="history-title">{t.evaluation.history.title}</h2>
+            </div>
+            <p>{t.evaluation.history.description}</p>
+          </div>
+          <div
+            className="evaluation-history-table-wrapper"
+            role="region"
+            aria-label={t.evaluation.history.tableLabel}
+            tabIndex={0}
+          >
+            <table className="evaluation-history-table">
+              <thead>
+                <tr>
+                  <th scope="col">{t.evaluation.history.columns.run}</th>
+                  <th scope="col">{t.evaluation.history.columns.change}</th>
+                  <th scope="col">{t.evaluation.history.columns.cases}</th>
+                  <th scope="col">{t.evaluation.history.columns.sourceHit}</th>
+                  <th scope="col">{t.evaluation.history.columns.evidenceHit}</th>
+                  <th scope="col">
+                    {t.evaluation.history.columns.correctAbstentions}
+                  </th>
+                  <th scope="col">
+                    {t.evaluation.history.columns.falseAbstentions}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((run) => (
+                  <tr
+                    className={run.is_current ? 'current-history-run' : undefined}
+                    key={run.id}
+                  >
+                    <th scope="row">
+                      <strong>{run.id}</strong>
+                      <span>{formatRunDate(run.date)}</span>
+                      {run.is_current && (
+                        <span className="current-history-label">
+                          {t.evaluation.history.current}
+                        </span>
+                      )}
+                    </th>
+                    <td>{run.change}</td>
+                    <td>{run.cases}</td>
+                    <td>
+                      <HistoryMetric metric={run.metrics.source_hit_at_3} />
+                    </td>
+                    <td>
+                      <HistoryMetric metric={run.metrics.evidence_hit_at_3} />
+                    </td>
+                    <td>
+                      <HistoryMetric metric={run.metrics.correct_abstentions} />
+                    </td>
+                    <td>
+                      <HistoryMetric metric={run.metrics.false_abstentions} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="evaluation-history-note">
+            {t.evaluation.history.comparisonNote}
+          </p>
         </section>
       </div>
     </main>
