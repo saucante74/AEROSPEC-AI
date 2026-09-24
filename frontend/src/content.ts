@@ -39,6 +39,9 @@ export const content = {
     eyebrow: 'Explore the corpus',
     title: 'Example questions',
     instruction: 'Select an example to edit it before asking.',
+    abstentionLabel: 'Abstention example',
+    abstentionDescription:
+      "This example is intentionally unsupported by the indexed documents and demonstrates the assistant's abstention behavior.",
     questions: [
       'What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?',
       'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?',

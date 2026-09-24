@@ -200,6 +200,21 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Ask' })).toBeEnabled()
   })
 
+  it("identifie le deuxième exemple comme démonstration d'abstention", () => {
+    const unsupportedExample =
+      'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?'
+    renderApp()
+
+    const badge = screen.getByText('Abstention example')
+
+    expect(badge).toHaveAttribute(
+      'title',
+      "This example is intentionally unsupported by the indexed documents and demonstrates the assistant's abstention behavior.",
+    )
+    expect(badge.closest('button')).toHaveTextContent(unsupportedExample)
+    expect(screen.getAllByText('Abstention example')).toHaveLength(1)
+  })
+
   it('soumet une question, affiche le chargement, la réponse et ses citations', async () => {
     const question = 'Quelle est la température maximale ?'
     const response: AskResponse = {

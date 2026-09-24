@@ -547,6 +547,26 @@ h1 {
   font-weight: 850;
 }
 
+.example-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.example-badge {
+  display: inline-flex;
+  border: 1px solid var(--slate-300);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: var(--slate-700);
+  background: var(--slate-100);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .example-arrow {
   color: var(--blue-700);
   font-size: 1.25rem;

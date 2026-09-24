@@ -285,7 +285,7 @@ export default function AssistantPage() {
             <p>{t.examples.instruction}</p>
           </div>
           <div className="example-grid">
-            {t.examples.questions.map((example) => (
+            {t.examples.questions.map((example, index) => (
               <button
                 className="example-card"
                 type="button"
@@ -296,7 +296,17 @@ export default function AssistantPage() {
                 <span className="example-symbol" aria-hidden="true">
                   ?
                 </span>
-                <span>{example}</span>
+                <span className="example-copy">
+                  <span>{example}</span>
+                  {index === 1 && (
+                    <span
+                      className="example-badge"
+                      title={t.examples.abstentionDescription}
+                    >
+                      {t.examples.abstentionLabel}
+                    </span>
+                  )}
+                </span>
                 <span className="example-arrow" aria-hidden="true">
                   →
                 </span>
