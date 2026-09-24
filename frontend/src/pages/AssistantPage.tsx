@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { SubmitEvent } from 'react'
 
 import { askQuestion, convertUnit, supportedUnits } from '../api/client'
 import type { AskResponse, ConvertResponse, Unit } from '../api/client'
-import { useI18n } from '../i18n/useI18n'
+import { content } from '../content'
 
 const compatibleTargets: Record<Unit, readonly Unit[]> = {
   mm: ['inch'],
@@ -19,10 +19,13 @@ function isUnit(value: string): value is Unit {
 }
 
 export default function AssistantPage() {
-  const { t } = useI18n()
+  const t = content
   const [question, setQuestion] = useState('')
   const [result, setResult] = useState<AskResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const requestPending = useRef(false)
+  const requestStartedAt = useRef(0)
   const [errorType, setErrorType] = useState<'emptyQuestion' | 'api' | null>(null)
   const [conversionValue, setConversionValue] = useState('')
   const [fromUnit, setFromUnit] = useState<Unit>('mm')
@@ -34,8 +37,27 @@ export default function AssistantPage() {
     'emptyValue' | 'invalidValue' | 'apiError' | null
   >(null)
 
+  useEffect(() => {
+    if (!isLoading) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(
+        Math.floor((Date.now() - requestStartedAt.current) / 1000),
+      )
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [isLoading])
+
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (requestPending.current) {
+      return
+    }
+
     const trimmedQuestion = question.trim()
 
     if (!trimmedQuestion) {
@@ -43,7 +65,10 @@ export default function AssistantPage() {
       return
     }
 
+    requestPending.current = true
+    requestStartedAt.current = Date.now()
     setIsLoading(true)
+    setElapsedSeconds(0)
     setErrorType(null)
     setResult(null)
 
@@ -52,7 +77,9 @@ export default function AssistantPage() {
     } catch {
       setErrorType('api')
     } finally {
+      requestPending.current = false
       setIsLoading(false)
+      setElapsedSeconds(0)
     }
   }
 
@@ -185,7 +212,10 @@ export default function AssistantPage() {
             <div className="status-region" aria-live="polite">
               {isLoading && (
                 <p className="loading-message" role="status">
-                  {t.search.loading}
+                  <span className="loading-spinner" aria-hidden="true" />
+                  <span>
+                    {t.search.loading} {elapsedSeconds} {t.search.seconds}
+                  </span>
                 </p>
               )}
               {errorType && (
@@ -194,6 +224,55 @@ export default function AssistantPage() {
                 </p>
               )}
             </div>
+          )}
+
+          {result && (
+            <section className="result-panel" aria-labelledby="answer-title">
+              <div className="answer-section">
+                <div className="result-heading">
+                  <div>
+                    <p className="section-label success-label">{t.results.eyebrow}</p>
+                    <h2 id="answer-title">{t.results.title}</h2>
+                  </div>
+                  <span className="result-status">{t.results.status}</span>
+                </div>
+                <div className="answered-question">
+                  <span>{t.results.questionAsked}</span>
+                  <p>{result.question}</p>
+                </div>
+                <p className="answer-text">{result.answer}</p>
+              </div>
+
+              <div className="citations-section">
+                <div className="citations-heading">
+                  <div>
+                    <p className="section-label">{t.citations.eyebrow}</p>
+                    <h3>{t.citations.title} ({result.citations.length})</h3>
+                  </div>
+                  <p>{t.citations.description}</p>
+                </div>
+                {result.citations.length > 0 ? (
+                  <ul className="citation-list">
+                    {result.citations.map((citation) => (
+                      <li className="citation-card" key={citation.id}>
+                        <span className="citation-id">{citation.id}</span>
+                        <div className="citation-content">
+                          <strong title={citation.source}>{citation.source}</strong>
+                          <div className="citation-location">
+                            <span>{t.citations.page} {citation.page_label}</span>
+                            <span>{t.citations.pdfIndex} {citation.page}</span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="empty-citations">
+                    {t.citations.empty}
+                  </p>
+                )}
+              </div>
+            </section>
           )}
         </section>
 
@@ -206,7 +285,7 @@ export default function AssistantPage() {
             <p>{t.examples.instruction}</p>
           </div>
           <div className="example-grid">
-            {t.examples.questions.map((example) => (
+            {t.examples.questions.map((example, index) => (
               <button
                 className="example-card"
                 type="button"
@@ -217,7 +296,17 @@ export default function AssistantPage() {
                 <span className="example-symbol" aria-hidden="true">
                   ?
                 </span>
-                <span>{example}</span>
+                <span className="example-copy">
+                  <span>{example}</span>
+                  {index === 1 && (
+                    <span
+                      className="example-badge"
+                      title={t.examples.abstentionDescription}
+                    >
+                      {t.examples.abstentionLabel}
+                    </span>
+                  )}
+                </span>
                 <span className="example-arrow" aria-hidden="true">
                   →
                 </span>
@@ -316,54 +405,6 @@ export default function AssistantPage() {
           )}
         </section>
 
-        {result && (
-          <section className="result-panel" aria-labelledby="answer-title">
-            <div className="answer-section">
-              <div className="result-heading">
-                <div>
-                  <p className="section-label success-label">{t.results.eyebrow}</p>
-                  <h2 id="answer-title">{t.results.title}</h2>
-                </div>
-                <span className="result-status">{t.results.status}</span>
-              </div>
-              <div className="answered-question">
-                <span>{t.results.questionAsked}</span>
-                <p>{result.question}</p>
-              </div>
-              <p className="answer-text">{result.answer}</p>
-            </div>
-
-            <div className="citations-section">
-              <div className="citations-heading">
-                <div>
-                  <p className="section-label">{t.citations.eyebrow}</p>
-                  <h3>{t.citations.title} ({result.citations.length})</h3>
-                </div>
-                <p>{t.citations.description}</p>
-              </div>
-              {result.citations.length > 0 ? (
-                <ul className="citation-list">
-                  {result.citations.map((citation) => (
-                    <li className="citation-card" key={citation.id}>
-                      <span className="citation-id">{citation.id}</span>
-                      <div className="citation-content">
-                        <strong title={citation.source}>{citation.source}</strong>
-                        <div className="citation-location">
-                          <span>{t.citations.page} {citation.page_label}</span>
-                          <span>{t.citations.pdfIndex} {citation.page}</span>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="empty-citations">
-                  {t.citations.empty}
-                </p>
-              )}
-            </div>
-          </section>
-        )}
       </div>
     </main>
   )

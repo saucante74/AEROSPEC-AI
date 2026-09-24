@@ -22,7 +22,8 @@ backend/tests/
 backend/scripts/
 backend/requirements-dev.txt
 
-frontend/
+frontend/node_modules/
+frontend/dist/
 evaluation/
 docs/
 
