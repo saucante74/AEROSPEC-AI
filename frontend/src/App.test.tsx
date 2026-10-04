@@ -11,20 +11,28 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
-import { askQuestion, convertUnit } from './api/client'
+import { ApiError, askQuestion, convertUnit, login } from './api/client'
 import type { AskResponse, ConvertResponse } from './api/client'
 import evaluationSummary from './data/evaluation-summary.json'
 
-vi.mock('./api/client', () => ({
-  askQuestion: vi.fn(),
-  convertUnit: vi.fn(),
-  supportedUnits: ['mm', 'inch', 'N', 'lbf', '°C', '°F'],
-}))
+vi.mock('./api/client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./api/client')>()
+  return {
+    ...actual,
+    askQuestion: vi.fn(),
+    convertUnit: vi.fn(),
+    login: vi.fn(),
+  }
+})
 
 const mockedAskQuestion = vi.mocked(askQuestion)
 const mockedConvertUnit = vi.mocked(convertUnit)
+const mockedLogin = vi.mocked(login)
 
-function renderApp() {
+function renderApp(authenticated = true) {
+  if (authenticated) {
+    window.sessionStorage.setItem('aerospec_access_token', 'opaque-token')
+  }
   return render(<App />)
 }
 
@@ -50,9 +58,73 @@ afterEach(() => {
   cleanup()
   vi.clearAllMocks()
   vi.useRealTimers()
+  window.sessionStorage.clear()
 })
 
 describe('App', () => {
+  it('demande une authentification avant d’afficher l’application', () => {
+    renderApp(false)
+
+    expect(
+      screen.getByRole('heading', { name: 'Sign in to AeroSpec AI' }),
+    ).toBeVisible()
+    expect(screen.getByLabelText('Username')).toBeVisible()
+    expect(screen.getByLabelText('Password')).toHaveAttribute(
+      'type',
+      'password',
+    )
+    expect(
+      screen.queryByRole('textbox', { name: 'Technical question' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('ouvre l’application après une authentification valide', async () => {
+    mockedLogin.mockResolvedValue({
+      access_token: 'new-token',
+      token_type: 'bearer',
+      expires_in: 14_400,
+    })
+    renderApp(false)
+
+    fireEvent.change(screen.getByLabelText('Username'), {
+      target: { value: 'reviewer' },
+    })
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Ask. Find. Engineer with confidence.',
+      }),
+    ).toBeVisible()
+    expect(mockedLogin).toHaveBeenCalledWith({
+      username: 'reviewer',
+      password: 'password',
+    })
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBe(
+      'new-token',
+    )
+  })
+
+  it('affiche une erreur générique pour des identifiants invalides', async () => {
+    mockedLogin.mockRejectedValue(new ApiError(401))
+    renderApp(false)
+
+    fireEvent.change(screen.getByLabelText('Username'), {
+      target: { value: 'reviewer' },
+    })
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'wrong' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The username or password is incorrect.',
+    )
+  })
+
   it("affiche l'état initial", () => {
     renderApp()
 
@@ -240,7 +312,7 @@ describe('App', () => {
 
     submitQuestion(`  ${question}  `)
 
-    expect(mockedAskQuestion).toHaveBeenCalledWith(question)
+    expect(mockedAskQuestion).toHaveBeenCalledWith(question, 'opaque-token')
     expect(screen.getByRole('status')).toHaveTextContent(
       'Searching technical documentation… 0 s elapsed',
     )
@@ -323,6 +395,31 @@ describe('App', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The answer could not be retrieved. Check that the API is available and try again.',
     )
+  })
+
+  it('affiche un message spécifique lorsque le quota est épuisé', async () => {
+    mockedAskQuestion.mockRejectedValue(
+      new ApiError(429, 'demo_quota_exhausted'),
+    )
+    renderApp()
+
+    submitQuestion('Le quota est-il disponible ?')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The shared demo quota has been used. Try again after the four-hour window resets.',
+    )
+  })
+
+  it('revient à la connexion lorsque la session a expiré', async () => {
+    mockedAskQuestion.mockRejectedValue(new ApiError(401))
+    renderApp()
+
+    submitQuestion('Ma session est-elle valide ?')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Sign in to AeroSpec AI' }),
+    ).toBeVisible()
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBeNull()
   })
 
   it('convertit une valeur avec les unités sélectionnées et affiche le résultat API', async () => {

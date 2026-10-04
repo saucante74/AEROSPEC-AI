@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { SubmitEvent } from 'react'
 
-import { askQuestion, convertUnit, supportedUnits } from '../api/client'
+import {
+  ApiError,
+  askQuestion,
+  convertUnit,
+  supportedUnits,
+} from '../api/client'
 import type { AskResponse, ConvertResponse, Unit } from '../api/client'
 import { content } from '../content'
 
@@ -18,7 +23,15 @@ function isUnit(value: string): value is Unit {
   return value in compatibleTargets
 }
 
-export default function AssistantPage() {
+interface AssistantPageProps {
+  accessToken: string
+  onAuthenticationExpired: () => void
+}
+
+export default function AssistantPage({
+  accessToken,
+  onAuthenticationExpired,
+}: AssistantPageProps) {
   const t = content
   const [question, setQuestion] = useState('')
   const [result, setResult] = useState<AskResponse | null>(null)
@@ -26,7 +39,9 @@ export default function AssistantPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const requestPending = useRef(false)
   const requestStartedAt = useRef(0)
-  const [errorType, setErrorType] = useState<'emptyQuestion' | 'api' | null>(null)
+  const [errorType, setErrorType] = useState<
+    'emptyQuestion' | 'api' | 'quota' | 'rateLimit' | null
+  >(null)
   const [conversionValue, setConversionValue] = useState('')
   const [fromUnit, setFromUnit] = useState<Unit>('mm')
   const [toUnit, setToUnit] = useState<Unit>('inch')
@@ -73,9 +88,20 @@ export default function AssistantPage() {
     setResult(null)
 
     try {
-      setResult(await askQuestion(trimmedQuestion))
-    } catch {
-      setErrorType('api')
+      setResult(await askQuestion(trimmedQuestion, accessToken))
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        onAuthenticationExpired()
+      } else if (
+        error instanceof ApiError &&
+        error.code === 'demo_quota_exhausted'
+      ) {
+        setErrorType('quota')
+      } else if (error instanceof ApiError && error.status === 429) {
+        setErrorType('rateLimit')
+      } else {
+        setErrorType('api')
+      }
     } finally {
       requestPending.current = false
       setIsLoading(false)
