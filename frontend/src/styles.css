@@ -705,6 +705,19 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
+.loading-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.loading-helper {
+  color: var(--slate-500);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
 .loading-spinner {
   width: 18px;
   height: 18px;

@@ -268,8 +268,13 @@ export default function AssistantPage({
               {isLoading && (
                 <p className="loading-message" role="status">
                   <span className="loading-spinner" aria-hidden="true" />
-                  <span>
-                    {t.search.loading} {elapsedSeconds} {t.search.seconds}
+                  <span className="loading-copy">
+                    <span>
+                      {t.search.loading} {elapsedSeconds} {t.search.seconds}
+                    </span>
+                    <span className="loading-helper">
+                      {t.search.initializing}
+                    </span>
                   </span>
                 </p>
               )}

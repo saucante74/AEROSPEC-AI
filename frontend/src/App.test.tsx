@@ -501,6 +501,9 @@ describe('App', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'Searching technical documentation… 0 s elapsed',
     )
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'First request may take a little longer while the assistant initializes.',
+    )
     expect(
       screen.getByRole('textbox', { name: 'Technical question' }),
     ).toBeDisabled()

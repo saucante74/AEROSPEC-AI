@@ -60,6 +60,8 @@ export const content = {
     submit: 'Ask',
     searching: 'Searching…',
     loading: 'Searching technical documentation…',
+    initializing:
+      'First request may take a little longer while the assistant initializes.',
     seconds: 's elapsed',
   },
   examples: {
