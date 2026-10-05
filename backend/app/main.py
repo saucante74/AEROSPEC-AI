@@ -22,7 +22,15 @@ from .auth import DemoAuthenticator
 from .generation import OpenAITextGenerator, TextGenerator, is_abstention
 from .rag import answer_question
 from .rate_limit import AskRateLimiter, QuotaReservation
-from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
+from .retrieval import (
+    DEFAULT_CHUNK_OVERLAP,
+    DEFAULT_CHUNK_SIZE,
+    DEFAULT_TOP_K,
+    EMBEDDING_MODEL,
+    EMBEDDING_MODEL_REVISION,
+    build_retrieval_index,
+    search_retrieval,
+)
 from .tools import Unit, convert_unit
 
 PDF_DIRECTORY = Path(__file__).resolve().parents[2] / "data" / "sample_docs"
@@ -233,12 +241,29 @@ class ConvertResponse(BaseModel):
 @lru_cache(maxsize=1)
 def load_retrieval_index() -> Chroma:
     try:
-        vector_store, _, _, _ = build_retrieval_index(PDF_DIRECTORY)
+        vector_store, pdf_count, page_count, chunk_count = build_retrieval_index(
+            PDF_DIRECTORY
+        )
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(error),
         ) from error
+    logger.info(
+        json.dumps(
+            {
+                "event": "retrieval_index_built",
+                "pdf_count": pdf_count,
+                "pdf_files": sorted(path.name for path in PDF_DIRECTORY.glob("*.pdf")),
+                "page_count": page_count,
+                "chunk_count": chunk_count,
+                "embedding_model": EMBEDDING_MODEL,
+                "embedding_model_revision": EMBEDDING_MODEL_REVISION,
+                "chunk_size": DEFAULT_CHUNK_SIZE,
+                "chunk_overlap": DEFAULT_CHUNK_OVERLAP,
+            }
+        )
+    )
     return vector_store
 
 
@@ -523,6 +548,16 @@ async def ask(
         "retrieval_duration_ms": result.retrieval_duration_ms,
         "generation_duration_ms": result.generation_duration_ms,
         "retrieved_count": result.retrieved_count,
+        "retrieval_results": [
+            {
+                "rank": passage.rank,
+                "source": passage.source,
+                "page": passage.page,
+                "page_label": passage.page_label,
+                "distance": passage.distance,
+            }
+            for passage in result.retrieval_trace
+        ],
         "citation_count": len(result.citation_sources),
     }
     access.succeeded = True

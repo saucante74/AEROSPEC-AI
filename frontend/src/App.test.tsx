@@ -455,6 +455,8 @@ describe('App', () => {
   it("identifie le deuxième exemple comme démonstration d'abstention", () => {
     const unsupportedExample =
       'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?'
+    const answerableExample =
+      'What is the maximum operating temperature of the Molex .093 Series 03-09 nylon connectors?'
     renderApp()
 
     const badge = screen.getByText('Abstention example')
@@ -464,6 +466,9 @@ describe('App', () => {
       "This example is intentionally unsupported by the indexed documents and demonstrates the assistant's abstention behavior.",
     )
     expect(badge.closest('button')).toHaveTextContent(unsupportedExample)
+    expect(
+      screen.getByText(answerableExample).closest('button'),
+    ).not.toHaveTextContent('Abstention example')
     expect(screen.getAllByText('Abstention example')).toHaveLength(1)
   })
 

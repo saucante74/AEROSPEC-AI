@@ -396,6 +396,45 @@ class SearchApiTest(IsolatedAsyncioTestCase):
             },
         )
 
+    def test_index_build_logs_corpus_and_retrieval_configuration(self) -> None:
+        load_retrieval_index.cache_clear()
+
+        with (
+            patch(
+                "backend.app.main.build_retrieval_index",
+                return_value=(self.vector_store, 5, 103, 290),
+            ),
+            self.assertLogs("backend.app.main", level="INFO") as captured_logs,
+        ):
+            vector_store = load_retrieval_index()
+
+        event = json.loads(captured_logs.records[0].getMessage())
+        self.assertIs(vector_store, self.vector_store)
+        self.assertEqual(
+            event,
+            {
+                "event": "retrieval_index_built",
+                "pdf_count": 5,
+                "pdf_files": [
+                    "AMPHENOL_connector_datasheet.pdf",
+                    "HARWIN_connector_datasheet.pdf",
+                    "MIL_connector_datasheet.pdf",
+                    "MOLEX_connector_datasheet.pdf",
+                    "SAMTEC_connector_datasheet.pdf",
+                ],
+                "page_count": 103,
+                "chunk_count": 290,
+                "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+                "embedding_model_revision": (
+                    "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+                ),
+                "chunk_size": 1_000,
+                "chunk_overlap": 200,
+            },
+        )
+        self.assertNotIn("content", captured_logs.records[0].getMessage())
+        load_retrieval_index.cache_clear()
+
     async def test_search_rejects_blank_query(self) -> None:
         response = await self.request(
             "POST",
@@ -464,6 +503,18 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         self.assertEqual(event["request_id"], request_id)
         self.assertEqual(event["status"], "answered")
         self.assertEqual(event["retrieved_count"], 1)
+        self.assertEqual(
+            event["retrieval_results"],
+            [
+                {
+                    "rank": 1,
+                    "source": "datasheet.pdf",
+                    "page": 4,
+                    "page_label": "5",
+                    "distance": 0.125,
+                }
+            ],
+        )
         self.assertEqual(event["citation_count"], 0)
         for duration_name in (
             "total_duration_ms",

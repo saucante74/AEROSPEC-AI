@@ -5,6 +5,7 @@ from langchain_core.documents import Document
 from backend.app.rag import (
     CitationValidation,
     RagSource,
+    RetrievedPassage,
     _validate_citations,
     answer_question,
 )
@@ -115,6 +116,14 @@ class RagWorkflowTest(TestCase):
         self.assertGreaterEqual(result.retrieval_duration_ms, 0)
         self.assertGreaterEqual(result.generation_duration_ms, 0)
         self.assertEqual(result.retrieved_count, 3)
+        self.assertEqual(
+            result.retrieval_trace,
+            [
+                RetrievedPassage(1, "datasheet.pdf", 4, "5", 0.1),
+                RetrievedPassage(2, "datasheet.pdf", 4, "5", 0.2),
+                RetrievedPassage(3, "datasheet.pdf", 7, "8", 0.3),
+            ],
+        )
         self.assertEqual(list(result.citation_sources), ["[S1]", "[S3]"])
         received_prompt = llm.received_prompt
         assert received_prompt is not None
