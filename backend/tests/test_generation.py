@@ -83,6 +83,40 @@ class GenerationTest(TestCase):
         self.assertIn("No passages were retrieved.", prompt)
         self.assertIn(ABSTENTION_MESSAGE, prompt)
 
+    def test_prompt_prioritizes_explicit_evidence_before_abstention(self) -> None:
+        passage = SearchResult(
+            content=(
+                "Molex standard pin connectors are UL and CSA listed. "
+                "Nylon connectors operate to a maximum of 105° C."
+            ),
+            source="/documents/MOLEX_connector_datasheet.pdf",
+            page=3,
+            page_label="4",
+            distance=0.42,
+        )
+
+        prompt = build_prompt(
+            "What is the maximum operating temperature of the Molex .093 "
+            "Series 03-09 nylon connectors?",
+            [passage],
+        )
+
+        answer_instruction = (
+            "When the context provides an explicit value or statement that "
+            "resolves the question, answer from it even if its wording differs "
+            "from the question."
+        )
+        abstention_instruction = (
+            "If the context does not support an answer, respond exactly: "
+            f"{ABSTENTION_MESSAGE}"
+        )
+        self.assertIn("Nylon connectors operate to a maximum of 105° C.", prompt)
+        self.assertLess(
+            prompt.index(answer_instruction),
+            prompt.index(abstention_instruction),
+        )
+        self.assertIn("Always answer in English.", prompt)
+
     def test_generate_answer_uses_injected_llm(self) -> None:
         llm = FakeTextGenerator("The connector supports 500 mating cycles.")
 

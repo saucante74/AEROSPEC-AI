@@ -8,7 +8,7 @@ import {
   supportedUnits,
 } from '../api/client'
 import type { AskResponse, ConvertResponse, Unit } from '../api/client'
-import { content } from '../content'
+import { CANONICAL_ABSTENTION_MESSAGE, content } from '../content'
 
 const compatibleTargets: Record<Unit, readonly Unit[]> = {
   mm: ['inch'],
@@ -54,6 +54,7 @@ export default function AssistantPage({
   const [conversionError, setConversionError] = useState<
     'emptyValue' | 'invalidValue' | 'apiError' | null
   >(null)
+  const isAbstention = result?.answer === CANONICAL_ABSTENTION_MESSAGE
 
   useEffect(() => {
     if (!isLoading) {
@@ -268,8 +269,13 @@ export default function AssistantPage({
               {isLoading && (
                 <p className="loading-message" role="status">
                   <span className="loading-spinner" aria-hidden="true" />
-                  <span>
-                    {t.search.loading} {elapsedSeconds} {t.search.seconds}
+                  <span className="loading-copy">
+                    <span>
+                      {t.search.loading} {elapsedSeconds} {t.search.seconds}
+                    </span>
+                    <span className="loading-helper">
+                      {t.search.initializing}
+                    </span>
                   </span>
                 </p>
               )}
@@ -283,13 +289,42 @@ export default function AssistantPage({
 
           {result && (
             <section className="result-panel" aria-labelledby="answer-title">
-              <div className="answer-section">
+              <div
+                className={`answer-section${isAbstention ? ' answer-section-abstention' : ''}`}
+              >
                 <div className="result-heading">
                   <div>
-                    <p className="section-label success-label">{t.results.eyebrow}</p>
+                    <p
+                      className={`section-label ${isAbstention ? 'warning-label' : 'success-label'}`}
+                    >
+                      {t.results.eyebrow}
+                    </p>
                     <h2 id="answer-title">{t.results.title}</h2>
                   </div>
-                  <span className="result-status">{t.results.status}</span>
+                  <span
+                    className={`result-status${isAbstention ? ' result-status-warning' : ''}`}
+                  >
+                    <svg
+                      className="result-status-icon"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      {isAbstention ? (
+                        <>
+                          <path d="M10 2.5 18 17H2L10 2.5Z" />
+                          <path d="M10 7v4.5M10 14.5v.1" />
+                        </>
+                      ) : (
+                        <>
+                          <circle cx="10" cy="10" r="8" />
+                          <path d="m6.5 10 2.2 2.2 4.8-4.8" />
+                        </>
+                      )}
+                    </svg>
+                    {isAbstention
+                      ? t.results.insufficientEvidence
+                      : t.results.answerFound}
+                  </span>
                 </div>
                 <div className="answered-question">
                   <span>{t.results.questionAsked}</span>
