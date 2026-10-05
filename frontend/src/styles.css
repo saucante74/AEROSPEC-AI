@@ -949,6 +949,7 @@ h1 {
 
 .answer-section {
   border-bottom: 1px solid var(--slate-200);
+  background: var(--green-100);
 }
 
 .success-label {
