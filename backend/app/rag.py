@@ -15,6 +15,15 @@ class RagSource:
 
 
 @dataclass(frozen=True)
+class RetrievedPassage:
+    rank: int
+    source: str
+    page: int
+    page_label: str
+    distance: float
+
+
+@dataclass(frozen=True)
 class CitationValidation:
     valid_ids: list[str]
     unknown_ids: list[str]
@@ -29,6 +38,7 @@ class RagResult:
     retrieval_duration_ms: float
     generation_duration_ms: float
     retrieved_count: int
+    retrieval_trace: list[RetrievedPassage]
 
 
 def _validate_citations(answer: str, passage_count: int) -> CitationValidation:
@@ -97,4 +107,14 @@ def answer_question(
         retrieval_duration_ms=retrieval_duration_ms,
         generation_duration_ms=generation_duration_ms,
         retrieved_count=len(results),
+        retrieval_trace=[
+            RetrievedPassage(
+                rank=index,
+                source=Path(result.source).name,
+                page=result.page,
+                page_label=result.page_label,
+                distance=result.distance,
+            )
+            for index, result in enumerate(results, start=1)
+        ],
     )

@@ -705,6 +705,19 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
+.loading-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.loading-helper {
+  color: var(--slate-500);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
 .loading-spinner {
   width: 18px;
   height: 18px;
@@ -949,10 +962,20 @@ h1 {
 
 .answer-section {
   border-bottom: 1px solid var(--slate-200);
+  background: var(--green-100);
 }
 
 .success-label {
   color: var(--green-700);
+}
+
+.answer-section-abstention {
+  border-bottom-color: #ead9ad;
+  background: #fff8e8;
+}
+
+.warning-label {
+  color: #79570f;
 }
 
 .result-status {
@@ -967,8 +990,19 @@ h1 {
   font-weight: 800;
 }
 
-.result-status::before {
-  content: "✓";
+.result-status-icon {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.result-status-warning {
+  color: #79570f;
+  background: #ffedbd;
 }
 
 .answered-question {
@@ -998,6 +1032,7 @@ h1 {
 .answer-text {
   margin-bottom: 0;
   color: #243b52;
+  font-weight: 700;
   line-height: 1.75;
   white-space: pre-wrap;
 }

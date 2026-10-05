@@ -1,3 +1,6 @@
+export const CANONICAL_ABSTENTION_MESSAGE =
+  'The information is not available in the provided documents.'
+
 export const content = {
   auth: {
     eyebrow: 'Reviewer access',
@@ -60,6 +63,8 @@ export const content = {
     submit: 'Ask',
     searching: 'Searching…',
     loading: 'Searching technical documentation…',
+    initializing:
+      'First request may take a little longer while the assistant initializes.',
     seconds: 's elapsed',
   },
   examples: {
@@ -72,7 +77,7 @@ export const content = {
     questions: [
       'What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?',
       'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?',
-      'What is the maximum operating temperature of the Molex .093 Series 03-09 nylon connectors?',
+      'What maximum current per contact and circuit voltage are specified for Molex Series 06-01 quarter-inch flat-blade connectors?',
     ],
   },
   tools: {
@@ -93,7 +98,8 @@ export const content = {
   results: {
     eyebrow: 'Document answer',
     title: 'Result',
-    status: 'Sources checked',
+    answerFound: 'Answer found',
+    insufficientEvidence: 'Insufficient evidence',
     questionAsked: 'Question asked',
   },
   citations: {
