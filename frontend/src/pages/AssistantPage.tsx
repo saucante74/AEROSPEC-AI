@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SubmitEvent } from 'react'
 
 import {
@@ -24,13 +24,13 @@ function isUnit(value: string): value is Unit {
 }
 
 interface AssistantPageProps {
-  accessToken: string
-  onAuthenticationExpired: () => void
+  accessToken: string | null
+  onAuthenticationRequired: () => void
 }
 
 export default function AssistantPage({
   accessToken,
-  onAuthenticationExpired,
+  onAuthenticationRequired,
 }: AssistantPageProps) {
   const t = content
   const [question, setQuestion] = useState('')
@@ -39,6 +39,7 @@ export default function AssistantPage({
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const requestPending = useRef(false)
   const requestStartedAt = useRef(0)
+  const pendingQuestion = useRef<string | null>(null)
   const [errorType, setErrorType] = useState<
     'emptyQuestion' | 'api' | 'quota' | 'rateLimit' | null
   >(null)
@@ -66,17 +67,11 @@ export default function AssistantPage({
     return () => window.clearInterval(timer)
   }, [isLoading])
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
-
+  const submitQuestion = useCallback(async (
+    submittedQuestion: string,
+    token: string,
+  ) => {
     if (requestPending.current) {
-      return
-    }
-
-    const trimmedQuestion = question.trim()
-
-    if (!trimmedQuestion) {
-      setErrorType('emptyQuestion')
       return
     }
 
@@ -88,10 +83,11 @@ export default function AssistantPage({
     setResult(null)
 
     try {
-      setResult(await askQuestion(trimmedQuestion, accessToken))
+      setResult(await askQuestion(submittedQuestion, token))
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
-        onAuthenticationExpired()
+        pendingQuestion.current = submittedQuestion
+        onAuthenticationRequired()
       } else if (
         error instanceof ApiError &&
         error.code === 'demo_quota_exhausted'
@@ -107,6 +103,36 @@ export default function AssistantPage({
       setIsLoading(false)
       setElapsedSeconds(0)
     }
+  }, [onAuthenticationRequired])
+
+  useEffect(() => {
+    if (!accessToken || pendingQuestion.current === null) {
+      return
+    }
+
+    const questionToSubmit = pendingQuestion.current
+    pendingQuestion.current = null
+    void submitQuestion(questionToSubmit, accessToken)
+  }, [accessToken, submitQuestion])
+
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const trimmedQuestion = question.trim()
+
+    if (!trimmedQuestion) {
+      setErrorType('emptyQuestion')
+      return
+    }
+
+    if (!accessToken) {
+      pendingQuestion.current = trimmedQuestion
+      setErrorType(null)
+      onAuthenticationRequired()
+      return
+    }
+
+    await submitQuestion(trimmedQuestion, accessToken)
   }
 
   function selectExample(example: string) {

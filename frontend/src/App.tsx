@@ -16,20 +16,19 @@ export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(() =>
     window.sessionStorage.getItem('aerospec_access_token'),
   )
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
 
   async function handleLogin(username: string, password: string) {
     const session = await login({ username, password })
     window.sessionStorage.setItem('aerospec_access_token', session.access_token)
     setAccessToken(session.access_token)
+    setIsLoginOpen(false)
   }
 
-  function handleAuthenticationExpired() {
+  function handleAuthenticationRequired() {
     window.sessionStorage.removeItem('aerospec_access_token')
     setAccessToken(null)
-  }
-
-  if (accessToken === null) {
-    return <LoginPage onLogin={handleLogin} />
+    setIsLoginOpen(true)
   }
 
   return (
@@ -44,13 +43,19 @@ export default function App() {
       {activePage === 'assistant' && (
         <AssistantPage
           accessToken={accessToken}
-          onAuthenticationExpired={handleAuthenticationExpired}
+          onAuthenticationRequired={handleAuthenticationRequired}
         />
       )}
       {activePage === 'documents' && <DocumentsPage />}
       {activePage === 'evaluation' && <EvaluationPage />}
       {activePage === 'help' && <HelpPage />}
       <Footer />
+      {isLoginOpen && (
+        <LoginPage
+          onCancel={() => setIsLoginOpen(false)}
+          onLogin={handleLogin}
+        />
+      )}
     </div>
   )
 }

@@ -8,6 +8,8 @@ export const content = {
     password: 'Password',
     signIn: 'Sign in',
     signingIn: 'Signing in…',
+    cancel: 'Cancel',
+    close: 'Close sign-in dialog',
     invalidCredentials: 'The username or password is incorrect.',
     tooManyAttempts: 'Too many sign-in attempts. Try again later.',
     unavailable: 'Sign-in is unavailable. Try again later.',

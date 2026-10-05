@@ -5,10 +5,11 @@ import { ApiError } from '../api/client'
 import { content } from '../content'
 
 interface LoginPageProps {
+  onCancel: () => void
   onLogin: (username: string, password: string) => Promise<void>
 }
 
-export default function LoginPage({ onLogin }: LoginPageProps) {
+export default function LoginPage({ onCancel, onLogin }: LoginPageProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -36,8 +37,23 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   return (
-    <div className="login-shell">
-      <main className="login-card" aria-labelledby="login-title">
+    <div className="login-modal-backdrop">
+      <section
+        className="login-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-title"
+        aria-describedby="login-description"
+      >
+        <button
+          className="login-close"
+          type="button"
+          aria-label={auth.close}
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
+          ×
+        </button>
         <div className="login-brand" aria-label={nav.homeLabel}>
           <span className="brand-mark" aria-hidden="true" />
           <span className="brand-copy">
@@ -47,7 +63,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         </div>
         <p className="eyebrow">{auth.eyebrow}</p>
         <h1 id="login-title">{auth.title}</h1>
-        <p className="login-introduction">{auth.description}</p>
+        <p id="login-description" className="login-introduction">
+          {auth.description}
+        </p>
 
         <form onSubmit={handleSubmit} aria-busy={isSubmitting}>
           <label htmlFor="username">{auth.username}</label>
@@ -82,11 +100,24 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </p>
           )}
 
-          <button type="submit" disabled={isSubmitting || !username || !password}>
-            {isSubmitting ? auth.signingIn : auth.signIn}
-          </button>
+          <div className="login-actions">
+            <button
+              className="login-cancel"
+              type="button"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              {auth.cancel}
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !username || !password}
+            >
+              {isSubmitting ? auth.signingIn : auth.signIn}
+            </button>
+          </div>
         </form>
-      </main>
+      </section>
     </div>
   )
 }

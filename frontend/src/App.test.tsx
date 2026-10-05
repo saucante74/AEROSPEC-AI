@@ -62,23 +62,50 @@ afterEach(() => {
 })
 
 describe('App', () => {
-  it('demande une authentification avant d’afficher l’application', () => {
+  it('affiche l’application sans demander une authentification', () => {
     renderApp(false)
 
     expect(
-      screen.getByRole('heading', { name: 'Sign in to AeroSpec AI' }),
+      screen.getByRole('heading', {
+        name: 'Ask. Find. Engineer with confidence.',
+      }),
     ).toBeVisible()
-    expect(screen.getByLabelText('Username')).toBeVisible()
-    expect(screen.getByLabelText('Password')).toHaveAttribute(
-      'type',
-      'password',
-    )
     expect(
-      screen.queryByRole('textbox', { name: 'Technical question' }),
+      screen.getByRole('textbox', { name: 'Technical question' }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
     ).not.toBeInTheDocument()
   })
 
-  it('ouvre l’application après une authentification valide', async () => {
+  it('ouvre la connexion au clic sur Ask sans envoyer la question', () => {
+    const question = 'What is the maximum operating temperature?'
+    renderApp(false)
+
+    submitQuestion(question)
+
+    expect(
+      screen.getByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+    ).toBeVisible()
+    expect(mockedAskQuestion).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(
+      screen.queryByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('textbox', { name: 'Technical question' }),
+    ).toHaveValue(question)
+  })
+
+  it('continue automatiquement la question après une authentification valide', async () => {
+    mockedAskQuestion.mockResolvedValue({
+      question: 'What is the limit?',
+      answer: 'The limit is documented.',
+      sources: [],
+      citations: [],
+    })
     mockedLogin.mockResolvedValue({
       access_token: 'new-token',
       token_type: 'bearer',
@@ -86,6 +113,7 @@ describe('App', () => {
     })
     renderApp(false)
 
+    submitQuestion('  What is the limit?  ')
     fireEvent.change(screen.getByLabelText('Username'), {
       target: { value: 'reviewer' },
     })
@@ -94,24 +122,28 @@ describe('App', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    expect(
-      await screen.findByRole('heading', {
-        name: 'Ask. Find. Engineer with confidence.',
-      }),
-    ).toBeVisible()
     expect(mockedLogin).toHaveBeenCalledWith({
       username: 'reviewer',
       password: 'password',
     })
+    expect(await screen.findByText('The limit is documented.')).toBeVisible()
+    expect(mockedAskQuestion).toHaveBeenCalledWith(
+      'What is the limit?',
+      'new-token',
+    )
+    expect(
+      screen.queryByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+    ).not.toBeInTheDocument()
     expect(window.sessionStorage.getItem('aerospec_access_token')).toBe(
       'new-token',
     )
   })
 
-  it('affiche une erreur générique pour des identifiants invalides', async () => {
+  it('garde la connexion ouverte et affiche une erreur pour des identifiants invalides', async () => {
     mockedLogin.mockRejectedValue(new ApiError(401))
     renderApp(false)
 
+    submitQuestion('What is the limit?')
     fireEvent.change(screen.getByLabelText('Username'), {
       target: { value: 'reviewer' },
     })
@@ -123,6 +155,10 @@ describe('App', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The username or password is incorrect.',
     )
+    expect(
+      screen.getByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+    ).toBeVisible()
+    expect(mockedAskQuestion).not.toHaveBeenCalled()
   })
 
   it("affiche l'état initial", () => {
@@ -410,16 +446,19 @@ describe('App', () => {
     )
   })
 
-  it('revient à la connexion lorsque la session a expiré', async () => {
+  it('rouvre la connexion sans perdre la question lorsque la session a expiré', async () => {
     mockedAskQuestion.mockRejectedValue(new ApiError(401))
     renderApp()
 
     submitQuestion('Ma session est-elle valide ?')
 
     expect(
-      await screen.findByRole('heading', { name: 'Sign in to AeroSpec AI' }),
+      await screen.findByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
     ).toBeVisible()
     expect(window.sessionStorage.getItem('aerospec_access_token')).toBeNull()
+    expect(
+      screen.getByRole('textbox', { name: 'Technical question' }),
+    ).toHaveValue('Ma session est-elle valide ?')
   })
 
   it('convertit une valeur avec les unités sélectionnées et affiche le résultat API', async () => {

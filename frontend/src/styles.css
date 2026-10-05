@@ -72,23 +72,44 @@ p {
     #f3f6fa;
 }
 
-.login-shell {
+.login-modal-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
   display: grid;
-  min-height: 100vh;
   place-items: center;
+  overflow-y: auto;
   padding: 32px 24px;
-  background:
-    radial-gradient(circle at 80% 12%, rgba(82, 158, 235, 0.2), transparent 28rem),
-    var(--navy-950);
+  background: rgba(4, 18, 35, 0.78);
 }
 
 .login-card {
+  position: relative;
   width: min(460px, 100%);
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 16px;
   padding: clamp(28px, 6vw, 44px);
   background: var(--surface);
   box-shadow: 0 24px 70px rgba(0, 9, 22, 0.32);
+}
+
+.login-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--slate-700);
+  background: transparent;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.login-close:hover:not(:disabled) {
+  background: var(--slate-100);
 }
 
 .login-brand {
@@ -146,9 +167,15 @@ p {
   box-shadow: 0 0 0 4px rgba(11, 112, 223, 0.13);
 }
 
-.login-card button {
-  min-height: 48px;
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
   margin-top: 14px;
+}
+
+.login-actions button {
+  min-height: 48px;
   border: 0;
   border-radius: 8px;
   padding: 11px 24px;
@@ -158,13 +185,23 @@ p {
   cursor: pointer;
 }
 
-.login-card button:hover:not(:disabled) {
+.login-actions button:hover:not(:disabled) {
   background: #064fa2;
 }
 
-.login-card button:disabled {
+.login-actions button:disabled,
+.login-close:disabled {
   background: #8294a8;
   cursor: not-allowed;
+}
+
+.login-actions .login-cancel {
+  color: var(--navy-900);
+  background: var(--slate-100);
+}
+
+.login-actions .login-cancel:hover:not(:disabled) {
+  background: var(--slate-200);
 }
 
 .login-card .error-message {
