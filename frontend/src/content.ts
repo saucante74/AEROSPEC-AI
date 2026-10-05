@@ -72,7 +72,7 @@ export const content = {
     questions: [
       'What helium leak rate is specified for the hermetic MIL-DTL-38999 connectors?',
       'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?',
-      'What is the maximum operating temperature of the Molex .093 Series 03-09 nylon connectors?',
+      'What maximum current per contact and circuit voltage are specified for Molex Series 06-01 quarter-inch flat-blade connectors?',
     ],
   },
   tools: {

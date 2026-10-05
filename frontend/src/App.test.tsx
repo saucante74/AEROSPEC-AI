@@ -456,7 +456,7 @@ describe('App', () => {
     const unsupportedExample =
       'What sealing material is specified for the Douglas hermetic MIL-DTL-38999 connectors?'
     const answerableExample =
-      'What is the maximum operating temperature of the Molex .093 Series 03-09 nylon connectors?'
+      'What maximum current per contact and circuit voltage are specified for Molex Series 06-01 quarter-inch flat-blade connectors?'
     renderApp()
 
     const badge = screen.getByText('Abstention example')
