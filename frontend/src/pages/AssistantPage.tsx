@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SubmitEvent } from 'react'
 
-import { askQuestion, convertUnit, supportedUnits } from '../api/client'
+import {
+  ApiError,
+  askQuestion,
+  convertUnit,
+  supportedUnits,
+} from '../api/client'
 import type { AskResponse, ConvertResponse, Unit } from '../api/client'
 import { content } from '../content'
 
@@ -18,7 +23,17 @@ function isUnit(value: string): value is Unit {
   return value in compatibleTargets
 }
 
-export default function AssistantPage() {
+interface AssistantPageProps {
+  accessToken: string | null
+  onAuthenticationRequired: () => void
+  onQuestionSucceeded: () => void
+}
+
+export default function AssistantPage({
+  accessToken,
+  onAuthenticationRequired,
+  onQuestionSucceeded,
+}: AssistantPageProps) {
   const t = content
   const [question, setQuestion] = useState('')
   const [result, setResult] = useState<AskResponse | null>(null)
@@ -26,7 +41,10 @@ export default function AssistantPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const requestPending = useRef(false)
   const requestStartedAt = useRef(0)
-  const [errorType, setErrorType] = useState<'emptyQuestion' | 'api' | null>(null)
+  const pendingQuestion = useRef<string | null>(null)
+  const [errorType, setErrorType] = useState<
+    'emptyQuestion' | 'api' | 'quota' | 'rateLimit' | null
+  >(null)
   const [conversionValue, setConversionValue] = useState('')
   const [fromUnit, setFromUnit] = useState<Unit>('mm')
   const [toUnit, setToUnit] = useState<Unit>('inch')
@@ -51,17 +69,11 @@ export default function AssistantPage() {
     return () => window.clearInterval(timer)
   }, [isLoading])
 
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
-
+  const submitQuestion = useCallback(async (
+    submittedQuestion: string,
+    token: string,
+  ) => {
     if (requestPending.current) {
-      return
-    }
-
-    const trimmedQuestion = question.trim()
-
-    if (!trimmedQuestion) {
-      setErrorType('emptyQuestion')
       return
     }
 
@@ -73,14 +85,57 @@ export default function AssistantPage() {
     setResult(null)
 
     try {
-      setResult(await askQuestion(trimmedQuestion))
-    } catch {
-      setErrorType('api')
+      setResult(await askQuestion(submittedQuestion, token))
+      onQuestionSucceeded()
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        pendingQuestion.current = submittedQuestion
+        onAuthenticationRequired()
+      } else if (
+        error instanceof ApiError &&
+        error.code === 'demo_quota_exhausted'
+      ) {
+        setErrorType('quota')
+      } else if (error instanceof ApiError && error.status === 429) {
+        setErrorType('rateLimit')
+      } else {
+        setErrorType('api')
+      }
     } finally {
       requestPending.current = false
       setIsLoading(false)
       setElapsedSeconds(0)
     }
+  }, [onAuthenticationRequired, onQuestionSucceeded])
+
+  useEffect(() => {
+    if (!accessToken || pendingQuestion.current === null) {
+      return
+    }
+
+    const questionToSubmit = pendingQuestion.current
+    pendingQuestion.current = null
+    void submitQuestion(questionToSubmit, accessToken)
+  }, [accessToken, submitQuestion])
+
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const trimmedQuestion = question.trim()
+
+    if (!trimmedQuestion) {
+      setErrorType('emptyQuestion')
+      return
+    }
+
+    if (!accessToken) {
+      pendingQuestion.current = trimmedQuestion
+      setErrorType(null)
+      onAuthenticationRequired()
+      return
+    }
+
+    await submitQuestion(trimmedQuestion, accessToken)
   }
 
   function selectExample(example: string) {

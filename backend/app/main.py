@@ -1,7 +1,9 @@
 import json
 import logging
 import os
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from functools import lru_cache
 from ipaddress import ip_address
 from pathlib import Path
@@ -11,13 +13,15 @@ from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from langchain_chroma import Chroma
 from openai import OpenAIError
 from pydantic import BaseModel, Field, field_validator
 
+from .auth import DemoAuthenticator
 from .generation import OpenAITextGenerator, TextGenerator, is_abstention
 from .rag import answer_question
-from .rate_limit import AskRateLimiter
+from .rate_limit import AskRateLimiter, QuotaReservation
 from .retrieval import DEFAULT_TOP_K, build_retrieval_index, search_retrieval
 from .tools import Unit, convert_unit
 
@@ -29,6 +33,9 @@ DEFAULT_FRONTEND_ORIGINS = (
 )
 DEFAULT_ASK_RATE_LIMIT_PER_MINUTE = 5
 DEFAULT_ASK_DAILY_LIMIT = 100
+DEMO_ASK_QUOTA = 20
+DEMO_QUOTA_WINDOW_SECONDS = 14_400
+LOGIN_RATE_LIMIT_PER_MINUTE = 5
 
 
 def parse_frontend_origins(value: str | None) -> list[str]:
@@ -67,14 +74,20 @@ ask_rate_limiter = AskRateLimiter(
         DEFAULT_ASK_RATE_LIMIT_PER_MINUTE,
     ),
     daily=parse_non_negative_int("ASK_DAILY_LIMIT", DEFAULT_ASK_DAILY_LIMIT),
+    account_quota=DEMO_ASK_QUOTA,
+    quota_window_seconds=DEMO_QUOTA_WINDOW_SECONDS,
+)
+login_rate_limiter = AskRateLimiter(
+    per_minute=LOGIN_RATE_LIMIT_PER_MINUTE,
+    daily=0,
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,
     allow_credentials=False,
-    allow_methods=["POST"],
-    allow_headers=["Content-Type"],
-    expose_headers=["X-Request-ID"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
+    expose_headers=["Retry-After", "X-Request-ID"],
 )
 
 
@@ -186,6 +199,24 @@ class AskResponse(BaseModel):
     citations: list[CitationResponse]
 
 
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=1, max_length=200)
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+
+class UsageStatusResponse(BaseModel):
+    quota_limit: int
+    requests_used: int
+    requests_remaining: int
+    reset_at: datetime
+
+
 class ConvertRequest(BaseModel):
     value: float
     from_unit: Unit
@@ -230,40 +261,160 @@ async def get_text_generator() -> TextGenerator:
     return load_text_generator()
 
 
+@lru_cache(maxsize=1)
+def load_demo_authenticator() -> DemoAuthenticator:
+    username = os.getenv("DEMO_USERNAME", "")
+    password_hash = os.getenv("DEMO_PASSWORD_HASH", "")
+    return DemoAuthenticator(username, password_hash)
+
+
+async def get_demo_authenticator() -> DemoAuthenticator:
+    try:
+        return load_demo_authenticator()
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Demo authentication is not configured.",
+        ) from error
+
+
 RetrievalIndex = Annotated[Chroma, Depends(get_retrieval_index)]
 AnswerGenerator = Annotated[TextGenerator, Depends(get_text_generator)]
+DemoAuth = Annotated[DemoAuthenticator, Depends(get_demo_authenticator)]
 
 
 async def get_ask_rate_limiter() -> AskRateLimiter:
     return ask_rate_limiter
 
 
-async def enforce_ask_rate_limit(
+async def get_login_rate_limiter() -> AskRateLimiter:
+    return login_rate_limiter
+
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def get_authenticated_account(
     request: Request,
+    authenticator: DemoAuth,
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None,
+        Depends(bearer_scheme),
+    ],
+) -> str:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        request.state.error_type = "AuthenticationRequired"
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    account_id = authenticator.authenticate(credentials.credentials)
+    if account_id is None:
+        request.state.error_type = "InvalidAuthentication"
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication is invalid or expired.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return account_id
+
+
+AuthenticatedAccount = Annotated[str, Depends(get_authenticated_account)]
+
+
+@dataclass
+class AskAccess:
+    limiter: AskRateLimiter
+    quota_reservation: QuotaReservation | None
+    succeeded: bool = False
+
+
+async def enforce_ask_access(
+    request: Request,
+    account_id: AuthenticatedAccount,
     limiter: Annotated[AskRateLimiter, Depends(get_ask_rate_limiter)],
-) -> None:
-    decision = limiter.check(identify_client(request))
-    if decision.allowed:
-        return
+) -> AsyncIterator[AskAccess]:
+    decision = limiter.check(identify_client(request), account_id)
+    if not decision.allowed:
+        request.state.rag_observation = {
+            "event": "rag_request_rate_limited",
+            "request_id": request.state.request_id,
+            "status": "rate_limited",
+            "limit_type": decision.limit_type,
+        }
+        if decision.limit_type == "account_quota":
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail={
+                    "code": "demo_quota_exhausted",
+                    "message": "Demo usage quota exhausted. Try again after the quota window resets.",
+                    "retry_after_seconds": decision.retry_after_seconds,
+                },
+                headers={"Retry-After": str(decision.retry_after_seconds)},
+            )
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Trop de requêtes. Réessayez plus tard.",
+        )
 
-    request.state.rag_observation = {
-        "event": "rag_request_rate_limited",
-        "request_id": request.state.request_id,
-        "status": "rate_limited",
-        "limit_type": decision.limit_type,
-    }
-    raise HTTPException(
-        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-        detail="Trop de requêtes. Réessayez plus tard.",
-    )
+    access = AskAccess(limiter, decision.quota_reservation)
+    try:
+        yield access
+    finally:
+        if not access.succeeded and access.quota_reservation is not None:
+            limiter.release_quota(access.quota_reservation)
 
 
-AskRateLimit = Annotated[None, Depends(enforce_ask_rate_limit)]
+AskAccessDependency = Annotated[AskAccess, Depends(enforce_ask_access)]
 
 
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/auth/login", response_model=LoginResponse)
+async def login(
+    login_request: LoginRequest,
+    request: Request,
+    authenticator: DemoAuth,
+    limiter: Annotated[AskRateLimiter, Depends(get_login_rate_limiter)],
+) -> LoginResponse:
+    decision = limiter.check(identify_client(request))
+    if not decision.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many sign-in attempts. Try again later.",
+            headers={"Retry-After": "60"},
+        )
+
+    session = authenticator.login(login_request.username, login_request.password)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password.",
+        )
+
+    return LoginResponse(
+        access_token=session.access_token,
+        expires_in=session.expires_in,
+    )
+
+
+@app.get("/auth/status", response_model=UsageStatusResponse)
+async def usage_status(
+    account_id: AuthenticatedAccount,
+    limiter: Annotated[AskRateLimiter, Depends(get_ask_rate_limiter)],
+) -> UsageStatusResponse:
+    quota = limiter.quota_status(account_id)
+    return UsageStatusResponse(
+        quota_limit=quota.limit,
+        requests_used=quota.used,
+        requests_remaining=quota.remaining,
+        reset_at=datetime.fromtimestamp(quota.reset_at, tz=UTC),
+    )
 
 
 @app.post("/convert", response_model=ConvertResponse)
@@ -320,7 +471,7 @@ async def search(
 async def ask(
     request: AskRequest,
     http_request: Request,
-    _rate_limit: AskRateLimit,
+    access: AskAccessDependency,
     vector_store: RetrievalIndex,
     llm: AnswerGenerator,
 ) -> AskResponse:
@@ -374,4 +525,5 @@ async def ask(
         "retrieved_count": result.retrieved_count,
         "citation_count": len(result.citation_sources),
     }
+    access.succeeded = True
     return response

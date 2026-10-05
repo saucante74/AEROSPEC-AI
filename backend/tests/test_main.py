@@ -3,15 +3,19 @@ from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
 from uuid import UUID
 
+import bcrypt
 from httpx import ASGITransport, AsyncClient, Response
 from langchain_core.documents import Document
 from openai import OpenAIError
 
+from backend.app.auth import DemoAuthenticator
 from backend.app.generation import ABSTENTION_MESSAGE
 from backend.app.main import (
     FRONTEND_ORIGINS,
     app,
     get_ask_rate_limiter,
+    get_demo_authenticator,
+    get_login_rate_limiter,
     get_retrieval_index,
     get_text_generator,
     load_retrieval_index,
@@ -59,6 +63,19 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         self.retrieval_dependency_calls = 0
         self.generator_dependency_calls = 0
         self.rate_limiter = AskRateLimiter(1_000, 10_000)
+        self.login_rate_limiter = AskRateLimiter(100, 0)
+        self.demo_password = "reviewer-password"
+        self.demo_password_hash = bcrypt.hashpw(
+            self.demo_password.encode(),
+            bcrypt.gensalt(rounds=4),
+        ).decode()
+        self.authenticator = DemoAuthenticator(
+            "reviewer",
+            self.demo_password_hash,
+        )
+        session = self.authenticator.login("reviewer", self.demo_password)
+        assert session is not None
+        self.access_token = session.access_token
 
         async def override_retrieval_index() -> FakeVectorStore:
             self.retrieval_dependency_calls += 1
@@ -71,9 +88,19 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         async def override_rate_limiter() -> AskRateLimiter:
             return self.rate_limiter
 
+        async def override_login_rate_limiter() -> AskRateLimiter:
+            return self.login_rate_limiter
+
+        async def override_authenticator() -> DemoAuthenticator:
+            return self.authenticator
+
         app.dependency_overrides[get_retrieval_index] = override_retrieval_index
         app.dependency_overrides[get_text_generator] = override_text_generator
         app.dependency_overrides[get_ask_rate_limiter] = override_rate_limiter
+        app.dependency_overrides[get_login_rate_limiter] = (
+            override_login_rate_limiter
+        )
+        app.dependency_overrides[get_demo_authenticator] = override_authenticator
 
     def tearDown(self) -> None:
         app.dependency_overrides.clear()
@@ -85,18 +112,156 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         json: dict[str, object] | None = None,
         headers: dict[str, str] | None = None,
         client_ip: str = "127.0.0.1",
+        authenticate: bool = True,
     ) -> Response:
+        request_headers = dict(headers or {})
+        if authenticate and path in {"/ask", "/auth/status"}:
+            request_headers.setdefault(
+                "Authorization",
+                f"Bearer {self.access_token}",
+            )
         async with AsyncClient(
             transport=ASGITransport(app=app, client=(client_ip, 123)),
             base_url="http://test",
         ) as client:
-            return await client.request(method, path, json=json, headers=headers)
+            return await client.request(
+                method,
+                path,
+                json=json,
+                headers=request_headers,
+            )
 
     async def test_health(self) -> None:
         response = await self.request("GET", "/health")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+    async def test_login_accepts_valid_credentials(self) -> None:
+        response = await self.request(
+            "POST",
+            "/auth/login",
+            json={
+                "username": "reviewer",
+                "password": self.demo_password,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["token_type"], "bearer")
+        self.assertEqual(body["expires_in"], 14_400)
+        self.assertEqual(
+            self.authenticator.authenticate(body["access_token"]),
+            "reviewer",
+        )
+
+    async def test_login_rejects_invalid_credentials(self) -> None:
+        response = await self.request(
+            "POST",
+            "/auth/login",
+            json={"username": "reviewer", "password": "wrong-password"},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Invalid username or password."},
+        )
+
+    async def test_login_limits_repeated_attempts_by_client(self) -> None:
+        self.login_rate_limiter = AskRateLimiter(1, 0)
+
+        first = await self.request(
+            "POST",
+            "/auth/login",
+            json={"username": "reviewer", "password": "wrong-password"},
+        )
+        rejected = await self.request(
+            "POST",
+            "/auth/login",
+            json={"username": "reviewer", "password": "wrong-password"},
+        )
+
+        self.assertEqual(first.status_code, 401)
+        self.assertEqual(rejected.status_code, 429)
+        self.assertEqual(rejected.headers["Retry-After"], "60")
+
+    async def test_login_response_does_not_expose_credentials_or_hash(self) -> None:
+        response = await self.request(
+            "POST",
+            "/auth/login",
+            json={
+                "username": "reviewer",
+                "password": self.demo_password,
+            },
+        )
+
+        response_text = response.text
+        self.assertNotIn(self.demo_password, response_text)
+        self.assertNotIn(self.demo_password_hash, response_text)
+
+    async def test_usage_status_reports_current_account_quota_window(self) -> None:
+        self.rate_limiter = AskRateLimiter(
+            0,
+            100,
+            account_quota=20,
+            quota_window_seconds=14_400,
+            clock=lambda: 14_460.0,
+        )
+        ask_response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Count this request"},
+        )
+
+        response = await self.request("GET", "/auth/status")
+
+        self.assertEqual(ask_response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "quota_limit": 20,
+                "requests_used": 1,
+                "requests_remaining": 19,
+                "reset_at": "1970-01-01T08:00:00Z",
+            },
+        )
+
+    async def test_usage_status_requires_authentication(self) -> None:
+        response = await self.request(
+            "GET",
+            "/auth/status",
+            authenticate=False,
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Authentication required."},
+        )
+
+    async def test_usage_status_does_not_consume_quota(self) -> None:
+        self.rate_limiter = AskRateLimiter(0, 100, account_quota=1)
+
+        first_status = await self.request("GET", "/auth/status")
+        second_status = await self.request("GET", "/auth/status")
+        allowed = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Still available"},
+        )
+        rejected = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Quota used"},
+        )
+
+        self.assertEqual(first_status.json()["requests_remaining"], 1)
+        self.assertEqual(second_status.json()["requests_remaining"], 1)
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(rejected.status_code, 429)
 
     async def test_cors_allows_configured_frontend_origin(self) -> None:
         origin = FRONTEND_ORIGINS[0]
@@ -106,12 +271,16 @@ class SearchApiTest(IsolatedAsyncioTestCase):
             headers={
                 "Origin": origin,
                 "Access-Control-Request-Method": "POST",
-                "Access-Control-Request-Headers": "content-type",
+                "Access-Control-Request-Headers": "authorization,content-type",
             },
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["access-control-allow-origin"], origin)
+        self.assertIn(
+            "Authorization",
+            response.headers["access-control-allow-headers"],
+        )
 
     async def test_cors_rejects_unconfigured_origin(self) -> None:
         origin = "https://unauthorized.invalid"
@@ -302,6 +471,45 @@ class SearchApiTest(IsolatedAsyncioTestCase):
             "generation_duration_ms",
         ):
             self.assertGreaterEqual(event[duration_name], 0)
+
+    async def test_ask_rejects_missing_authentication_before_workflow(self) -> None:
+        response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Protected question"},
+            authenticate=False,
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), {"detail": "Authentication required."})
+        self.assertEqual(self.retrieval_dependency_calls, 0)
+        self.assertEqual(self.generator_dependency_calls, 0)
+
+    async def test_ask_rejects_expired_authentication_before_workflow(self) -> None:
+        now = [0.0]
+        self.authenticator = DemoAuthenticator(
+            "reviewer",
+            self.demo_password_hash,
+            clock=lambda: now[0],
+        )
+        session = self.authenticator.login("reviewer", self.demo_password)
+        assert session is not None
+        self.access_token = session.access_token
+        now[0] = 14_400.0
+
+        response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Expired session"},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Authentication is invalid or expired."},
+        )
+        self.assertEqual(self.retrieval_dependency_calls, 0)
+        self.assertEqual(self.generator_dependency_calls, 0)
 
     async def test_ask_returns_a_distinct_request_id_for_each_request(self) -> None:
         first_response = await self.request(
@@ -516,6 +724,74 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         )
         self.assertEqual(self.retrieval_dependency_calls, 2)
         self.assertEqual(self.generator_dependency_calls, 2)
+
+    async def test_ask_enforces_authenticated_account_quota(self) -> None:
+        self.rate_limiter = AskRateLimiter(0, 100, account_quota=2)
+
+        responses = [
+            await self.request(
+                "POST",
+                "/ask",
+                json={"question": f"Question {index}"},
+            )
+            for index in range(1, 4)
+        ]
+
+        self.assertEqual(
+            [response.status_code for response in responses],
+            [200, 200, 429],
+        )
+        self.assertEqual(
+            responses[2].json()["detail"]["code"],
+            "demo_quota_exhausted",
+        )
+        self.assertIn("Retry-After", responses[2].headers)
+        self.assertEqual(self.retrieval_dependency_calls, 2)
+        self.assertEqual(self.generator_dependency_calls, 2)
+
+    async def test_intentional_abstention_consumes_quota(self) -> None:
+        self.rate_limiter = AskRateLimiter(0, 100, account_quota=1)
+        self.text_generator = FakeTextGenerator(ABSTENTION_MESSAGE)
+
+        abstention = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Unsupported question"},
+        )
+        rejected = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Another question"},
+        )
+
+        self.assertEqual(abstention.status_code, 200)
+        self.assertEqual(rejected.status_code, 429)
+
+    async def test_technical_failure_releases_reserved_quota(self) -> None:
+        self.rate_limiter = AskRateLimiter(0, 100, account_quota=1)
+
+        async def override_failing_generator() -> FailingTextGenerator:
+            return FailingTextGenerator()
+
+        app.dependency_overrides[get_text_generator] = override_failing_generator
+        failed = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Provider failure"},
+        )
+
+        async def override_working_generator() -> FakeTextGenerator:
+            return FakeTextGenerator()
+
+        app.dependency_overrides[get_text_generator] = override_working_generator
+        successful = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Retry after failure"},
+        )
+
+        self.assertEqual(failed.status_code, 502)
+        self.assertEqual(successful.status_code, 200)
 
     async def test_rate_limited_log_excludes_sensitive_content(self) -> None:
         self.rate_limiter = AskRateLimiter(1, 10)
