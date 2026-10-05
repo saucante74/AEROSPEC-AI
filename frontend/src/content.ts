@@ -14,6 +14,18 @@ export const content = {
     tooManyAttempts: 'Too many sign-in attempts. Try again later.',
     unavailable: 'Sign-in is unavailable. Try again later.',
   },
+  usage: {
+    requestsRemaining: 'requests remaining',
+    reset: 'Reset',
+    signIn: 'Sign in',
+    logOut: 'Log out',
+  },
+  logout: {
+    title: 'Log out?',
+    message: 'Are you sure you want to log out?',
+    cancel: 'Cancel',
+    confirm: 'Log out',
+  },
   nav: {
     brand: 'AeroSpec AI',
     subtitle: 'Technical Documentation Assistant',

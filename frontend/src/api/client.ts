@@ -26,6 +26,13 @@ export interface AuthSession {
   expires_in: number
 }
 
+export interface UsageStatus {
+  quota_limit: number
+  requests_used: number
+  requests_remaining: number
+  reset_at: string
+}
+
 interface ErrorDetail {
   code?: string
   message?: string
@@ -100,6 +107,22 @@ export async function login(request: LoginRequest): Promise<AuthSession> {
   }
 
   return (await response.json()) as AuthSession
+}
+
+export async function getUsageStatus(
+  accessToken: string,
+): Promise<UsageStatus> {
+  const response = await fetch(`${apiBaseUrl}/auth/status`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw await apiError(response)
+  }
+
+  return (await response.json()) as UsageStatus
 }
 
 export async function askQuestion(

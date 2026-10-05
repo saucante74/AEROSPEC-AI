@@ -115,7 +115,7 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         authenticate: bool = True,
     ) -> Response:
         request_headers = dict(headers or {})
-        if authenticate and path == "/ask":
+        if authenticate and path in {"/ask", "/auth/status"}:
             request_headers.setdefault(
                 "Authorization",
                 f"Bearer {self.access_token}",
@@ -200,6 +200,68 @@ class SearchApiTest(IsolatedAsyncioTestCase):
         response_text = response.text
         self.assertNotIn(self.demo_password, response_text)
         self.assertNotIn(self.demo_password_hash, response_text)
+
+    async def test_usage_status_reports_current_account_quota_window(self) -> None:
+        self.rate_limiter = AskRateLimiter(
+            0,
+            100,
+            account_quota=20,
+            quota_window_seconds=14_400,
+            clock=lambda: 14_460.0,
+        )
+        ask_response = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Count this request"},
+        )
+
+        response = await self.request("GET", "/auth/status")
+
+        self.assertEqual(ask_response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "quota_limit": 20,
+                "requests_used": 1,
+                "requests_remaining": 19,
+                "reset_at": "1970-01-01T08:00:00Z",
+            },
+        )
+
+    async def test_usage_status_requires_authentication(self) -> None:
+        response = await self.request(
+            "GET",
+            "/auth/status",
+            authenticate=False,
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Authentication required."},
+        )
+
+    async def test_usage_status_does_not_consume_quota(self) -> None:
+        self.rate_limiter = AskRateLimiter(0, 100, account_quota=1)
+
+        first_status = await self.request("GET", "/auth/status")
+        second_status = await self.request("GET", "/auth/status")
+        allowed = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Still available"},
+        )
+        rejected = await self.request(
+            "POST",
+            "/ask",
+            json={"question": "Quota used"},
+        )
+
+        self.assertEqual(first_status.json()["requests_remaining"], 1)
+        self.assertEqual(second_status.json()["requests_remaining"], 1)
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(rejected.status_code, 429)
 
     async def test_cors_allows_configured_frontend_origin(self) -> None:
         origin = FRONTEND_ORIGINS[0]

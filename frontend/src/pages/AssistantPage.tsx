@@ -26,11 +26,13 @@ function isUnit(value: string): value is Unit {
 interface AssistantPageProps {
   accessToken: string | null
   onAuthenticationRequired: () => void
+  onQuestionSucceeded: () => void
 }
 
 export default function AssistantPage({
   accessToken,
   onAuthenticationRequired,
+  onQuestionSucceeded,
 }: AssistantPageProps) {
   const t = content
   const [question, setQuestion] = useState('')
@@ -84,6 +86,7 @@ export default function AssistantPage({
 
     try {
       setResult(await askQuestion(submittedQuestion, token))
+      onQuestionSucceeded()
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         pendingQuestion.current = submittedQuestion
@@ -103,7 +106,7 @@ export default function AssistantPage({
       setIsLoading(false)
       setElapsedSeconds(0)
     }
-  }, [onAuthenticationRequired])
+  }, [onAuthenticationRequired, onQuestionSucceeded])
 
   useEffect(() => {
     if (!accessToken || pendingQuestion.current === null) {

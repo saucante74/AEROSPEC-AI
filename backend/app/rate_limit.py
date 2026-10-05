@@ -21,6 +21,14 @@ class RateLimitDecision:
     quota_reservation: QuotaReservation | None = None
 
 
+@dataclass(frozen=True)
+class AccountQuotaStatus:
+    limit: int
+    used: int
+    remaining: int
+    reset_at: int
+
+
 class AskRateLimiter:
     def __init__(
         self,
@@ -113,3 +121,21 @@ class AskRateLimiter:
                 stored_bucket,
                 stored_count - 1,
             )
+
+    def quota_status(self, account_id: str) -> AccountQuotaStatus:
+        now = self._clock()
+        quota_bucket = int(now // self.quota_window_seconds)
+
+        with self._lock:
+            stored_bucket, stored_count = self._account_quota_counts.get(
+                account_id,
+                (quota_bucket, 0),
+            )
+            used = stored_count if stored_bucket == quota_bucket else 0
+
+        return AccountQuotaStatus(
+            limit=self.account_quota,
+            used=used,
+            remaining=max(0, self.account_quota - used),
+            reset_at=(quota_bucket + 1) * self.quota_window_seconds,
+        )

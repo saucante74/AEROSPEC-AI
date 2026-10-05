@@ -3,6 +3,7 @@ import logging
 import os
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from functools import lru_cache
 from ipaddress import ip_address
 from pathlib import Path
@@ -84,7 +85,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,
     allow_credentials=False,
-    allow_methods=["POST"],
+    allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
     expose_headers=["Retry-After", "X-Request-ID"],
 )
@@ -207,6 +208,13 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+
+
+class UsageStatusResponse(BaseModel):
+    quota_limit: int
+    requests_used: int
+    requests_remaining: int
+    reset_at: datetime
 
 
 class ConvertRequest(BaseModel):
@@ -392,6 +400,20 @@ async def login(
     return LoginResponse(
         access_token=session.access_token,
         expires_in=session.expires_in,
+    )
+
+
+@app.get("/auth/status", response_model=UsageStatusResponse)
+async def usage_status(
+    account_id: AuthenticatedAccount,
+    limiter: Annotated[AskRateLimiter, Depends(get_ask_rate_limiter)],
+) -> UsageStatusResponse:
+    quota = limiter.quota_status(account_id)
+    return UsageStatusResponse(
+        quota_limit=quota.limit,
+        requests_used=quota.used,
+        requests_remaining=quota.remaining,
+        reset_at=datetime.fromtimestamp(quota.reset_at, tz=UTC),
     )
 
 

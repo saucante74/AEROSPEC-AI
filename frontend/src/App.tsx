@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { login } from './api/client'
+import { ApiError, getUsageStatus, login } from './api/client'
+import type { UsageStatus } from './api/client'
 import Footer from './components/Footer'
 import Header from './components/Header'
+import LogoutDialog from './components/LogoutDialog'
 import AssistantPage from './pages/AssistantPage'
 import DocumentsPage from './pages/DocumentsPage'
 import EvaluationPage from './pages/EvaluationPage'
@@ -17,6 +19,46 @@ export default function App() {
     window.sessionStorage.getItem('aerospec_access_token'),
   )
   const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false)
+  const [usageStatus, setUsageStatus] = useState<UsageStatus | null>(null)
+
+  const clearAuthentication = useCallback(() => {
+    window.sessionStorage.removeItem('aerospec_access_token')
+    setAccessToken(null)
+    setUsageStatus(null)
+  }, [])
+
+  const refreshUsageStatus = useCallback(async (
+    token: string,
+  ) => {
+    try {
+      const status = await getUsageStatus(token)
+      if (window.sessionStorage.getItem('aerospec_access_token') === token) {
+        setUsageStatus(status)
+      }
+    } catch (error) {
+      if (window.sessionStorage.getItem('aerospec_access_token') !== token) {
+        return
+      }
+
+      if (error instanceof ApiError && error.status === 401) {
+        clearAuthentication()
+      } else {
+        setUsageStatus(null)
+      }
+    }
+  }, [clearAuthentication])
+
+  useEffect(() => {
+    if (!accessToken) {
+      return
+    }
+
+    const initialStatusRequest = window.setTimeout(() => {
+      void refreshUsageStatus(accessToken)
+    }, 0)
+    return () => window.clearTimeout(initialStatusRequest)
+  }, [accessToken, refreshUsageStatus])
 
   async function handleLogin(username: string, password: string) {
     const session = await login({ username, password })
@@ -26,9 +68,13 @@ export default function App() {
   }
 
   function handleAuthenticationRequired() {
-    window.sessionStorage.removeItem('aerospec_access_token')
-    setAccessToken(null)
+    clearAuthentication()
     setIsLoginOpen(true)
+  }
+
+  function handleLogout() {
+    clearAuthentication()
+    setIsLogoutOpen(false)
   }
 
   return (
@@ -39,11 +85,20 @@ export default function App() {
         onDocumentsSelect={() => setActivePage('documents')}
         onEvaluationSelect={() => setActivePage('evaluation')}
         onHelpSelect={() => setActivePage('help')}
+        isAuthenticated={accessToken !== null}
+        usageStatus={usageStatus}
+        onLoginSelect={() => setIsLoginOpen(true)}
+        onLogoutSelect={() => setIsLogoutOpen(true)}
       />
       {activePage === 'assistant' && (
         <AssistantPage
           accessToken={accessToken}
           onAuthenticationRequired={handleAuthenticationRequired}
+          onQuestionSucceeded={() => {
+            if (accessToken) {
+              void refreshUsageStatus(accessToken)
+            }
+          }}
         />
       )}
       {activePage === 'documents' && <DocumentsPage />}
@@ -54,6 +109,12 @@ export default function App() {
         <LoginPage
           onCancel={() => setIsLoginOpen(false)}
           onLogin={handleLogin}
+        />
+      )}
+      {isLogoutOpen && (
+        <LogoutDialog
+          onCancel={() => setIsLogoutOpen(false)}
+          onConfirm={handleLogout}
         />
       )}
     </div>

@@ -11,8 +11,14 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
-import { ApiError, askQuestion, convertUnit, login } from './api/client'
-import type { AskResponse, ConvertResponse } from './api/client'
+import {
+  ApiError,
+  askQuestion,
+  convertUnit,
+  getUsageStatus,
+  login,
+} from './api/client'
+import type { AskResponse, ConvertResponse, UsageStatus } from './api/client'
 import evaluationSummary from './data/evaluation-summary.json'
 
 vi.mock('./api/client', async (importOriginal) => {
@@ -21,13 +27,24 @@ vi.mock('./api/client', async (importOriginal) => {
     ...actual,
     askQuestion: vi.fn(),
     convertUnit: vi.fn(),
+    getUsageStatus: vi.fn(),
     login: vi.fn(),
   }
 })
 
 const mockedAskQuestion = vi.mocked(askQuestion)
 const mockedConvertUnit = vi.mocked(convertUnit)
+const mockedGetUsageStatus = vi.mocked(getUsageStatus)
 const mockedLogin = vi.mocked(login)
+
+const defaultUsageStatus: UsageStatus = {
+  quota_limit: 20,
+  requests_used: 3,
+  requests_remaining: 17,
+  reset_at: '2099-01-01T00:00:00Z',
+}
+
+mockedGetUsageStatus.mockResolvedValue(defaultUsageStatus)
 
 function renderApp(authenticated = true) {
   if (authenticated) {
@@ -76,6 +93,19 @@ describe('App', () => {
     expect(
       screen.queryByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
     ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeVisible()
+    expect(screen.queryByLabelText('Demo usage status')).not.toBeInTheDocument()
+    expect(screen.queryByText(/\d+ \/ 20/)).not.toBeInTheDocument()
+  })
+
+  it('ouvre la connexion depuis le contrôle de la barre de navigation', () => {
+    renderApp(false)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+
+    expect(
+      screen.getByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+    ).toBeVisible()
   })
 
   it('ouvre la connexion au clic sur Ask sans envoyer la question', () => {
@@ -120,7 +150,11 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('Password'), {
       target: { value: 'password' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    fireEvent.click(
+      within(
+        screen.getByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+      ).getByRole('button', { name: 'Sign in' }),
+    )
 
     expect(mockedLogin).toHaveBeenCalledWith({
       username: 'reviewer',
@@ -137,6 +171,10 @@ describe('App', () => {
     expect(window.sessionStorage.getItem('aerospec_access_token')).toBe(
       'new-token',
     )
+    expect(
+      await screen.findByLabelText('17 of 20 requests remaining'),
+    ).toBeVisible()
+    expect(mockedGetUsageStatus).toHaveBeenCalledWith('new-token')
   })
 
   it('garde la connexion ouverte et affiche une erreur pour des identifiants invalides', async () => {
@@ -150,7 +188,11 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('Password'), {
       target: { value: 'wrong' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    fireEvent.click(
+      within(
+        screen.getByRole('dialog', { name: 'Sign in to AeroSpec AI' }),
+      ).getByRole('button', { name: 'Sign in' }),
+    )
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'The username or password is incorrect.',
@@ -197,6 +239,108 @@ describe('App', () => {
     )
     expect(within(navigation).queryByText('Examples')).not.toBeInTheDocument()
     expect(within(navigation).queryByText('About')).not.toBeInTheDocument()
+  })
+
+  it('actualise le quota affiché après une question réussie', async () => {
+    mockedGetUsageStatus
+      .mockResolvedValueOnce(defaultUsageStatus)
+      .mockResolvedValueOnce({
+        ...defaultUsageStatus,
+        requests_used: 4,
+        requests_remaining: 16,
+      })
+    mockedAskQuestion.mockResolvedValue({
+      question: 'Count this question',
+      answer: 'Counted.',
+      sources: [],
+      citations: [],
+    })
+    renderApp()
+
+    expect(
+      await screen.findByLabelText('17 of 20 requests remaining'),
+    ).toBeVisible()
+    submitQuestion('Count this question')
+
+    expect(
+      await screen.findByLabelText('16 of 20 requests remaining'),
+    ).toBeVisible()
+    expect(mockedGetUsageStatus).toHaveBeenCalledTimes(2)
+  })
+
+  it('calcule le compte à rebours depuis la date de réinitialisation du backend', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-05T09:18:42Z'))
+    mockedGetUsageStatus.mockResolvedValueOnce({
+      ...defaultUsageStatus,
+      reset_at: '2026-10-05T12:00:00Z',
+    })
+
+    renderApp()
+    await act(async () => vi.advanceTimersByTimeAsync(0))
+    act(() => vi.advanceTimersByTime(1))
+
+    expect(screen.getByText('Reset 02:41:18')).toBeVisible()
+
+    act(() => vi.advanceTimersByTime(1000))
+
+    expect(screen.getByText('Reset 02:41:17')).toBeVisible()
+  })
+
+  it('annule la déconnexion sans modifier la session ni le quota', async () => {
+    renderApp()
+
+    expect(
+      await screen.findByLabelText('17 of 20 requests remaining'),
+    ).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Log out?' })
+    expect(dialog).toBeVisible()
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBe(
+      'opaque-token',
+    )
+    expect(screen.getByLabelText('Demo usage status')).toBeVisible()
+    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus()
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(screen.queryByRole('dialog', { name: 'Log out?' })).not.toBeInTheDocument()
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBe(
+      'opaque-token',
+    )
+    expect(screen.getByLabelText('Demo usage status')).toBeVisible()
+  })
+
+  it('confirme la déconnexion avant de supprimer la session et le quota', async () => {
+    renderApp()
+
+    expect(
+      await screen.findByLabelText('17 of 20 requests remaining'),
+    ).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
+    const dialog = screen.getByRole('dialog', { name: 'Log out?' })
+
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBe(
+      'opaque-token',
+    )
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Log out' }))
+
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBeNull()
+    expect(screen.queryByLabelText('Demo usage status')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeVisible()
+  })
+
+  it('supprime une session invalide détectée par le statut', async () => {
+    mockedGetUsageStatus.mockRejectedValueOnce(new ApiError(401))
+
+    renderApp()
+
+    expect(
+      await screen.findByRole('button', { name: 'Sign in' }),
+    ).toBeVisible()
+    expect(window.sessionStorage.getItem('aerospec_access_token')).toBeNull()
+    expect(screen.queryByLabelText('Demo usage status')).not.toBeInTheDocument()
   })
 
   it('affiche la vue Evaluation et les métriques de l’artefact réel', () => {
@@ -447,7 +591,19 @@ describe('App', () => {
   })
 
   it('rouvre la connexion sans perdre la question lorsque la session a expiré', async () => {
-    mockedAskQuestion.mockRejectedValue(new ApiError(401))
+    mockedAskQuestion
+      .mockRejectedValueOnce(new ApiError(401))
+      .mockResolvedValueOnce({
+        question: 'Ma session est-elle valide ?',
+        answer: 'La session a été renouvelée.',
+        sources: [],
+        citations: [],
+      })
+    mockedLogin.mockResolvedValue({
+      access_token: 'renewed-token',
+      token_type: 'bearer',
+      expires_in: 14_400,
+    })
     renderApp()
 
     submitQuestion('Ma session est-elle valide ?')
@@ -459,6 +615,32 @@ describe('App', () => {
     expect(
       screen.getByRole('textbox', { name: 'Technical question' }),
     ).toHaveValue('Ma session est-elle valide ?')
+    expect(screen.queryByLabelText('Demo usage status')).not.toBeInTheDocument()
+    expect(
+      within(
+        screen.getByRole('navigation', { name: 'Primary navigation' }),
+      ).getByRole('button', { name: 'Sign in' }),
+    ).toBeVisible()
+
+    const loginDialog = screen.getByRole('dialog', {
+      name: 'Sign in to AeroSpec AI',
+    })
+    fireEvent.change(within(loginDialog).getByLabelText('Username'), {
+      target: { value: 'reviewer' },
+    })
+    fireEvent.change(within(loginDialog).getByLabelText('Password'), {
+      target: { value: 'password' },
+    })
+    fireEvent.click(
+      within(loginDialog).getByRole('button', { name: 'Sign in' }),
+    )
+
+    expect(await screen.findByText('La session a été renouvelée.')).toBeVisible()
+    expect(mockedAskQuestion).toHaveBeenNthCalledWith(
+      2,
+      'Ma session est-elle valide ?',
+      'renewed-token',
+    )
   })
 
   it('convertit une valeur avec les unités sélectionnées et affiche le résultat API', async () => {

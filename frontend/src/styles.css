@@ -208,6 +208,26 @@ p {
   margin-top: 10px;
 }
 
+.confirmation-card {
+  width: min(420px, 100%);
+  border-radius: 16px;
+  padding: clamp(28px, 6vw, 40px);
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgba(0, 9, 22, 0.32);
+}
+
+.confirmation-card h2 {
+  margin-bottom: 12px;
+  color: var(--navy-950);
+  font-size: 1.7rem;
+}
+
+.confirmation-card p {
+  margin-bottom: 24px;
+  color: var(--slate-700);
+  line-height: 1.6;
+}
+
 .content-width {
   width: min(1180px, calc(100% - 48px));
   margin-inline: auto;
@@ -294,9 +314,88 @@ p {
 
 .navigation-primary {
   display: flex;
+  min-width: 0;
   align-items: stretch;
   align-self: stretch;
   gap: 42px;
+}
+
+.navigation-account {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.usage-status {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: #d8e5f1;
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-quota {
+  display: grid;
+  gap: 4px;
+}
+
+.usage-count {
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.usage-quota progress {
+  width: 70px;
+  height: 5px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #294661;
+  accent-color: #55adff;
+}
+
+.usage-quota progress::-webkit-progress-bar {
+  border-radius: 999px;
+  background: #294661;
+}
+
+.usage-quota progress::-webkit-progress-value,
+.usage-quota progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: #55adff;
+}
+
+.usage-countdown {
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.auth-control {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #446581;
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: #ffffff;
+  background: #102e4b;
+  font-size: 0.78rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.auth-control:hover {
+  border-color: #6ba9df;
+  background: #173c60;
+}
+
+.auth-control > span:first-child {
+  font-size: 1rem;
 }
 
 .navigation-links button {
@@ -1500,6 +1599,26 @@ h1 {
 }
 
 @media (max-width: 900px) {
+  .navigation {
+    gap: 18px;
+  }
+
+  .navigation-primary {
+    gap: 24px;
+  }
+
+  .navigation-links {
+    gap: 18px;
+  }
+
+  .usage-status {
+    gap: 8px;
+  }
+
+  .auth-control-label {
+    display: none;
+  }
+
   .hero {
     grid-template-columns: 1fr;
     gap: 30px;
@@ -1560,6 +1679,7 @@ h1 {
   }
 
   .navigation {
+    position: relative;
     min-height: 112px;
     align-items: flex-start;
     flex-direction: column;
@@ -1583,6 +1703,37 @@ h1 {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .navigation-account {
+    position: absolute;
+    top: 14px;
+    right: 0;
+    gap: 9px;
+  }
+
+  .usage-status {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .usage-quota {
+    display: block;
+  }
+
+  .usage-quota progress {
+    display: none;
+  }
+
+  .usage-countdown {
+    font-size: 0.68rem;
+  }
+
+  .auth-control {
+    min-width: 38px;
+    justify-content: center;
+    padding-inline: 8px;
   }
 
   .navigation-links button {

@@ -1,7 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { ApiError, askQuestion, convertUnit, login } from './client'
-import type { AskResponse, AuthSession, ConvertResponse } from './client'
+import {
+  ApiError,
+  askQuestion,
+  convertUnit,
+  getUsageStatus,
+  login,
+} from './client'
+import type {
+  AskResponse,
+  AuthSession,
+  ConvertResponse,
+  UsageStatus,
+} from './client'
 
 describe('login', () => {
   afterEach(() => {
@@ -113,6 +124,36 @@ describe('askQuestion', () => {
       status: 429,
       code: 'demo_quota_exhausted',
     })
+  })
+})
+
+describe('getUsageStatus', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('récupère le quota courant avec le jeton Bearer', async () => {
+    const usageStatus: UsageStatus = {
+      quota_limit: 20,
+      requests_used: 3,
+      requests_remaining: 17,
+      reset_at: '2026-10-05T12:00:00Z',
+    }
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(usageStatus), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(getUsageStatus('opaque-token')).resolves.toEqual(usageStatus)
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8000/auth/status',
+      {
+        headers: { Authorization: 'Bearer opaque-token' },
+      },
+    )
   })
 })
 
