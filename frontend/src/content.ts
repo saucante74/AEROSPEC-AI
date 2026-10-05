@@ -1,3 +1,6 @@
+export const CANONICAL_ABSTENTION_MESSAGE =
+  'The information is not available in the provided documents.'
+
 export const content = {
   auth: {
     eyebrow: 'Reviewer access',
@@ -95,7 +98,8 @@ export const content = {
   results: {
     eyebrow: 'Document answer',
     title: 'Result',
-    status: 'Sources checked',
+    answerFound: 'Answer found',
+    insufficientEvidence: 'Insufficient evidence',
     questionAsked: 'Question asked',
   },
   citations: {

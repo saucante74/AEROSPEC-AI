@@ -511,6 +511,8 @@ describe('App', () => {
     await act(async () => resolveRequest(response))
 
     expect(await screen.findByText(response.answer)).toBeVisible()
+    expect(screen.getByText('Answer found')).toBeVisible()
+    expect(screen.queryByText('Insufficient evidence')).not.toBeInTheDocument()
     expect(
       within(
         screen.getByRole('region', { name: 'Result' }),
@@ -533,6 +535,27 @@ describe('App', () => {
       resultRegion.compareDocumentPosition(examplesHeading) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy()
+  })
+
+  it("distingue une abstention d'une réponse fondée", async () => {
+    const abstentionMessage =
+      'The information is not available in the provided documents.'
+    mockedAskQuestion.mockResolvedValue({
+      question: 'What sealing material is specified?',
+      answer: abstentionMessage,
+      sources: [],
+      citations: [],
+    })
+    renderApp()
+
+    submitQuestion('What sealing material is specified?')
+
+    expect(await screen.findByText(abstentionMessage)).toBeVisible()
+    expect(screen.getByText('Insufficient evidence')).toBeVisible()
+    expect(screen.queryByText('Answer found')).not.toBeInTheDocument()
+    expect(
+      screen.getByText('No validated citations were returned for this answer.'),
+    ).toBeVisible()
   })
 
   it('affiche le temps écoulé et ignore les soumissions pendant la requête', async () => {
