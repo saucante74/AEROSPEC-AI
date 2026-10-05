@@ -19,6 +19,9 @@ The container starts one Uvicorn process on `0.0.0.0`. It uses Render's
 Configure these environment variables in Render:
 
 - `OPENAI_API_KEY`: secret OpenAI API key.
+- `DEMO_USERNAME`: shared username supplied privately to selected reviewers.
+- `DEMO_PASSWORD_HASH`: bcrypt hash of the shared demo password. Store it as a
+  secret and never configure the plaintext password on Render or Vercel.
 - `FRONTEND_ORIGINS`: exact Vercel frontend origin, without a trailing slash.
   Multiple explicit origins can be supplied as a comma-separated list when
   preview origins also need access. Do not use `*` in production.
@@ -26,6 +29,25 @@ Configure these environment variables in Render:
   minute (`5` by default, `0` disables this limit).
 - `ASK_DAILY_LIMIT`: maximum accepted `/ask` requests per instance and UTC day
   (`100` by default, `0` disables this limit).
+
+Generate the password hash locally with an interactive prompt, then copy only
+the resulting hash to Render:
+
+```bash
+python -c "import bcrypt, getpass; print(bcrypt.hashpw(getpass.getpass().encode(), bcrypt.gensalt()).decode())"
+```
+
+`POST /auth/login` is limited to five attempts per client and minute. Valid
+credentials create a random opaque bearer token with a four-hour lifetime. The
+frontend stores it in browser `sessionStorage` and sends it only in the
+`Authorization` header for `/ask`. An expired or invalid token receives HTTP
+`401`; the frontend removes it and returns to the login screen.
+
+The shared demo account may complete 20 `/ask` requests in each four-hour
+UTC-aligned window. A normal answer or intentional abstention consumes one
+request. A reserved request is released only when retrieval, generation, or
+another backend workflow step fails. Exhaustion returns HTTP `429` with the
+`demo_quota_exhausted` error code and the remaining window duration.
 
 Requests exceeding either limit receive HTTP `429` before retrieval, index
 initialization, or generation. On Render, the limiter uses the first validated
@@ -35,9 +57,11 @@ forwarded header is not trusted. Render documents `X-Forwarded-For` as the way
 to obtain the client IP behind its edge, but IP-based limits remain approximate
 for shared networks, VPNs, and changing client addresses.
 
-Counters live only in the Python process. They reset on restart or redeploy and
-are not shared by multiple processes or Render instances. This is suitable for
-the current single-instance demo, not a distributed production quota. Keep an
+Rate-limit and quota counters, authentication sessions, and bearer-token
+digests live only in the Python process. They reset on restart or redeploy and
+are not shared by multiple processes or Render instances. A restart therefore
+logs out reviewers and resets their demo quota. This is suitable for the
+current single-instance demo, not a distributed production quota. Keep an
 independent OpenAI project budget and provider-side usage limits as a second
 line of defense.
 
@@ -95,5 +119,7 @@ After both providers assign their real service URLs:
 
 The backend keeps the local development origins when `FRONTEND_ORIGINS` is
 unset. Once it is set on Render, the configured comma-separated origins replace
-those defaults. `X-Request-ID` is exposed through CORS so browser code can read
-it.
+those defaults. The backend accepts `Authorization` and `Content-Type` from
+configured origins. `X-Request-ID` and `Retry-After` are exposed through CORS.
+Exact origins remain required; authentication does not make a permissive `*`
+origin safe.

@@ -15,6 +15,39 @@ export interface AskResponse {
   citations: Citation[]
 }
 
+export interface LoginRequest {
+  username: string
+  password: string
+}
+
+export interface AuthSession {
+  access_token: string
+  token_type: 'bearer'
+  expires_in: number
+}
+
+export interface UsageStatus {
+  quota_limit: number
+  requests_used: number
+  requests_remaining: number
+  reset_at: string
+}
+
+interface ErrorDetail {
+  code?: string
+  message?: string
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code?: string,
+    message = `API request failed with status ${status}`,
+  ) {
+    super(message)
+  }
+}
+
 interface AskRequest {
   question: string
 }
@@ -39,9 +72,29 @@ const apiBaseUrl = (configuredBaseUrl || 'http://localhost:8000').replace(
   '',
 )
 
-export async function askQuestion(question: string): Promise<AskResponse> {
-  const request: AskRequest = { question }
-  const response = await fetch(`${apiBaseUrl}/ask`, {
+async function apiError(response: Response): Promise<ApiError> {
+  let code: string | undefined
+  let message = `API request failed with status ${response.status}`
+
+  try {
+    const body = (await response.json()) as {
+      detail?: string | ErrorDetail
+    }
+    if (typeof body.detail === 'string') {
+      message = body.detail
+    } else if (body.detail) {
+      code = body.detail.code
+      message = body.detail.message ?? message
+    }
+  } catch {
+    return new ApiError(response.status, code, message)
+  }
+
+  return new ApiError(response.status, code, message)
+}
+
+export async function login(request: LoginRequest): Promise<AuthSession> {
+  const response = await fetch(`${apiBaseUrl}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -50,7 +103,44 @@ export async function askQuestion(question: string): Promise<AskResponse> {
   })
 
   if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`)
+    throw await apiError(response)
+  }
+
+  return (await response.json()) as AuthSession
+}
+
+export async function getUsageStatus(
+  accessToken: string,
+): Promise<UsageStatus> {
+  const response = await fetch(`${apiBaseUrl}/auth/status`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw await apiError(response)
+  }
+
+  return (await response.json()) as UsageStatus
+}
+
+export async function askQuestion(
+  question: string,
+  accessToken: string,
+): Promise<AskResponse> {
+  const request: AskRequest = { question }
+  const response = await fetch(`${apiBaseUrl}/ask`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    throw await apiError(response)
   }
 
   return (await response.json()) as AskResponse
@@ -68,7 +158,7 @@ export async function convertUnit(
   })
 
   if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`)
+    throw await apiError(response)
   }
 
   return (await response.json()) as ConvertResponse

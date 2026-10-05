@@ -41,6 +41,7 @@ The frontend **Documents** page opens the same five PDFs stored in
 - Python 3.12
 - Node.js 24 or newer and npm
 - `OPENAI_API_KEY` for `/ask` and end-to-end RAG evaluation
+- a shared demo username and bcrypt password hash for reviewer access
 
 Copy the environment template and replace placeholder values as needed:
 
@@ -48,9 +49,23 @@ Copy the environment template and replace placeholder values as needed:
 cp .env.example .env
 ```
 
+Set `DEMO_USERNAME` to the shared reviewer username. Generate a bcrypt hash for
+`DEMO_PASSWORD_HASH` without placing the plaintext password in a committed file:
+
+```bash
+python -c "import bcrypt, getpass; print(bcrypt.hashpw(getpass.getpass().encode(), bcrypt.gensalt()).decode())"
+```
+
 `FRONTEND_ORIGINS`, `ASK_RATE_LIMIT_PER_MINUTE`, and `ASK_DAILY_LIMIT` have
 local defaults. `VITE_API_BASE_URL` defaults to `http://localhost:8000` in the
-frontend build. Do not commit `.env` or real credentials.
+frontend build. Do not commit `.env`, plaintext credentials, password hashes
+used by a real deployment, or API keys.
+
+Successful login creates an opaque bearer session that expires after four
+hours. Authenticated reviewers share a quota of 20 successful `/ask` requests
+per four-hour UTC-aligned window. Intentional abstentions consume quota;
+technical backend failures do not. Authentication sessions and quota counters
+are in memory, reset on process restart, and are not shared across instances.
 
 ## Run locally
 
@@ -83,6 +98,9 @@ Local endpoints:
 - Frontend: <http://localhost:5173>
 - Backend API: <http://localhost:8000>
 - Health check: <http://localhost:8000/health>
+
+`/health` and deterministic `/convert` requests remain public. `/ask` requires
+the bearer token returned by `/auth/login`.
 
 ## Tests and quality checks
 

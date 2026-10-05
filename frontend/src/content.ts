@@ -1,4 +1,31 @@
 export const content = {
+  auth: {
+    eyebrow: 'Reviewer access',
+    title: 'Sign in to AeroSpec AI',
+    description:
+      'Use the shared demo credentials provided with your review invitation.',
+    username: 'Username',
+    password: 'Password',
+    signIn: 'Sign in',
+    signingIn: 'Signing in…',
+    cancel: 'Cancel',
+    close: 'Close sign-in dialog',
+    invalidCredentials: 'The username or password is incorrect.',
+    tooManyAttempts: 'Too many sign-in attempts. Try again later.',
+    unavailable: 'Sign-in is unavailable. Try again later.',
+  },
+  usage: {
+    requestsRemaining: 'requests remaining',
+    reset: 'Reset',
+    signIn: 'Sign in',
+    logOut: 'Log out',
+  },
+  logout: {
+    title: 'Log out?',
+    message: 'Are you sure you want to log out?',
+    cancel: 'Cancel',
+    confirm: 'Log out',
+  },
   nav: {
     brand: 'AeroSpec AI',
     subtitle: 'Technical Documentation Assistant',
@@ -232,6 +259,9 @@ export const content = {
   errors: {
     emptyQuestion: 'Enter a question before searching the documentation.',
     api: 'The answer could not be retrieved. Check that the API is available and try again.',
+    quota:
+      'The shared demo quota has been used. Try again after the four-hour window resets.',
+    rateLimit: 'Too many requests. Wait a moment and try again.',
   },
   footer: {
     subtitle: 'Technical documentation assistant',
